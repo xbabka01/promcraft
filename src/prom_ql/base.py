@@ -4,6 +4,19 @@ from typing import Literal
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 
+from prom_ql.values import InstantVectorValue, RangeVectorValue, ScalarValue
+
+
+class Expression(ABC):
+    """
+    Base class for all PromQL expressions.
+    This class is abstract
+    """
+
+    @abstractmethod
+    def __str__(self) -> str:
+        raise NotImplementedError("Subclasses must implement __str__ method")
+
 
 @dataclass(slots=True)
 class String:
@@ -17,7 +30,7 @@ class String:
 
 
 @dataclass(slots=True)
-class Scalar:
+class Scalar(ScalarValue):
     value: float | int
 
     def float(self) -> str:
@@ -145,13 +158,13 @@ class Vector(ABC):
         raise NotImplementedError("Subclasses must implement __str__ method")
 
 
-class InstantVector(Vector):
+class InstantVector(Vector, InstantVectorValue):
     def __str__(self) -> str:
         return f"{self._selector()}{self._offset_str()}{self._at_str()}"
 
 
 @dataclass(slots=True)
-class RangeVector(Vector):
+class RangeVector(Vector, RangeVectorValue):
     range: Scalar
     step: Scalar | None = field(default=None)
 
