@@ -2,7 +2,7 @@ from typing import Literal
 import pytest
 
 
-from prom_ql.base import InstantVector, Label, Scalar, String, RangeVector, Vector
+from prom_ql.literals import InstantVector, Label, Scalar, String, RangeVector, Vector
 
 
 @pytest.mark.parametrize(
