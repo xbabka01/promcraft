@@ -126,22 +126,22 @@ def binop(
 
 
 # Arithmetic binary operators
-add = functools.partial(binop, operator="+")
-sub = functools.partial(binop, operator="-")
-mul = functools.partial(binop, operator="*")
-div = functools.partial(binop, operator="/")
-mod = functools.partial(binop, operator="%")
-pow = functools.partial(binop, operator="^")
+add = functools.partial(binop, "+")
+sub = functools.partial(binop, "-")
+mul = functools.partial(binop, "*")
+div = functools.partial(binop, "/")
+mod = functools.partial(binop, "%")
+pow = functools.partial(binop, "^")
 
 # Comparison binary operators
-eq = functools.partial(binop, operator="==")
-neq = functools.partial(binop, operator="!=")
-lt = functools.partial(binop, operator="<")
-gt = functools.partial(binop, operator=">")
-lte = functools.partial(binop, operator="<=")
-gte = functools.partial(binop, operator=">=")
+eq = functools.partial(binop, "==")
+neq = functools.partial(binop, "!=")
+lt = functools.partial(binop, "<")
+gt = functools.partial(binop, ">")
+lte = functools.partial(binop, "<=")
+gte = functools.partial(binop, ">=")
 
 # Logical/set binary operators
-intersection = functools.partial(binop, operator="and")
-union = functools.partial(binop, operator="or")
-complement = functools.partial(binop, operator="unless")
+intersection = functools.partial(binop, "and")
+union = functools.partial(binop, "or")
+complement = functools.partial(binop, "unless")
