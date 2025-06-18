@@ -4,7 +4,7 @@ import prom_ql.operators as operators
 from prom_ql.literals import InstantVector
 from _pytest.fixtures import SubRequest
 
-from prom_ql.operators.binary import LabelList
+from prom_ql.operators.binary import Group, Match
 
 INFIX_OP = [
     # arithmetic operators
@@ -38,24 +38,30 @@ def infix_operator(request: SubRequest) -> str:
 
 
 @pytest.fixture(params=[None, "left", "right"])
-def group(request: SubRequest) -> tuple[str, LabelList] | None:
+def group(request: SubRequest) -> Group | None:
     x = request.param
     if x is None:
         return None
-    return x, LabelList(["test"])
+    if x == "left":
+        return Group.left(["test"])
+    if x == "right":
+        return Group.right(["test"])
+    pytest.fail(f"Unexpected group value: {x}")
 
 
 @pytest.fixture(params=[None, "on", "ignoring"])
-def match(request: SubRequest) -> tuple[str, LabelList] | None:
+def match(request: SubRequest) -> Match | None:
     x = request.param
     if x is None:
         return None
-    return x, LabelList(["test"])
+    if x == "on":
+        return Match.on(["test"])
+    if x == "ignoring":
+        return Match.ignoring(["test"])
+    pytest.fail(f"Unexpected group value: {x}")
 
 
-def test_base_infix_op(
-    infix_operator: str, group: tuple[str, LabelList] | None, match: tuple[str, LabelList]
-) -> None:
+def test_base_infix_op(infix_operator: str, group: Group | None, match: Match | None) -> None:
     fn = getattr(operators, infix_operator)
     assert callable(fn), f"{infix_operator} should be a callable function"
 
@@ -63,9 +69,7 @@ def test_base_infix_op(
     right = InstantVector(metric="right", labels=[])
     result = fn(left=left, right=right, group=group, match=match)
 
-    x = f" group_{group[0]}({group[1]})" if group is not None else ""
-    y = f" {match[0]}({match[1]})" if match is not None else ""
+    x = f" {group}" if group is not None else ""
+    y = f" {match}" if match is not None else ""
 
-    assert str(result) == f"({left}) {result.operator}{y}{x} ({right})", (
-        f"{infix_operator} should return a valid expression"
-    )
+    assert str(result) == f"({left}) {result.operator}{y}{x} ({right})"

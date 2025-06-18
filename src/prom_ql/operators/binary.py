@@ -11,9 +11,41 @@ from prom_ql.values import ExpressionValue, InstantVectorValue, ScalarValue
 class LabelList:
     labels: list[str]
 
-    def __str__(self) -> str:
+    def serialize(self) -> str:
         x = [String(value=label).__str__() for label in self.labels]
         return ",".join(x)
+
+
+@dataclass(slots=True)
+class Match(LabelList):
+    type: Literal["on", "ignoring"]
+
+    @staticmethod
+    def on(labels: list[str]) -> "Match":
+        return Match(type="on", labels=labels)
+
+    @staticmethod
+    def ignoring(labels: list[str]) -> "Match":
+        return Match(type="ignoring", labels=labels)
+
+    def __str__(self) -> str:
+        return f"{self.type}({self.serialize()})"
+
+
+@dataclass(slots=True)
+class Group(LabelList):
+    type: Literal["left", "right"]
+
+    @staticmethod
+    def left(labels: list[str]) -> "Group":
+        return Group(type="left", labels=labels)
+
+    @staticmethod
+    def right(labels: list[str]) -> "Group":
+        return Group(type="right", labels=labels)
+
+    def __str__(self) -> str:
+        return f"group_{self.type}({self.serialize()})"
 
 
 class BinaryOperator(ExpressionValue):
@@ -22,8 +54,8 @@ class BinaryOperator(ExpressionValue):
         operator: str,
         left: ExpressionValue,
         right: ExpressionValue,
-        match: tuple[Literal["on", "ignoring"], LabelList] | None = None,
-        group: tuple[Literal["left", "right"], LabelList] | None = None,
+        match: Match | None = None,
+        group: Group | None = None,
     ) -> None:
         self.operator = operator
         self.left = left
@@ -32,8 +64,8 @@ class BinaryOperator(ExpressionValue):
         self.group = group
 
     def __str__(self) -> str:
-        match_str = f" {self.match[0]}({self.match[1]})" if self.match else ""
-        group_str = f" group_{self.group[0]}({self.group[1]})" if self.group else ""
+        match_str = f" {self.match}" if self.match is not None else ""
+        group_str = f" {self.group}" if self.group is not None else ""
         return f"({self.left}) {self.operator}{match_str}{group_str} ({self.right})"
 
 
@@ -72,8 +104,8 @@ def binop(
     operator: str,
     left: InstantVectorValue,
     right: InstantVectorValue,
-    match: tuple[Literal["on", "ignoring"], LabelList] | None = None,
-    group: tuple[Literal["left", "right"], LabelList] | None = None,
+    match: Match | None = None,
+    group: Group | None = None,
 ) -> InstantVectorValue: ...
 
 
@@ -81,8 +113,8 @@ def binop(
     operator: str,
     left: ExpressionValue,
     right: ExpressionValue,
-    match: tuple[Literal["on", "ignoring"], LabelList] | None = None,
-    group: tuple[Literal["left", "right"], LabelList] | None = None,
+    match: Match | None = None,
+    group: Group | None = None,
 ) -> ExpressionValue:
     return BinaryOperator(
         operator=operator,
