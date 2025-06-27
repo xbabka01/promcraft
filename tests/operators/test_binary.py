@@ -1,47 +1,32 @@
+from typing import Callable
 import pytest
 
 import prom_ql.operators as operators
+from prom_ql.operators.binary import BinaryOperator
 from prom_ql.literals import InstantVector
 from _pytest.fixtures import SubRequest
 
 from prom_ql.operators.binary import Group, Match
 
-INFIX_OP = [
-    # arithmetic operators
-    "add",
-    "sub",
-    "mul",
-    "div",
-    "mod",
-    "pow",
-    # comparison operators
-    "eq",
-    "neq",
-    "gt",
-    "gte",
-    "lt",
-    "lte",
-    # logical/set operators
-    "intersection",
-    "union",
-    "complement",
-]
-
-PREFIX_OP = [
-    "atan2",
-]
+OPERATORS = list(BinaryOperator.OP)
 
 
-@pytest.fixture(params=INFIX_OP)
-def infix_operator(request: SubRequest) -> str:
+@pytest.fixture(params=OPERATORS)
+def binop(request: SubRequest) -> BinaryOperator.OP:
     return request.param  # type: ignore[no-any-return]
 
 
-@pytest.fixture(params=[None, "left", "right"])
-def group(request: SubRequest) -> Group | None:
+@pytest.fixture()
+def binop_fn(binop: BinaryOperator.OP) -> Callable[..., BinaryOperator]:
+    result = getattr(operators, binop.name.lower(), None)
+    assert result is not None, f"Operator {binop.name} is not defined"
+    assert callable(result), f"Operator {binop.name} is not callable"
+    return result  # type: ignore
+
+
+@pytest.fixture(params=["left", "right"])
+def group(request: SubRequest) -> Group:
     x = request.param
-    if x is None:
-        return None
     if x == "left":
         return Group.left(["test"])
     if x == "right":
@@ -49,11 +34,9 @@ def group(request: SubRequest) -> Group | None:
     pytest.fail(f"Unexpected group value: {x}")
 
 
-@pytest.fixture(params=[None, "on", "ignoring"])
-def match(request: SubRequest) -> Match | None:
+@pytest.fixture(params=["on", "ignoring"])
+def match(request: SubRequest) -> Match:
     x = request.param
-    if x is None:
-        return None
     if x == "on":
         return Match.on(["test"])
     if x == "ignoring":
@@ -61,15 +44,43 @@ def match(request: SubRequest) -> Match | None:
     pytest.fail(f"Unexpected group value: {x}")
 
 
-def test_base_infix_op(infix_operator: str, group: Group | None, match: Match | None) -> None:
-    fn = getattr(operators, infix_operator)
-    assert callable(fn), f"{infix_operator} should be a callable function"
-
+def test_operators_base(binop: BinaryOperator.OP, binop_fn: Callable[..., BinaryOperator]) -> None:
     left = InstantVector(metric="left", labels=[])
     right = InstantVector(metric="right", labels=[])
-    result = fn(left=left, right=right, group=group, match=match)
 
-    x = f" {group}" if group is not None else ""
-    y = f" {match}" if match is not None else ""
+    x = binop_fn(left=left, right=right)
+    assert str(x) == f"({left}) {binop.value} ({right})"
 
-    assert str(result) == f"({left}) {result.operator}{y}{x} ({right})"
+
+def test_operators_match(
+    binop: BinaryOperator.OP, binop_fn: Callable[..., BinaryOperator], match: Match
+) -> None:
+    left = InstantVector(metric="left", labels=[])
+    right = InstantVector(metric="right", labels=[])
+
+    x = binop_fn(left=left, right=right, match=match)
+    assert str(x) == f"({left}) {binop.value} {match} ({right})"
+
+
+def test_operators_group(
+    binop: BinaryOperator.OP, binop_fn: Callable[..., BinaryOperator], group: Group
+) -> None:
+    left = InstantVector(metric="left", labels=[])
+    right = InstantVector(metric="right", labels=[])
+
+    x = binop_fn(left=left, right=right, group=group)
+    assert str(x) == f"({left}) {binop.value} {group} ({right})"
+
+
+def test_operators_match_group(
+    binop: BinaryOperator.OP, binop_fn: Callable[..., BinaryOperator], match: Match, group: Group
+) -> None:
+    left = InstantVector(metric="left", labels=[])
+    right = InstantVector(metric="right", labels=[])
+
+    x = binop_fn(left=left, right=right, match=match, group=group)
+    assert str(x) == f"({left}) {binop.value} {match} {group} ({right})"
+
+
+if __name__ == "__main__":
+    pytest.main()

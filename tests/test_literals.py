@@ -2,7 +2,16 @@ from typing import Literal
 import pytest
 
 
-from prom_ql.literals import InstantVector, Label, Scalar, String, RangeVector, Vector
+from prom_ql.literals import (
+    Duration,
+    Float,
+    Hex,
+    InstantVector,
+    Label,
+    String,
+    RangeVector,
+    Vector,
+)
 
 
 @pytest.mark.parametrize(
@@ -30,8 +39,8 @@ def test_string(content: str, quote: Literal['"', "'", "`"], expected: str) -> N
     ],
 )
 def test_scallar_float(content: float | int, expected: str) -> None:
-    s = Scalar(content)
-    assert s.float() == expected
+    s = Float(content)
+    assert str(s) == expected
 
 
 @pytest.mark.parametrize(
@@ -44,9 +53,9 @@ def test_scallar_float(content: float | int, expected: str) -> None:
         (-1, "-0x1"),  # Assuming 64-bit representation
     ],
 )
-def test_scallar_hex(content: float | int, expected: str) -> None:
-    s = Scalar(content)
-    assert s.hex() == expected
+def test_scallar_hex(content: int, expected: str) -> None:
+    s = Hex(content)
+    assert str(s) == expected
 
 
 @pytest.mark.parametrize(
@@ -72,8 +81,8 @@ def test_scallar_hex(content: float | int, expected: str) -> None:
     ],
 )
 def test_scallar_duration(content: float | int, expected: str) -> None:
-    s = Scalar(content)
-    assert s.duration() == expected
+    s = Duration.from_timestamp(content)
+    assert str(s) == expected
 
 
 @pytest.mark.parametrize("op", [x for x in Label.OP])
@@ -104,7 +113,7 @@ def test_labels_string(op: Label.OP) -> None:
 
 
 def test_simple_vector() -> None:
-    vector = InstantVector("http_requests_total", []).set_at("start()").set_offset(Scalar(60))
+    vector = InstantVector("http_requests_total", [], at="start()", offset=Float(60))
     assert str(vector) == "http_requests_total offset 1m @ start()"
 
 
@@ -136,8 +145,8 @@ def test_simple_vector() -> None:
             RangeVector(
                 "http_requests_total",
                 labels=[Label.eq("method", "GET"), Label.eq("status", "200")],
-                range=Scalar(300),
-                offset=Scalar(60),
+                range=Float(300),
+                offset=Float(60),
                 at="start()",
             ),
             'http_requests_total{method == "GET", status == "200"}[5m] offset 1m @ start()',
@@ -146,8 +155,8 @@ def test_simple_vector() -> None:
             RangeVector(
                 "http_requests_total",
                 labels=[Label.eq("method", "GET"), Label.eq("status", "200")],
-                range=Scalar(300),
-                offset=Scalar(60),
+                range=Float(300),
+                offset=Float(60),
                 at="end()",
             ),
             'http_requests_total{method == "GET", status == "200"}[5m] offset 1m @ end()',

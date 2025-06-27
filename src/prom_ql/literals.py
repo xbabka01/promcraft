@@ -1,21 +1,21 @@
+import copy
 import enum
 import math
 from typing import Literal
 from dataclasses import dataclass, field
-from abc import ABC, abstractmethod
-
-from prom_ql.values import InstantVectorValue, RangeVectorValue, ScalarValue
+from abc import ABC, ABCMeta, abstractmethod
 
 
 class Expression(ABC):
     """
     Base class for all PromQL expressions.
-    This class is abstract
     """
 
     @abstractmethod
     def __str__(self) -> str:
-        raise NotImplementedError("Subclasses must implement __str__ method")
+        raise NotImplementedError(
+            "Subclasses must implement __str__ method",
+        )
 
 
 @dataclass(slots=True)
@@ -26,22 +26,75 @@ class String:
     def __str__(self) -> str:
         if self.quote == "`":
             return f"{self.quote}{self.value}{self.quote}"
-        return f"{self.quote}{self.value.encode('unicode_escape').decode('ascii')}{self.quote}"
+        content: str = self.value.encode("unicode_escape").decode("ascii")
+        return f"{self.quote}{content}{self.quote}"
+
+
+class Scalar(Expression, metaclass=ABCMeta):
+    pass
 
 
 @dataclass(slots=True)
-class Scalar(ScalarValue):
-    value: float | int
+class Float(Scalar):
+    value: float
 
-    def float(self) -> str:
+    def __str__(self) -> str:
         return str(self.value)
 
-    def hex(self) -> str:
-        return hex(int(self.value))
 
-    def duration(self) -> str:
-        neg = "-" if self.value < 0 else ""
-        value = abs(self.value)
+@dataclass(slots=True)
+class Hex(Scalar):
+    value: int
+
+    def __str__(self) -> str:
+        return hex(self.value)
+
+
+@dataclass(slots=True, kw_only=True)
+class Duration(Scalar):
+    y: int = 0
+    w: int = 0
+    d: int = 0
+    h: int = 0
+    m: int = 0
+    s: int = 0
+    ms: int = 0
+
+    neg: bool = False
+
+    def __str__(self) -> str:
+        parts = []
+        if self.y:
+            parts.append(f"{self.y}y")
+        if self.w:
+            parts.append(f"{self.w}w")
+        if self.d:
+            parts.append(f"{self.d}d")
+        if self.h:
+            parts.append(f"{self.h}h")
+        if self.m:
+            parts.append(f"{self.m}m")
+        if self.s:
+            parts.append(f"{self.s}s")
+        if self.ms:
+            parts.append(f"{self.ms}ms")
+        if not parts:
+            return "0s"
+        return ("-" if self.neg else "") + "".join(parts)
+
+    @staticmethod
+    def from_timestamp(value: float | int | Scalar) -> "Duration":
+        if isinstance(value, Duration):
+            return copy.deepcopy(value)
+        if isinstance(value, Float):
+            value = value.value
+        elif isinstance(value, Hex):
+            value = value.value
+        elif not isinstance(value, (int, float)):
+            raise TypeError(f"Unsupported type for Duration: {type(value)}")
+
+        neg = value < 0
+        value = abs(value)
         if isinstance(value, int):
             ms = 0
             x = value
@@ -54,24 +107,22 @@ class Scalar(ScalarValue):
         x, h = divmod(x, 24)
         y, x = divmod(x, 365)
         w, d = divmod(x, 7)
-        result = []
-        if ms > 0:
-            result.append(f"{ms}ms")
-        if s > 0:
-            result.append(f"{s}s")
-        if m > 0:
-            result.append(f"{m}m")
-        if h > 0:
-            result.append(f"{h}h")
-        if d > 0:
-            result.append(f"{d}d")
-        if w > 0:
-            result.append(f"{w}w")
-        if y > 0:
-            result.append(f"{y}y")
-        if not result:
-            return "0s"
-        return neg + "".join(reversed(result))
+        return Duration(
+            y=y,
+            w=w,
+            d=d,
+            h=h,
+            m=m,
+            s=s,
+            ms=ms,
+            neg=neg,
+        )
+
+    def to_timestamp(self) -> float:
+        return (
+            ((((self.y * 365 + self.w * 7 + self.d) * 24 + self.h) * 60 + self.m) * 60 + self.s)
+            + self.ms / 1000
+        ) * (-1 if self.neg else 1)
 
 
 class Label:
@@ -121,20 +172,18 @@ class Label:
 
 
 @dataclass(slots=True)
-class Vector(ABC):
+class Vector(Expression, metaclass=ABCMeta):
     metric: str
     labels: list[Label] = field()
 
-    offset: Scalar | None = field(default=None, kw_only=True)
-    at: Scalar | Literal["start()", "end()"] | None = field(default=None, kw_only=True)
-
-    def set_at(self, value: Scalar | Literal["start()", "end()"]) -> "Vector":
-        self.at = value
-        return self
-
-    def set_offset(self, value: Scalar) -> "Vector":
-        self.offset = value
-        return self
+    offset: Scalar | None = field(
+        default=None,
+        kw_only=True,
+    )
+    at: Scalar | Literal["start()", "end()"] | None = field(
+        default=None,
+        kw_only=True,
+    )
 
     def _selector(self) -> str:
         labels_str = ", ".join(str(label) for label in self.labels)
@@ -145,12 +194,21 @@ class Vector(ABC):
     def _offset_str(self) -> str:
         if self.offset is None:
             return ""
-        return f" offset {self.offset.duration()}"
+        if not isinstance(self.offset, Duration):
+            self.offset = Duration.from_timestamp(self.offset)
+        return f" offset {self.offset}"
 
     def _at_str(self) -> str:
         if self.at is None:
             return ""
-        value = self.at if isinstance(self.at, str) else self.at.duration()
+        if not isinstance(self.at, (Duration, str)):
+            value = str(Duration.from_timestamp(self.at))
+        elif isinstance(self.at, Duration):
+            value = str(self.at)
+        elif isinstance(self.at, str):
+            value = self.at
+        else:
+            raise TypeError(f"Unsupported type for 'at': {type(self.at)}")
         return f" @ {value}"
 
     @abstractmethod
@@ -158,27 +216,26 @@ class Vector(ABC):
         raise NotImplementedError("Subclasses must implement __str__ method")
 
 
-class InstantVector(Vector, InstantVectorValue):
+class InstantVector(Vector):
     def __str__(self) -> str:
         return f"{self._selector()}{self._offset_str()}{self._at_str()}"
 
 
 @dataclass(slots=True)
-class RangeVector(Vector, RangeVectorValue):
+class RangeVector(Vector):
     range: Scalar
     step: Scalar | None = field(default=None)
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.range, Duration):
+            self.range = Duration.from_timestamp(self.range)
+        if self.step is not None and not isinstance(self.step, Duration):
+            self.step = Duration.from_timestamp(self.step)
+
     def __str__(self) -> str:
-        result = [
-            self._selector(),
-            "[",
-            *(
-                (self.range.duration(), ":", self.step.duration())
-                if self.step
-                else (self.range.duration(),)
-            ),
-            "]",
-            self._offset_str(),
-            self._at_str(),
-        ]
-        return "".join(result)
+        if self.step is None:
+            _slice = str(self.range)
+        else:
+            _slice = f"{self.range}:{self.step}"
+
+        return f"{self._selector()}[{_slice}]{self._offset_str()}{self._at_str()}"
