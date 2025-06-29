@@ -1,27 +1,16 @@
-from typing import Callable
 import pytest
-
-import prom_ql.operators as operators
-from prom_ql.operators.binary import BinaryOperator
-from prom_ql.literals import InstantVector
 from _pytest.fixtures import SubRequest
 
-from prom_ql.operators.binary import Group, Match
+from prom_ql.base import Expression
+from prom_ql.literals import InstantVector
+from prom_ql.operators.binary import BINARY_OPERATORS, BinaryOperator, Group, Match
 
-OPERATORS = list(BinaryOperator.OP)
+OPERATORS = list(BINARY_OPERATORS.values())
 
 
 @pytest.fixture(params=OPERATORS)
-def binop(request: SubRequest) -> BinaryOperator.OP:
+def binop(request: SubRequest) -> type[BinaryOperator]:
     return request.param  # type: ignore[no-any-return]
-
-
-@pytest.fixture()
-def binop_fn(binop: BinaryOperator.OP) -> Callable[..., BinaryOperator]:
-    result = getattr(operators, binop.name.lower(), None)
-    assert result is not None, f"Operator {binop.name} is not defined"
-    assert callable(result), f"Operator {binop.name} is not callable"
-    return result  # type: ignore
 
 
 @pytest.fixture(params=["left", "right"])
@@ -44,42 +33,44 @@ def match(request: SubRequest) -> Match:
     pytest.fail(f"Unexpected group value: {x}")
 
 
-def test_operators_base(binop: BinaryOperator.OP, binop_fn: Callable[..., BinaryOperator]) -> None:
-    left = InstantVector(metric="left", labels=[])
-    right = InstantVector(metric="right", labels=[])
+@pytest.fixture()
+def left() -> Expression:
+    return InstantVector(metric="left", labels=[])
 
-    x = binop_fn(left=left, right=right)
-    assert str(x) == f"({left}) {binop.value} ({right})"
+
+@pytest.fixture()
+def right() -> Expression:
+    return InstantVector(metric="right", labels=[])
+
+
+def test_operators_base(
+    binop: type[BinaryOperator],
+    left: Expression,
+    right: Expression,
+) -> None:
+    x = binop(left=left, right=right)
+    assert str(x) == f"({left}) {binop.operator} ({right})"
 
 
 def test_operators_match(
-    binop: BinaryOperator.OP, binop_fn: Callable[..., BinaryOperator], match: Match
+    binop: type[BinaryOperator], left: Expression, right: Expression, match: Match
 ) -> None:
-    left = InstantVector(metric="left", labels=[])
-    right = InstantVector(metric="right", labels=[])
-
-    x = binop_fn(left=left, right=right, match=match)
-    assert str(x) == f"({left}) {binop.value} {match} ({right})"
+    x = binop(left=left, right=right, match=match)
+    assert str(x) == f"({left}) {binop.operator} {match} ({right})"
 
 
 def test_operators_group(
-    binop: BinaryOperator.OP, binop_fn: Callable[..., BinaryOperator], group: Group
+    binop: type[BinaryOperator], left: Expression, right: Expression, group: Group
 ) -> None:
-    left = InstantVector(metric="left", labels=[])
-    right = InstantVector(metric="right", labels=[])
-
-    x = binop_fn(left=left, right=right, group=group)
-    assert str(x) == f"({left}) {binop.value} {group} ({right})"
+    x = binop(left=left, right=right, group=group)
+    assert str(x) == f"({left}) {binop.operator} {group} ({right})"
 
 
 def test_operators_match_group(
-    binop: BinaryOperator.OP, binop_fn: Callable[..., BinaryOperator], match: Match, group: Group
+    binop: type[BinaryOperator], left: Expression, right: Expression, match: Match, group: Group
 ) -> None:
-    left = InstantVector(metric="left", labels=[])
-    right = InstantVector(metric="right", labels=[])
-
-    x = binop_fn(left=left, right=right, match=match, group=group)
-    assert str(x) == f"({left}) {binop.value} {match} {group} ({right})"
+    x = binop(left=left, right=right, match=match, group=group)
+    assert str(x) == f"({left}) {binop.operator} {match} {group} ({right})"
 
 
 if __name__ == "__main__":

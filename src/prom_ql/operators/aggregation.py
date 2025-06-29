@@ -2,7 +2,8 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Literal
 
-from prom_ql.literals import Expression, String
+from prom_ql.base import Expression
+from prom_ql.literals import String
 from prom_ql.operators.misc import LabelList
 
 

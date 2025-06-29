@@ -1,9 +1,9 @@
+import abc
 from dataclasses import dataclass
-import enum
-import functools
-from typing import Literal
+from typing import ClassVar, Literal
 
-from prom_ql.literals import Expression, String
+from prom_ql.base import Expression
+from prom_ql.literals import String
 from prom_ql.operators.misc import LabelList
 
 
@@ -39,31 +39,21 @@ class Group(LabelList):
         return f"group_{self.type}({self.serialize()})"
 
 
-@dataclass(slots=True)
-class BinaryOperator(Expression):
-    class OP(enum.Enum):
-        # arithmetic
-        add = "+"
-        sub = "-"
-        mul = "*"
-        div = "/"
-        mod = "%"
-        pow = "^"
-        # comparison
-        eq = "=="
-        neq = "!="
-        lt = "<"
-        gt = ">"
-        lte = "<="
-        gte = ">="
-        # logical/set
-        intersection = "and"
-        union = "or"
-        complement = "unless"
-        # goniometric
-        atan2 = "atan2"
+BINARY_OPERATORS = dict[str, "BinaryOperator"] = dict()
 
-    operator: OP
+
+@dataclass(slots=True)
+class BinaryOperator(Expression, metaclass=abc.ABCMeta):
+    operator: ClassVar[str]
+
+    @classmethod
+    def __init_subclass__(cls, /, operator: str, **kwargs):
+        cls.operator = operator
+        if operator in BINARY_OPERATORS:
+            raise ValueError(f"Multiple classes with same operator: {operator}")
+        BINARY_OPERATORS[operator] = cls
+        return super().__init_subclass__(**kwargs)
+
     left: Expression
     right: Expression
     match: Match | None = None
@@ -75,26 +65,97 @@ class BinaryOperator(Expression):
         return f"({self.left}) {self.operator.value}{match_str}{group_str} ({self.right})"
 
 
-# Arithmetic binary operators
-add = functools.partial(BinaryOperator, BinaryOperator.OP.add)
-sub = functools.partial(BinaryOperator, BinaryOperator.OP.sub)
-mul = functools.partial(BinaryOperator, BinaryOperator.OP.mul)
-div = functools.partial(BinaryOperator, BinaryOperator.OP.div)
-mod = functools.partial(BinaryOperator, BinaryOperator.OP.mod)
-pow = functools.partial(BinaryOperator, BinaryOperator.OP.pow)
+class Add(BinaryOperator, operator="+"):
+    """Addition operator."""
 
-# Comparison binary operators
-eq = functools.partial(BinaryOperator, BinaryOperator.OP.eq)
-neq = functools.partial(BinaryOperator, BinaryOperator.OP.neq)
-lt = functools.partial(BinaryOperator, BinaryOperator.OP.lt)
-gt = functools.partial(BinaryOperator, BinaryOperator.OP.gt)
-lte = functools.partial(BinaryOperator, BinaryOperator.OP.lte)
-gte = functools.partial(BinaryOperator, BinaryOperator.OP.gte)
+    pass
 
-# Logical/set binary operators
-intersection = functools.partial(BinaryOperator, BinaryOperator.OP.intersection)
-union = functools.partial(BinaryOperator, BinaryOperator.OP.union)
-complement = functools.partial(BinaryOperator, BinaryOperator.OP.complement)
 
-# Goniometric binary operators
-atan2 = functools.partial(BinaryOperator, BinaryOperator.OP.atan2)
+class Sub(BinaryOperator, operator="-"):
+    """Subtraction operator."""
+
+    pass
+
+
+class Mul(BinaryOperator, operator="*"):
+    """Multiplication operator."""
+
+    pass
+
+
+class Div(BinaryOperator, operator="/"):
+    """Division operator."""
+
+    pass
+
+
+class Mod(BinaryOperator, operator="%"):
+    """Modulo operator."""
+
+    pass
+
+
+class Pow(BinaryOperator, operator="^"):
+    """Exponentiation operator."""
+
+    pass
+
+
+class Eq(BinaryOperator, operator="=="):
+    """Equality operator."""
+
+    pass
+
+
+class Neq(BinaryOperator, operator="!="):
+    """Inequality operator."""
+
+    pass
+
+
+class Lt(BinaryOperator, operator="<"):
+    """Less than operator."""
+
+    pass
+
+
+class Gt(BinaryOperator, operator=">"):
+    """Greater than operator."""
+
+    pass
+
+
+class Lte(BinaryOperator, operator="<="):
+    """Less than or equal to operator."""
+
+    pass
+
+
+class Gte(BinaryOperator, operator=">="):
+    """Greater than or equal to operator."""
+
+    pass
+
+
+class Intersection(BinaryOperator, operator="and"):
+    """Intersection operator."""
+
+    pass
+
+
+class Union(BinaryOperator, operator="or"):
+    """Union operator."""
+
+    pass
+
+
+class Complement(BinaryOperator, operator="unless"):
+    """Complement operator."""
+
+    pass
+
+
+class Atan2(BinaryOperator, operator="atan2"):
+    """Atan2 operator."""
+
+    pass

@@ -1,21 +1,11 @@
 import copy
 import enum
 import math
-from typing import Literal
+from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass, field
-from abc import ABC, ABCMeta, abstractmethod
+from typing import Literal
 
-
-class Expression(ABC):
-    """
-    Base class for all PromQL expressions.
-    """
-
-    @abstractmethod
-    def __str__(self) -> str:
-        raise NotImplementedError(
-            "Subclasses must implement __str__ method",
-        )
+from prom_ql.base import Expression
 
 
 @dataclass(slots=True)
@@ -90,7 +80,7 @@ class Duration(Scalar):
             value = value.value
         elif isinstance(value, Hex):
             value = value.value
-        elif not isinstance(value, (int, float)):
+        elif not isinstance(value, (int | float)):
             raise TypeError(f"Unsupported type for Duration: {type(value)}")
 
         neg = value < 0
@@ -201,7 +191,7 @@ class Vector(Expression, metaclass=ABCMeta):
     def _at_str(self) -> str:
         if self.at is None:
             return ""
-        if not isinstance(self.at, (Duration, str)):
+        if not isinstance(self.at, Duration | str):
             value = str(Duration.from_timestamp(self.at))
         elif isinstance(self.at, Duration):
             value = str(self.at)

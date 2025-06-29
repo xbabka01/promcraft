@@ -1,6 +1,6 @@
 from typing import Literal
-import pytest
 
+import pytest
 
 from prom_ql.literals import (
     Duration,
@@ -8,8 +8,8 @@ from prom_ql.literals import (
     Hex,
     InstantVector,
     Label,
-    String,
     RangeVector,
+    String,
     Vector,
 )
 
