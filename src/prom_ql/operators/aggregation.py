@@ -1,6 +1,7 @@
+import inspect
 from abc import ABCMeta
 from dataclasses import dataclass, field
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal
 
 from prom_ql.literals import Expression, String
 from prom_ql.operators.misc import LabelList
@@ -18,11 +19,15 @@ class Aggegate(LabelList):
     def without(labels: list[str | String]) -> "Aggegate":
         return Aggegate(type="without", labels=labels)
 
+    def __str__(self) -> str:
+        return f"{self.type}({self.serialize()}) " if self.labels else ""
+
 
 @dataclass(slots=True)
 class Aggregation(Expression, metaclass=ABCMeta):
     operation: ClassVar[str]
 
+    parameter: Expression | None
     vector: Expression
     aggregate: Aggegate | None = field(
         kw_only=True,
@@ -30,24 +35,63 @@ class Aggregation(Expression, metaclass=ABCMeta):
     )
 
 
-@dataclass(slots=True)
 class AggregationWithParameter(Aggregation, metaclass=ABCMeta):
-    parameter: Expression | String | None
+    registered: ClassVar[set[type["Aggregation"]]] = set()
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super(cls).__init_subclass__(**kwargs)  # type: ignore
+        if not inspect.isabstract(cls):
+            AggregationWithParameter.registered.add(cls)
+
+    def __init__(
+        self,
+        parameter: Expression,
+        vector: Expression,
+        *,
+        aggregate: Aggegate | None = None,
+    ) -> None:
+        super().__init__(parameter=parameter, vector=vector, aggregate=aggregate)
+
+    def __str__(self) -> str:
+        aggr = self.aggregate if self.aggregate is not None else ""
+        return f"{self.operation} {aggr}({self.parameter}, {self.vector})"
 
 
-class Sum(Aggregation):
+class AggregationWithoutParameter(Aggregation, metaclass=ABCMeta):
+    registered: ClassVar[set[type["Aggregation"]]] = set()
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super(cls).__init_subclass__(**kwargs)  # type: ignore
+        if not inspect.isabstract(cls):
+            AggregationWithoutParameter.registered.add(cls)
+
+    def __init__(
+        self,
+        vector: Expression,
+        *,
+        aggregate: Aggegate | None = None,
+    ) -> None:
+        super().__init__(parameter=None, vector=vector, aggregate=aggregate)
+
+    def __str__(self) -> str:
+        aggr = self.aggregate if self.aggregate is not None else ""
+        param = f"{self.parameter}, " if self.parameter else ""
+        return f"{self.operation} {aggr}({param}{self.vector})"
+
+
+class Sum(AggregationWithoutParameter):
     operation = "sum"
 
 
-class Avg(Aggregation):
+class Avg(AggregationWithoutParameter):
     operation = "avg"
 
 
-class Min(Aggregation):
+class Min(AggregationWithoutParameter):
     operation = "min"
 
 
-class Max(Aggregation):
+class Max(AggregationWithoutParameter):
     operation = "max"
 
 
@@ -67,11 +111,11 @@ class LimitRatio(AggregationWithParameter):
     operation = "limit_ratio"
 
 
-class Group(Aggregation):
+class Group(AggregationWithoutParameter):
     operation = "group"
 
 
-class Count(Aggregation):
+class Count(AggregationWithoutParameter):
     operation = "count"
 
 
@@ -79,11 +123,11 @@ class CountValues(AggregationWithParameter):
     operation = "count_values"
 
 
-class Stddev(Aggregation):
+class Stddev(AggregationWithoutParameter):
     operation = "stddev"
 
 
-class Stdvar(Aggregation):
+class Stdvar(AggregationWithoutParameter):
     operation = "stdvar"
 
 
