@@ -27,12 +27,16 @@ class Aggegate(LabelList):
 class Aggregation(Expression, metaclass=ABCMeta):
     operation: ClassVar[str]
 
-    parameter: Expression | None
-    vector: Expression
+    params: list[Expression]
     aggregate: Aggegate | None = field(
         kw_only=True,
         default=None,
     )
+
+    def __str__(self) -> str:
+        aggr = self.aggregate if self.aggregate is not None else ""
+        params = ", ".join(str(param) for param in self.params)
+        return f"{self.operation} {aggr}({params})"
 
 
 class AggregationWithParameter(Aggregation, metaclass=ABCMeta):
@@ -50,11 +54,7 @@ class AggregationWithParameter(Aggregation, metaclass=ABCMeta):
         *,
         aggregate: Aggegate | None = None,
     ) -> None:
-        super().__init__(parameter=parameter, vector=vector, aggregate=aggregate)
-
-    def __str__(self) -> str:
-        aggr = self.aggregate if self.aggregate is not None else ""
-        return f"{self.operation} {aggr}({self.parameter}, {self.vector})"
+        super().__init__(params=[parameter, vector], aggregate=aggregate)
 
 
 class AggregationWithoutParameter(Aggregation, metaclass=ABCMeta):
@@ -71,12 +71,7 @@ class AggregationWithoutParameter(Aggregation, metaclass=ABCMeta):
         *,
         aggregate: Aggegate | None = None,
     ) -> None:
-        super().__init__(parameter=None, vector=vector, aggregate=aggregate)
-
-    def __str__(self) -> str:
-        aggr = self.aggregate if self.aggregate is not None else ""
-        param = f"{self.parameter}, " if self.parameter else ""
-        return f"{self.operation} {aggr}({param}{self.vector})"
+        super().__init__(params=[vector], aggregate=aggregate)
 
 
 class Sum(AggregationWithoutParameter):
