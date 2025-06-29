@@ -1,6 +1,6 @@
 import abc
 from dataclasses import dataclass
-from typing import ClassVar, Literal
+from typing import Any, ClassVar, Literal
 
 from prom_ql.base import Expression
 from prom_ql.literals import String
@@ -39,7 +39,7 @@ class Group(LabelList):
         return f"group_{self.type}({self.serialize()})"
 
 
-BINARY_OPERATORS = dict[str, "BinaryOperator"] = dict()
+BINARY_OPERATORS: dict[str, type["BinaryOperator"]] = dict()
 
 
 @dataclass(slots=True)
@@ -47,12 +47,12 @@ class BinaryOperator(Expression, metaclass=abc.ABCMeta):
     operator: ClassVar[str]
 
     @classmethod
-    def __init_subclass__(cls, /, operator: str, **kwargs):
+    def __init_subclass__(cls, /, operator: str, **kwargs: Any) -> None:
+        super(cls).__init_subclass__(**kwargs)  # type: ignore[misc]
         cls.operator = operator
         if operator in BINARY_OPERATORS:
             raise ValueError(f"Multiple classes with same operator: {operator}")
         BINARY_OPERATORS[operator] = cls
-        return super().__init_subclass__(**kwargs)
 
     left: Expression
     right: Expression
@@ -62,7 +62,7 @@ class BinaryOperator(Expression, metaclass=abc.ABCMeta):
     def __str__(self) -> str:
         match_str = f" {self.match}" if self.match is not None else ""
         group_str = f" {self.group}" if self.group is not None else ""
-        return f"({self.left}) {self.operator.value}{match_str}{group_str} ({self.right})"
+        return f"({self.left}) {self.operator}{match_str}{group_str} ({self.right})"
 
 
 class Add(BinaryOperator, operator="+"):
