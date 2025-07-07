@@ -13,11 +13,22 @@ class String:
     value: str
     quote: Literal['"', "'", "`"] = '"'
 
+    def from_value(value: "str | String") -> "String":
+        if isinstance(value, String):
+            return copy.deepcopy(value)
+        elif isinstance(value, str):
+            return String(value=value)
+        else:
+            raise TypeError(f"Unsupported type for String: {type(value)}")
+
     def __str__(self) -> str:
         if self.quote == "`":
             return f"{self.quote}{self.value}{self.quote}"
         content: str = self.value.encode("unicode_escape").decode("ascii")
         return f"{self.quote}{content}{self.quote}"
+
+
+STRING_TYPES = String | str
 
 
 class Scalar(Expression, metaclass=ABCMeta):
@@ -26,7 +37,7 @@ class Scalar(Expression, metaclass=ABCMeta):
 
 @dataclass(slots=True)
 class Float(Scalar):
-    value: float
+    value: float | int
 
     def __str__(self) -> str:
         return str(self.value)
@@ -115,6 +126,19 @@ class Duration(Scalar):
         ) * (-1 if self.neg else 1)
 
 
+SCALAR_TYPES = Scalar | float | int
+
+
+def _to_duration(value: SCALAR_TYPES) -> Scalar:
+    # Preserve the type of value if it is already a Scalar
+    if isinstance(value, Scalar):
+        return value
+    elif isinstance(value, float | int):
+        return Duration.from_timestamp(value)
+    else:
+        raise TypeError(f"Unsupported type for Scalar: {type(value)}")
+
+
 class Label:
     class OP(str, enum.Enum):
         EQ = "=="
@@ -129,36 +153,30 @@ class Label:
         self,
         name: str,
         op: OP,
-        value: String | str,
-        *,
-        comment: str | None = None,
+        value: STRING_TYPES,
     ) -> None:
         self.name = name
         self.op = op
-        if isinstance(value, str):
-            self.value = String(value)
-        else:
-            self.value = value
-        self.comment = comment
+        self.value = String.from_value(value)
 
     def __str__(self) -> str:
         return f"{self.name} {self.op} {self.value}"
 
     @staticmethod
-    def eq(name: str, value: String | str, *, comment: str | None = None) -> "Label":
-        return Label(name, Label.OP.EQ, value, comment=comment)
+    def eq(name: str, value: String | str) -> "Label":
+        return Label(name, Label.OP.EQ, value)
 
     @staticmethod
-    def neq(name: str, value: String | str, *, comment: str | None = None) -> "Label":
-        return Label(name, Label.OP.NEQ, value, comment=comment)
+    def neq(name: str, value: String | str) -> "Label":
+        return Label(name, Label.OP.NEQ, value)
 
     @staticmethod
-    def re(name: str, value: String | str, *, comment: str | None = None) -> "Label":
-        return Label(name, Label.OP.RE, value, comment=comment)
+    def re(name: str, value: String | str) -> "Label":
+        return Label(name, Label.OP.RE, value)
 
     @staticmethod
-    def nre(name: str, value: String | str, *, comment: str | None = None) -> "Label":
-        return Label(name, Label.OP.NRE, value, comment=comment)
+    def nre(name: str, value: String | str) -> "Label":
+        return Label(name, Label.OP.NRE, value)
 
 
 @dataclass(slots=True)
@@ -166,40 +184,39 @@ class Vector(Expression, metaclass=ABCMeta):
     metric: str
     labels: list[Label] = field()
 
-    offset: Scalar | None = field(
+    offset: SCALAR_TYPES | None = field(
         default=None,
         kw_only=True,
     )
-    at: Scalar | Literal["start()", "end()"] | None = field(
+    at: SCALAR_TYPES | Literal["start()", "end()"] | None = field(
         default=None,
         kw_only=True,
     )
+
+    def __post_init__(self) -> None:
+        if self.offset is not None:
+            self.offset = _to_duration(self.offset)
+        if self.at not in [None, "start()", "end()"]:
+            if isinstance(self.at, float | int):
+                self.at = Float(self.at)
 
     def _selector(self) -> str:
-        labels_str = ", ".join(str(label) for label in self.labels)
-        if labels_str:
-            labels_str = "{" + labels_str + "}"
-        return f"{self.metric}{labels_str}"
+        res = self.metric
+        if self.labels:
+            res += "{"
+            res += ", ".join(str(label) for label in self.labels)
+            res += "}"
+        return res
 
-    def _offset_str(self) -> str:
+    def _offset(self) -> str:
         if self.offset is None:
             return ""
-        if not isinstance(self.offset, Duration):
-            self.offset = Duration.from_timestamp(self.offset)
         return f" offset {self.offset}"
 
-    def _at_str(self) -> str:
+    def _at(self) -> str:
         if self.at is None:
             return ""
-        if not isinstance(self.at, Duration | str):
-            value = str(Duration.from_timestamp(self.at))
-        elif isinstance(self.at, Duration):
-            value = str(self.at)
-        elif isinstance(self.at, str):
-            value = self.at
-        else:
-            raise TypeError(f"Unsupported type for 'at': {type(self.at)}")
-        return f" @ {value}"
+        return f" @ {self.at}"
 
     @abstractmethod
     def __str__(self) -> str:
@@ -208,24 +225,25 @@ class Vector(Expression, metaclass=ABCMeta):
 
 class InstantVector(Vector):
     def __str__(self) -> str:
-        return f"{self._selector()}{self._offset_str()}{self._at_str()}"
+        return f"{self._selector()}{self._offset()}{self._at()}"
 
 
 @dataclass(slots=True)
 class RangeVector(Vector):
-    range: Scalar
-    step: Scalar | None = field(default=None)
+    range: SCALAR_TYPES
+    step: SCALAR_TYPES | None = field(default=None)
 
     def __post_init__(self) -> None:
-        if not isinstance(self.range, Duration):
-            self.range = Duration.from_timestamp(self.range)
-        if self.step is not None and not isinstance(self.step, Duration):
-            self.step = Duration.from_timestamp(self.step)
+        super(RangeVector, self).__post_init__()
+        self.range = _to_duration(self.range)
+        if self.step is not None:
+            self.step = _to_duration(self.step)
+
+    def _slice(self) -> str:
+        if self.step is None:
+            return f"[{self.range}]"
+        else:
+            return f"[{self.range}:{self.step}]"
 
     def __str__(self) -> str:
-        if self.step is None:
-            _slice = str(self.range)
-        else:
-            _slice = f"{self.range}:{self.step}"
-
-        return f"{self._selector()}[{_slice}]{self._offset_str()}{self._at_str()}"
+        return f"{self._selector()}{self._slice()}{self._offset()}{self._at()}"

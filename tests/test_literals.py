@@ -87,66 +87,77 @@ def test_scallar_duration(content: float | int, expected: str) -> None:
 
 @pytest.mark.parametrize("op", [x for x in Label.OP])
 def test_labels(op: Label.OP) -> None:
-    x = Label(name="name", value="value", op=op, comment="test comment")
+    x = Label(name="name", value="value", op=op)
     assert x.name == "name"
     assert x.op == op
     assert x.value.value == "value"
-    assert x.comment == "test comment"
 
 
 @pytest.mark.parametrize("op", [x for x in Label.OP])
 def test_labels_op(op: Label.OP) -> None:
-    x = getattr(Label, op.name.lower())(name="name", value="value", comment="test comment")
+    x = getattr(Label, op.name.lower())(name="name", value="value")
     assert x.name == "name"
     assert x.op == op
     assert x.value.value == "value"
-    assert x.comment == "test comment"
 
 
 @pytest.mark.parametrize("op", [x for x in Label.OP])
 def test_labels_string(op: Label.OP) -> None:
-    x = getattr(Label, op.name.lower())(name="name", value=String("value"), comment="test comment")
+    x = getattr(Label, op.name.lower())(name="name", value=String("value"))
     assert x.name == "name"
     assert x.op == op
     assert x.value.value == "value"
-    assert x.comment == "test comment"
-
-
-def test_simple_vector() -> None:
-    vector = InstantVector("http_requests_total", [], at="start()", offset=Float(60))
-    assert str(vector) == "http_requests_total offset 1m @ start()"
 
 
 @pytest.mark.parametrize(
     "vector, result",
     [
         (
+            InstantVector("http_requests_total", []),
+            "http_requests_total",
+        ),
+        (
             InstantVector(
                 "http_requests_total",
-                labels=[Label.eq("method", "GET"), Label.neq("status", "500")],
+                labels=[
+                    Label.eq("method", "GET"),
+                    Label.neq(
+                        "status",
+                        "500",
+                    ),
+                ],
             ),
             'http_requests_total{method == "GET", status != "500"}',
         ),
         (
             InstantVector(
                 "http_requests_total",
-                labels=[Label.re("method", "GET.*"), Label.nre("status", "5..")],
+                labels=[
+                    Label.re("method", "GET.*"),
+                    Label.nre("status", "5.."),
+                ],
             ),
             'http_requests_total{method =~ "GET.*", status !~ "5.."}',
         ),
         (
             InstantVector(
                 "http_requests_total",
-                labels=[Label.re("method", "GET.*"), Label.nre("status", "5..")],
+                labels=[
+                    Label.re("method", "GET.*"),
+                    Label.nre("status", "5.."),
+                ],
             ),
             'http_requests_total{method =~ "GET.*", status !~ "5.."}',
         ),
         (
             RangeVector(
                 "http_requests_total",
-                labels=[Label.eq("method", "GET"), Label.eq("status", "200")],
-                range=Float(300),
-                offset=Float(60),
+                labels=[
+                    Label.eq("method", "GET"),
+                    Label.eq("status", "200"),
+                ],
+                range=(300),
+                offset=(60),
                 at="start()",
             ),
             'http_requests_total{method == "GET", status == "200"}[5m] offset 1m @ start()',
@@ -154,16 +165,32 @@ def test_simple_vector() -> None:
         (
             RangeVector(
                 "http_requests_total",
-                labels=[Label.eq("method", "GET"), Label.eq("status", "200")],
+                labels=[
+                    Label.eq("method", "GET"),
+                    Label.eq("status", "200"),
+                ],
+                range=300,
+                offset=60,
+                at=60,
+            ),
+            'http_requests_total{method == "GET", status == "200"}[5m] offset 1m @ 60',
+        ),
+        (
+            RangeVector(
+                "http_requests_total",
+                labels=[
+                    Label.eq("method", "GET"),
+                    Label.eq("status", "200"),
+                ],
                 range=Float(300),
                 offset=Float(60),
                 at="end()",
             ),
-            'http_requests_total{method == "GET", status == "200"}[5m] offset 1m @ end()',
+            'http_requests_total{method == "GET", status == "200"}[300] offset 60 @ end()',
         ),
     ],
 )
-def test_instant_vector(vector: Vector, result: str) -> None:
+def test_litera_expression(vector: Vector, result: str) -> None:
     assert str(vector) == result
 
 
