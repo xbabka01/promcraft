@@ -66,19 +66,46 @@ def without_parameter(
         vector=vector,
         aggregate=aggregate,
     )
-    
+
 
 sum_ = functools.partial(without_parameter, "sum")
+sum_.__name__ = "sum"  # type: ignore[attr-defined]
+
 avg = functools.partial(without_parameter, "avg")
+avg.__name__ = "avg"  # type: ignore[attr-defined]
+
 min_ = functools.partial(without_parameter, "min")
+min_.__name__ = "min"  # type: ignore[attr-defined]
+
 max_ = functools.partial(without_parameter, "max")
+max_.__name__ = "max"  # type: ignore[attr-defined]
+
 bottom_k = functools.partial(with_parameter, "bottomk")
+bottom_k.__name__ = "bottomk"  # type: ignore[attr-defined]
+
 top_k = functools.partial(with_parameter, "topk")
+top_k.__name__ = "topk"  # type: ignore[attr-defined]
+
 limit_k = functools.partial(with_parameter, "limitk")
+limit_k.__name__ = "limitk"  # type: ignore[attr-defined]
+
 limit_ratio = functools.partial(with_parameter, "limit_ratio")
+limit_ratio.__name__ = "limit_ratio"  # type: ignore[attr-defined]
+
 group = functools.partial(without_parameter, "group")
+group.__name__ = "group"  # type: ignore[attr-defined]
+
 count = functools.partial(without_parameter, "count")
+count.__name__ = "count"  # type: ignore[attr-defined]
+
 count_values = functools.partial(with_parameter, "count_values")
+count_values.__name__ = "count_values"  # type: ignore[attr-defined]
+
 stddev = functools.partial(without_parameter, "stddev")
+stddev.__name__ = "stddev"  # type: ignore[attr-defined]
+
 stdvar = functools.partial(without_parameter, "stdvar")
+stdvar.__name__ = "stdvar"  # type: ignore[attr-defined]
+
 quantile = functools.partial(with_parameter, "quantile")
+quantile.__name__ = "quantile"  # type: ignore[attr-defined]
