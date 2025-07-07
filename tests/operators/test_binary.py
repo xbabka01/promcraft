@@ -1,15 +1,54 @@
+from collections.abc import Callable
+
 import pytest
 from _pytest.fixtures import SubRequest
 
 from prom_ql.base import Expression
 from prom_ql.literals import InstantVector
-from prom_ql.operators.binary import BINARY_OPERATORS, BinaryOperator, Group, Match
+from prom_ql.operators.binary import (
+    BinaryOperator,
+    Group,
+    Match,
+    add,
+    atan2,
+    complement,
+    div,
+    eq,
+    gt,
+    gte,
+    intersection,
+    lt,
+    lte,
+    mod,
+    mul,
+    neq,
+    pow,
+    sub,
+    union,
+)
 
-OPERATORS = list(BINARY_OPERATORS.values())
+OPERATORS = [
+    add,
+    sub,
+    mul,
+    div,
+    mod,
+    pow,
+    eq,
+    neq,
+    lte,
+    gte,
+    lt,
+    gt,
+    intersection,
+    union,
+    complement,
+    atan2,
+]
 
 
 @pytest.fixture(params=OPERATORS)
-def binop(request: SubRequest) -> type[BinaryOperator]:
+def binop(request: SubRequest) -> Callable[..., BinaryOperator]:
     return request.param  # type: ignore[no-any-return]
 
 
@@ -44,33 +83,37 @@ def right() -> Expression:
 
 
 def test_operators_base(
-    binop: type[BinaryOperator],
+    binop: Callable[..., BinaryOperator],
     left: Expression,
     right: Expression,
 ) -> None:
     x = binop(left=left, right=right)
-    assert str(x) == f"({left}) {binop.operator} ({right})"
+    assert str(x) == f"({left}) {x.operator} ({right})"
 
 
 def test_operators_match(
-    binop: type[BinaryOperator], left: Expression, right: Expression, match: Match
+    binop: Callable[..., BinaryOperator], left: Expression, right: Expression, match: Match
 ) -> None:
     x = binop(left=left, right=right, match=match)
-    assert str(x) == f"({left}) {binop.operator} {match} ({right})"
+    assert str(x) == f"({left}) {x.operator} {match} ({right})"
 
 
 def test_operators_group(
-    binop: type[BinaryOperator], left: Expression, right: Expression, group: Group
+    binop: Callable[..., BinaryOperator], left: Expression, right: Expression, group: Group
 ) -> None:
     x = binop(left=left, right=right, group=group)
-    assert str(x) == f"({left}) {binop.operator} {group} ({right})"
+    assert str(x) == f"({left}) {x.operator} {group} ({right})"
 
 
 def test_operators_match_group(
-    binop: type[BinaryOperator], left: Expression, right: Expression, match: Match, group: Group
+    binop: Callable[..., BinaryOperator],
+    left: Expression,
+    right: Expression,
+    match: Match,
+    group: Group,
 ) -> None:
     x = binop(left=left, right=right, match=match, group=group)
-    assert str(x) == f"({left}) {binop.operator} {match} {group} ({right})"
+    assert str(x) == f"({left}) {x.operator} {match} {group} ({right})"
 
 
 if __name__ == "__main__":

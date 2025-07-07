@@ -1,7 +1,6 @@
-import inspect
-from abc import ABCMeta
+import functools
 from dataclasses import dataclass, field
-from typing import Any, ClassVar, Literal
+from typing import Literal
 
 from prom_ql.literals import Expression, String
 from prom_ql.operators.misc import LabelList
@@ -24,10 +23,10 @@ class Aggegate(LabelList):
 
 
 @dataclass(slots=True)
-class Aggregation(Expression, metaclass=ABCMeta):
-    operation: ClassVar[str]
-
-    params: list[Expression]
+class Aggregation(Expression):
+    operation: str
+    parameter: Expression | None
+    vector: Expression
     aggregate: Aggegate | None = field(
         kw_only=True,
         default=None,
@@ -35,96 +34,51 @@ class Aggregation(Expression, metaclass=ABCMeta):
 
     def __str__(self) -> str:
         aggr = self.aggregate if self.aggregate is not None else ""
-        params = ", ".join(str(param) for param in self.params)
-        return f"{self.operation} {aggr}({params})"
+        params: list[str] = (
+            [str(self.parameter), str(self.vector)] if self.parameter else [str(self.vector)]
+        )
+        return f"{self.operation} {aggr}({', '.join(params)})"
 
 
-class AggregationWithParameter(Aggregation, metaclass=ABCMeta):
-    registered: ClassVar[set[type["Aggregation"]]] = set()
-
-    def __init_subclass__(cls, **kwargs: Any) -> None:
-        super(cls).__init_subclass__(**kwargs)  # type: ignore
-        if not inspect.isabstract(cls):
-            AggregationWithParameter.registered.add(cls)
-
-    def __init__(
-        self,
-        parameter: Expression,
-        vector: Expression,
-        *,
-        aggregate: Aggegate | None = None,
-    ) -> None:
-        super().__init__(params=[parameter, vector], aggregate=aggregate)
+# Helper funtions to have "correct" type hints for aggregation functions
+def with_parameter(
+    operation: str,
+    parameter: Expression,
+    vector: Expression,
+    aggregate: Aggegate | None = None,
+) -> "Aggregation":
+    return Aggregation(
+        operation=operation,
+        parameter=parameter,
+        vector=vector,
+        aggregate=aggregate,
+    )
 
 
-class AggregationWithoutParameter(Aggregation, metaclass=ABCMeta):
-    registered: ClassVar[set[type["Aggregation"]]] = set()
+def without_parameter(
+    operation: str,
+    vector: Expression,
+    aggregate: Aggegate | None = None,
+) -> "Aggregation":
+    return Aggregation(
+        operation=operation,
+        parameter=None,
+        vector=vector,
+        aggregate=aggregate,
+    )
+    
 
-    def __init_subclass__(cls, **kwargs: Any) -> None:
-        super(cls).__init_subclass__(**kwargs)  # type: ignore
-        if not inspect.isabstract(cls):
-            AggregationWithoutParameter.registered.add(cls)
-
-    def __init__(
-        self,
-        vector: Expression,
-        *,
-        aggregate: Aggegate | None = None,
-    ) -> None:
-        super().__init__(params=[vector], aggregate=aggregate)
-
-
-class Sum(AggregationWithoutParameter):
-    operation = "sum"
-
-
-class Avg(AggregationWithoutParameter):
-    operation = "avg"
-
-
-class Min(AggregationWithoutParameter):
-    operation = "min"
-
-
-class Max(AggregationWithoutParameter):
-    operation = "max"
-
-
-class Bottomk(AggregationWithParameter):
-    operation = "bottomk"
-
-
-class Topk(AggregationWithParameter):
-    operation = "topk"
-
-
-class Limitk(AggregationWithParameter):
-    operation = "limitk"
-
-
-class LimitRatio(AggregationWithParameter):
-    operation = "limit_ratio"
-
-
-class Group(AggregationWithoutParameter):
-    operation = "group"
-
-
-class Count(AggregationWithoutParameter):
-    operation = "count"
-
-
-class CountValues(AggregationWithParameter):
-    operation = "count_values"
-
-
-class Stddev(AggregationWithoutParameter):
-    operation = "stddev"
-
-
-class Stdvar(AggregationWithoutParameter):
-    operation = "stdvar"
-
-
-class Quantile(AggregationWithParameter):
-    operation = "quantile"
+sum_ = functools.partial(without_parameter, "sum")
+avg = functools.partial(without_parameter, "avg")
+min_ = functools.partial(without_parameter, "min")
+max_ = functools.partial(without_parameter, "max")
+bottom_k = functools.partial(with_parameter, "bottomk")
+top_k = functools.partial(with_parameter, "topk")
+limit_k = functools.partial(with_parameter, "limitk")
+limit_ratio = functools.partial(with_parameter, "limit_ratio")
+group = functools.partial(without_parameter, "group")
+count = functools.partial(without_parameter, "count")
+count_values = functools.partial(with_parameter, "count_values")
+stddev = functools.partial(without_parameter, "stddev")
+stdvar = functools.partial(without_parameter, "stdvar")
+quantile = functools.partial(with_parameter, "quantile")

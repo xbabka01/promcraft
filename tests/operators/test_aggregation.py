@@ -4,12 +4,24 @@ from prom_ql.literals import Float, RangeVector
 from prom_ql.operators.aggregation import (
     Aggegate,
     Aggregation,
-    AggregationWithoutParameter,
-    AggregationWithParameter,
+    avg,
+    bottom_k,
+    count,
+    count_values,
+    group,
+    limit_k,
+    limit_ratio,
+    max_,
+    min_,
+    quantile,
+    stddev,
+    stdvar,
+    sum_,
+    top_k,
 )
 
-WITH_PARAM = AggregationWithParameter.registered
-WITHOUT_PARAM = AggregationWithoutParameter.registered
+WITH_PARAM = [bottom_k, top_k, limit_k, limit_ratio, quantile, count_values]
+WITHOUT_PARAM = [sum_, avg, min_, max_, group, count, stddev, stdvar]
 
 
 @pytest.fixture()
@@ -39,14 +51,14 @@ def aggregation_without_param(
 
 
 def test_aggregation_without_param(
-    aggregation_without_param: AggregationWithoutParameter,
+    aggregation_without_param: Aggregation,
     vector: RangeVector,
 ) -> None:
     assert str(aggregation_without_param) == f"{aggregation_without_param.operation} ({vector})"
 
 
 def test_aggregation_without_param_aggregate(
-    aggregation_without_param: AggregationWithoutParameter,
+    aggregation_without_param: Aggregation,
     aggregate: Aggegate,
     vector: RangeVector,
 ) -> None:
@@ -61,7 +73,7 @@ def test_aggregation_without_param_aggregate(
 def aggregation_with_param(
     request: pytest.FixtureRequest,
     vector: RangeVector,
-) -> AggregationWithParameter:
+) -> Aggregation:
     return request.param(  # type: ignore[no-any-return]
         parameter=Float(1.0),
         vector=vector,
@@ -70,14 +82,14 @@ def aggregation_with_param(
 
 
 def test_aggregation_with_param(
-    aggregation_with_param: AggregationWithParameter,
+    aggregation_with_param: Aggregation,
     vector: RangeVector,
 ) -> None:
     assert str(aggregation_with_param) == f"{aggregation_with_param.operation} (1.0, {vector})"
 
 
 def test_aggregation_with_param_aggregate(
-    aggregation_with_param: AggregationWithParameter,
+    aggregation_with_param: Aggregation,
     aggregate: Aggegate,
     vector: RangeVector,
 ) -> None:

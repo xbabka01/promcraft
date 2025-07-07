@@ -190,7 +190,7 @@ def test_labels_string(op: Label.OP) -> None:
         ),
     ],
 )
-def test_litera_expression(vector: Vector, result: str) -> None:
+def test_literal_expression(vector: Vector, result: str) -> None:
     assert str(vector) == result
 
 
