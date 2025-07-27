@@ -10,21 +10,21 @@ from prom_ql.expression import (
     InstantVector,
     Match,
     add,
+    and_,
     atan2,
-    complement,
     div,
     eq,
     gt,
     gte,
-    intersection,
     lt,
     lte,
     mod,
     mul,
     neq,
+    or_,
     pow,
     sub,
-    union,
+    unless,
 )
 
 OPERATORS = [
@@ -40,9 +40,9 @@ OPERATORS = [
     gte,
     lt,
     gt,
-    intersection,
-    union,
-    complement,
+    or_,
+    and_,
+    unless,
     atan2,
 ]
 

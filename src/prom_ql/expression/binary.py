@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any, ClassVar, Literal
 
 from prom_ql.expression.base import Expression
-from prom_ql.expression.literals import String
+from prom_ql.expression.literals import Float, String, Vector
 from prom_ql.expression.misc import LabelList
 
 
@@ -44,7 +44,7 @@ class BinaryOperator(Expression, metaclass=abc.ABCMeta):
     operator: ClassVar[str]
 
     def __init_subclass__(cls, operator: str | None = None, **kwargs: Any) -> None:
-        super(cls).__init_subclass__(**kwargs)
+        super().__init_subclass__(**kwargs)
         if operator is not None:
             cls.operator = operator
 
@@ -53,18 +53,29 @@ class BinaryOperator(Expression, metaclass=abc.ABCMeta):
     match: Match | None = None
     group: Group | None = None
 
+    def parentheses(self, expr: Expression) -> str:
+        if not isinstance(
+            expr,
+            (
+                Vector,
+                Float,
+            ),
+        ):
+            return str(expr)
+        return f"({expr})"
+
     def __str__(self) -> str:
         match_str = f" {self.match}" if self.match is not None else ""
         group_str = f" {self.group}" if self.group is not None else ""
-        return f"({self.left}) {self.operator}{match_str}{group_str} ({self.right})"
-        
+        left = self.parentheses(self.left)
+        right = self.parentheses(self.right)
+        return f"{left} {self.operator}{match_str}{group_str} {right}"
+
 
 # Arithmetic operators
 class ArithmeticOperator(BinaryOperator, metaclass=abc.ABCMeta):
     """
-    Binary arithmetic operators are defined between scalar/scalar, vector/scalar, and vector/vector value pairs. They follow the usual IEEE 754 floating point arithmetic
-
-    , including the handling of special values like NaN, +Inf, and -Inf.
+    Binary arithmetic operators are defined between scalar/scalar, vector/scalar, and vector/vector value pairs. They follow the usual IEEE 754 floating point arithmetic, including the handling of special values like NaN, +Inf, and -Inf.
 
     Between two scalars, the behavior is obvious: they evaluate to another scalar that is the result of the operator applied to both scalar operands.
 
@@ -73,7 +84,19 @@ class ArithmeticOperator(BinaryOperator, metaclass=abc.ABCMeta):
     Between two instant vectors, a binary arithmetic operator is applied to each entry in the LHS vector and its matching element in the RHS vector. The result is propagated into the result vector with the grouping labels becoming the output label set. Entries for which no matching entry in the right-hand vector can be found are not part of the result. If two float samples are matched, the behavior is obvious. If a float sample is matched with a histogram sample, the behavior follows the same logic as between a scalar and a histogram sample (see above), i.e. * and / (the latter with the histogram sample on the LHS) are valid operations, while all others lead to the removal of the corresponding element from the resulting vector. If two histogram samples are matched, only + and - are valid operations, each adding or substracting all matching bucket populations and the count and the sum of observations. All other operations result in the removal of the corresponding element from the output vector, flagged by an info-level annotation.
 
     In any arithmetic binary operation involving vectors, the metric name is dropped.
+
+    >>> add(left=Float(1.0), right=Float(2.0))
+    (1.0) + (2.0)
+    >>> sub(left=Float(5.0), right=Float(3.0))
+    (5.0) - (3.0)
+    >>> mul(left=Float(2.0), right=Float(4.0))
+    (2.0) * (4.0)
+    >>> div(left=Float(8.0), right=Float(2.0))
+    (8.0) / (2.0)
+    >>> mod(left=Float(10.0), right=Float(3.0))
+    (10.0) % (3.0)
     """
+
 
 class add(ArithmeticOperator, operator="+"):
     pass
@@ -112,7 +135,9 @@ class ComparisonOperator(BinaryOperator, metaclass=abc.ABCMeta):
 
     In any comparison binary operation involving vectors, providing the bool modifier changes the behavior in the following way: Vector elements that would be dropped instead have the value 0 and vector elements that would be kept have the value 1. Additionally, the metric name is dropped. (Note that invalid operations involving histogram samples still return no result rather than the value 0.)
     """
+
     pass
+
 
 class eq(ComparisonOperator, operator="=="):
     pass
@@ -149,7 +174,9 @@ class SetOperator(BinaryOperator, metaclass=abc.ABCMeta):
 
     As these logical/set binary operators do not interact with the sample values, they work in the same way for float samples and histogram samples.
     """
+
     pass
+
 
 class and_(SetOperator, operator="and"):
     pass
@@ -166,5 +193,13 @@ class unless(SetOperator, operator="unless"):
 # Special operators
 class atan2(BinaryOperator, operator="atan2"):
     """
-Trigonometric operators allow trigonometric functions to be executed on two vectors using vector matching, which isn't available with normal functions. They act in the same manner as arithmetic operators. They only operate on float samples. Operations involving histogram samples result in the removal of the corresponding vector elements from the output vector, flagged by an info-level annotation."""
+    Trigonometric operators allow trigonometric functions to be executed on two vectors using vector matching, which isn't available with normal functions. They act in the same manner as arithmetic operators. They only operate on float samples. Operations involving histogram samples result in the removal of the corresponding vector elements from the output vector, flagged by an info-level annotation.
+    """
+
     pass
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod()
