@@ -9,42 +9,9 @@ from prom_ql.expression import (
     Group,
     InstantVector,
     Match,
-    add,
-    and_,
-    atan2,
-    div,
-    eq,
-    gt,
-    gte,
-    lt,
-    lte,
-    mod,
-    mul,
-    neq,
-    or_,
-    pow,
-    sub,
-    unless,
 )
 
-OPERATORS = [
-    add,
-    sub,
-    mul,
-    div,
-    mod,
-    pow,
-    eq,
-    neq,
-    lte,
-    gte,
-    lt,
-    gt,
-    or_,
-    and_,
-    unless,
-    atan2,
-]
+OPERATORS = list(BinaryOperator.OPS.values())
 
 
 @pytest.fixture(params=OPERATORS)

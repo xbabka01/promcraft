@@ -51,6 +51,8 @@ __all__ = [
     "max_",
     "bottom_k",
     "top_k",
+    "or_",
+    "unless",
     "Vector",
     "limit_k",
     "limit_ratio",
