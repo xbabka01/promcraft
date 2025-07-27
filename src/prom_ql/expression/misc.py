@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass
 
-from prom_ql.literals import String
+from .literals import String
 
 
 @dataclass(slots=True)

@@ -3,9 +3,9 @@ import functools
 from dataclasses import dataclass
 from typing import Literal
 
-from prom_ql.base import Expression
-from prom_ql.literals import String
-from prom_ql.operators.misc import LabelList
+from .base import Expression
+from .literals import String
+from .misc import LabelList
 
 
 @dataclass(slots=True)

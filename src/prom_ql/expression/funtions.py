@@ -1,6 +1,7 @@
-from ast import Expression
 from dataclasses import dataclass
 from typing import ClassVar
+
+from prom_ql.expression.base import Expression
 
 
 @dataclass(slots=True)

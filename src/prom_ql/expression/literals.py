@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass, field
 from typing import Literal
 
-from prom_ql.base import Expression
+from .base import Expression
 
 
 @dataclass(slots=True)

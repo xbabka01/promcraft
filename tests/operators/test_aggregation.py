@@ -1,9 +1,10 @@
 import pytest
 
-from prom_ql.literals import Float, RangeVector
-from prom_ql.operators.aggregation import (
+from prom_ql.expression import (
     Aggegate,
     Aggregation,
+    Float,
+    RangeVector,
     avg,
     bottom_k,
     count,

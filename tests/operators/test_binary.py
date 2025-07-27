@@ -3,11 +3,11 @@ from collections.abc import Callable
 import pytest
 from _pytest.fixtures import SubRequest
 
-from prom_ql.base import Expression
-from prom_ql.literals import InstantVector
-from prom_ql.operators.binary import (
+from prom_ql.expression import (
     BinaryOperator,
+    Expression,
     Group,
+    InstantVector,
     Match,
     add,
     atan2,
