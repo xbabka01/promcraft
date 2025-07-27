@@ -55,21 +55,21 @@ def test_operators_base(
     right: Expression,
 ) -> None:
     x = binop(left=left, right=right)
-    assert str(x) == f"({left}) {x.operator} ({right})"
+    assert str(x) == f"{left} {x.operator} {right}"
 
 
 def test_operators_match(
     binop: Callable[..., BinaryOperator], left: Expression, right: Expression, match: Match
 ) -> None:
     x = binop(left=left, right=right, match=match)
-    assert str(x) == f"({left}) {x.operator} {match} ({right})"
+    assert str(x) == f"{left} {x.operator} {match} {right}"
 
 
 def test_operators_group(
     binop: Callable[..., BinaryOperator], left: Expression, right: Expression, group: Group
 ) -> None:
     x = binop(left=left, right=right, group=group)
-    assert str(x) == f"({left}) {x.operator} {group} ({right})"
+    assert str(x) == f"{left} {x.operator} {group} {right}"
 
 
 def test_operators_match_group(
@@ -80,7 +80,7 @@ def test_operators_match_group(
     group: Group,
 ) -> None:
     x = binop(left=left, right=right, match=match, group=group)
-    assert str(x) == f"({left}) {x.operator} {match} {group} ({right})"
+    assert str(x) == f"{left} {x.operator} {match} {group} {right}"
 
 
 if __name__ == "__main__":

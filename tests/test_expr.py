@@ -3,6 +3,7 @@ from typing import Literal
 import pytest
 
 from prom_ql.expression import (
+    BinaryOperator,
     Duration,
     Expression,
     Float,
@@ -239,3 +240,8 @@ def test_instant_vector(expr: InstantVector, expected: str) -> None:
 )
 def test_range_vector(expr: Expression, expected: str) -> None:
     assert str(expr) == expected
+
+
+def test_bin() -> None:
+    res: BinaryOperator = Float(1.0) + Float(2.0)
+    assert str(res) == "1.0 + 2.0"
