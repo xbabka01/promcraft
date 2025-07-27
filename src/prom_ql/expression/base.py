@@ -395,21 +395,46 @@ class Group(LabelList):
         return f"group_{self.type}({self.serialize()})"
 
 
-@dataclass(slots=True)
 class BinaryOperator(Expression, metaclass=abc.ABCMeta):
     OPS: ClassVar[dict[str, "type[BinaryOperator]"]] = {}
     operator: ClassVar[str]
 
+    @classmethod
     def __init_subclass__(cls, operator: str | None = None, **kwargs: Any) -> None:
-        super(BinaryOperator, cls).__init_subclass__(**kwargs)
+        super(BinaryOperator, cls).__init_subclass__(**kwargs)  # noqa: UP008
         if operator is not None:
             cls.operator = operator
             BinaryOperator.OPS[cls.operator] = cls
 
-    left: Expression
-    right: Expression
-    match: Match | None = None
-    group: Group | None = None
+    def __init__(
+        self,
+        left: Expression,
+        right: Expression,
+        match: Match | None = None,
+        group: Group | None = None,
+    ) -> None:
+        """
+        Base class for all binary operators. It defines the basic structure and behavior of
+        binary operators in PromQL.
+        """
+        self._left = left
+        self._right = right
+        self._match = match
+        self._group = group
+
+    def on(self, labels: list[str | String]) -> "BinaryOperator":
+        self._match = Match.on(labels)
+        return self
+
+    def ignoring(self, labels: list[str | String]) -> "BinaryOperator":
+        self._match = Match.ignoring(labels)
+        return self
+
+    def group(
+        self, side: Literal["left", "right"], labels: list[str | String]
+    ) -> "BinaryOperator":
+        self._group = getattr(Group, side)(labels)
+        return self
 
     def _parentheses(self, expr: Expression) -> str:
         if isinstance(expr, InstantVector | RangeVector | Float):
@@ -417,10 +442,10 @@ class BinaryOperator(Expression, metaclass=abc.ABCMeta):
         return f"({expr})"
 
     def __str__(self) -> str:
-        match_str = f" {self.match}" if self.match is not None else ""
-        group_str = f" {self.group}" if self.group is not None else ""
-        left = self._parentheses(self.left)
-        right = self._parentheses(self.right)
+        match_str = f" {self._match}" if self._match is not None else ""
+        group_str = f" {self._group}" if self._group is not None else ""
+        left = self._parentheses(self._left)
+        right = self._parentheses(self._right)
         return f"{left} {self.operator}{match_str}{group_str} {right}"
 
 

@@ -38,6 +38,14 @@ class Aggregation(Expression):
         )
         return f"{self.operation} {aggr}({', '.join(params)})"
 
+    def by(self, labels: list[str | String]) -> "Aggregation":
+        self.aggregate = Aggegate.by(labels)
+        return self
+
+    def without(self, labels: list[str | String]) -> "Aggregation":
+        self.aggregate = Aggegate.without(labels)
+        return self
+
 
 # Helper funtions to have "correct" type hints for aggregation functions
 def with_parameter(
