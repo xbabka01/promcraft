@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(poetry run pytest :*)",
+      "Bash(poetry run ruff check :*)",
+      "Bash(poetry run ruff fix :*)",
+      "Bash(poetry run ruff format :*)",
+      "Bash(poetry run mypy :*)",
+      "Bash(poetry install)",
+      "Bash(poetry show :*)",
+      "Bash(poetry env info :*)",
+      "Bash(git status)",
+      "Bash(git diff :*)",
+      "Bash(git log :*)",
+      "Bash(gh pr list :*)",
+      "Bash(gh pr view :*)",
+      "Bash(gh pr checks :*)",
+      "Bash(gh pr diff :*)",
+      "Bash(gh issue list :*)",
+      "Bash(gh issue view :*)",
+      "Bash(gh run list :*)",
+      "Bash(gh run view :*)",
+      "Bash(gh repo view :*)",
+      "Bash(gh api :*)",
+      "WebFetch(domain:prometheus.io)"
+    ]
+  }
+}
