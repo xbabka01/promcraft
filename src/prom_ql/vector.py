@@ -1,6 +1,7 @@
 import enum
 from typing import Literal
 
+from prom_ql import Duration
 from prom_ql.base import Query
 from prom_ql.scalar import Scalar
 from prom_ql.string import String
@@ -105,6 +106,22 @@ class InstantVector(Query):
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
         return f"{self.metric}{{{labels}}}{offset}{at}"
+
+    def __getitem__(self, item: Duration | tuple[Duration, Duration]) -> "RangeVector":
+        if isinstance(item, tuple):
+            range_ = item[0]
+            resolution = item[1]
+        else:
+            range_ = item
+            resolution = None
+        return RangeVector(
+            self.metric,
+            self.labels,
+            range_,
+            resolution,
+            self.offset,
+            self.at,
+        )
 
 
 class RangeVector(Query):
