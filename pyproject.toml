@@ -38,6 +38,7 @@ warn_unreachable = true
 
 [tool.poetry]
 packages = [{include = "prom_ql", from = "src"}]
+include = ["py.typed"]
 
 
 [tool.poetry.group.dev.dependencies]
