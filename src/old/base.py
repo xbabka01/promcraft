@@ -1,7 +1,11 @@
 from abc import ABC, abstractmethod
 
 
-class Query(ABC):
+class Expression(ABC):
+    """
+    Base class for all PromQL expressions.
+    """
+
     @abstractmethod
     def __str__(self) -> str:
         raise NotImplementedError(

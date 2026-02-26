@@ -1,7 +1,6 @@
 from typing import Literal
 
 import pytest
-
 from prom_ql.literals import (
     Duration,
     Float,
@@ -125,7 +124,7 @@ def test_simple_vector() -> None:
                 "http_requests_total",
                 labels=[Label.eq("method", "GET"), Label.neq("status", "500")],
             ),
-            'http_requests_total{method == "GET", status != "500"}',
+            'http_requests_total{method = "GET", status != "500"}',
         ),
         (
             InstantVector(
@@ -149,7 +148,7 @@ def test_simple_vector() -> None:
                 offset=Float(60),
                 at="start()",
             ),
-            'http_requests_total{method == "GET", status == "200"}[5m] offset 1m @ start()',
+            'http_requests_total{method = "GET", status = "200"}[5m] offset 1m @ start()',
         ),
         (
             RangeVector(
@@ -159,7 +158,7 @@ def test_simple_vector() -> None:
                 offset=Float(60),
                 at="end()",
             ),
-            'http_requests_total{method == "GET", status == "200"}[5m] offset 1m @ end()',
+            'http_requests_total{method = "GET", status = "200"}[5m] offset 1m @ end()',
         ),
     ],
 )

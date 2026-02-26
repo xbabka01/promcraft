@@ -1,9 +1,9 @@
 import pytest
 from _pytest.fixtures import SubRequest
-
-from prom_ql.base import Expression
 from prom_ql.literals import InstantVector
 from prom_ql.operators.binary import BINARY_OPERATORS, BinaryOperator, Group, Match
+
+from prom_ql.base import Expression
 
 OPERATORS = list(BINARY_OPERATORS.values())
 

@@ -1,8 +1,7 @@
 import pytest
-
 from prom_ql.literals import Float, RangeVector
 from prom_ql.operators.aggregation import (
-    Aggegate,
+    Aggregate,
     Aggregation,
     AggregationWithoutParameter,
     AggregationWithParameter,
@@ -18,11 +17,11 @@ def vector() -> RangeVector:
 
 
 @pytest.fixture(params=["without", "by"])
-def aggregate(request: pytest.FixtureRequest) -> Aggegate:
+def aggregate(request: pytest.FixtureRequest) -> Aggregate:
     if request.param == "without":
-        return Aggegate.without(labels=["test"])
+        return Aggregate.without(labels=["test"])
     elif request.param == "by":
-        return Aggegate.by(labels=["test"])
+        return Aggregate.by(labels=["test"])
     else:
         pytest.fail(f"Unexpected aggregate value: {request.param}")
 
@@ -47,7 +46,7 @@ def test_aggregation_without_param(
 
 def test_aggregation_without_param_aggregate(
     aggregation_without_param: AggregationWithoutParameter,
-    aggregate: Aggegate,
+    aggregate: Aggregate,
     vector: RangeVector,
 ) -> None:
     aggregation_without_param.aggregate = aggregate
@@ -78,7 +77,7 @@ def test_aggregation_with_param(
 
 def test_aggregation_with_param_aggregate(
     aggregation_with_param: AggregationWithParameter,
-    aggregate: Aggegate,
+    aggregate: Aggregate,
     vector: RangeVector,
 ) -> None:
     aggregation_with_param.aggregate = aggregate

@@ -9,8 +9,6 @@ class LabelList(ABC):
     labels: list[str | String]
 
     def serialize(self) -> str:
-        x: list[str] = [
-            str(String(value=label) if not isinstance(label, String) else label)
-            for label in self.labels
-        ]
-        return ",".join(x)
+        return ",".join(
+            label.value if isinstance(label, String) else label for label in self.labels
+        )

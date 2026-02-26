@@ -3,21 +3,23 @@ from abc import ABCMeta
 from dataclasses import dataclass, field
 from typing import Any, ClassVar, Literal
 
-from prom_ql.literals import Expression, String
+from prom_ql.literals import String
 from prom_ql.operators.misc import LabelList
+
+from prom_ql.base import Expression
 
 
 @dataclass(slots=True)
-class Aggegate(LabelList):
+class Aggregate(LabelList):
     type: Literal["by", "without"]
 
     @staticmethod
-    def by(labels: list[str | String]) -> "Aggegate":
-        return Aggegate(type="by", labels=labels)
+    def by(labels: list[str | String]) -> "Aggregate":
+        return Aggregate(type="by", labels=labels)
 
     @staticmethod
-    def without(labels: list[str | String]) -> "Aggegate":
-        return Aggegate(type="without", labels=labels)
+    def without(labels: list[str | String]) -> "Aggregate":
+        return Aggregate(type="without", labels=labels)
 
     def __str__(self) -> str:
         return f"{self.type}({self.serialize()}) " if self.labels else ""
@@ -28,7 +30,7 @@ class Aggregation(Expression, metaclass=ABCMeta):
     operation: ClassVar[str]
 
     params: list[Expression]
-    aggregate: Aggegate | None = field(
+    aggregate: Aggregate | None = field(
         kw_only=True,
         default=None,
     )
@@ -52,7 +54,7 @@ class AggregationWithParameter(Aggregation, metaclass=ABCMeta):
         parameter: Expression,
         vector: Expression,
         *,
-        aggregate: Aggegate | None = None,
+        aggregate: Aggregate | None = None,
     ) -> None:
         super().__init__(params=[parameter, vector], aggregate=aggregate)
 
@@ -69,7 +71,7 @@ class AggregationWithoutParameter(Aggregation, metaclass=ABCMeta):
         self,
         vector: Expression,
         *,
-        aggregate: Aggegate | None = None,
+        aggregate: Aggregate | None = None,
     ) -> None:
         super().__init__(params=[vector], aggregate=aggregate)
 

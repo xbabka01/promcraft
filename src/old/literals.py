@@ -89,9 +89,9 @@ class Duration(Scalar):
             ms = 0
             x = value
         else:
-            y, z = math.modf(value)
+            frac, z = math.modf(value)
             x = int(z)
-            ms = int(y * 1_000)
+            ms = int(frac * 1_000)
         x, s = divmod(x, 60)
         x, m = divmod(x, 60)
         x, h = divmod(x, 24)
@@ -117,7 +117,7 @@ class Duration(Scalar):
 
 class Label:
     class OP(str, enum.Enum):
-        EQ = "=="
+        EQ = "="
         NEQ = "!="
         RE = "=~"
         NRE = "!~"
@@ -184,9 +184,11 @@ class Vector(Expression, metaclass=ABCMeta):
     def _offset_str(self) -> str:
         if self.offset is None:
             return ""
-        if not isinstance(self.offset, Duration):
-            self.offset = Duration.from_timestamp(self.offset)
-        return f" offset {self.offset}"
+        if isinstance(self.offset, Duration):
+            offset = self.offset
+        else:
+            offset = Duration.from_timestamp(self.offset)
+        return f" offset {offset}"
 
     def _at_str(self) -> str:
         if self.at is None:
@@ -195,10 +197,8 @@ class Vector(Expression, metaclass=ABCMeta):
             value = str(Duration.from_timestamp(self.at))
         elif isinstance(self.at, Duration):
             value = str(self.at)
-        elif isinstance(self.at, str):
-            value = self.at
         else:
-            raise TypeError(f"Unsupported type for 'at': {type(self.at)}")
+            value = self.at
         return f" @ {value}"
 
     @abstractmethod
