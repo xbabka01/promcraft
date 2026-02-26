@@ -7,7 +7,27 @@ from prom_ql.string import String
 
 
 class Label:
+    """A PromQL label matcher used to filter time series.
+
+    Label matchers narrow the set of time series returned by a vector
+    selector.  Four operators are available:
+
+    - ``=``  (``Label.eq``)  — exact string equality
+    - ``!=`` (``Label.neq``) — string inequality
+    - ``=~`` (``Label.re``)  — RE2 regular-expression match (fully anchored)
+    - ``!~`` (``Label.nre``) — negated RE2 regular-expression match
+
+    The matcher value must be a :class:`~prom_ql.string.String` instance.
+
+    Example::
+
+        Label.eq("env", String("prod"))  # → 'env = "prod"'
+        Label.re("job", String("api.*"))  # → 'job =~ "api.*"'
+    """
+
     class Operator(enum.Enum):
+        """Enum of PromQL label matching operators."""
+
         EQ = "="
         NEQ = "!="
         RE = "=~"
@@ -31,22 +51,43 @@ class Label:
 
     @classmethod
     def eq(cls, name: str, value: String) -> "Label":
+        """Return a label matcher that requires ``name = value`` (exact equality)."""
         return cls(name, Label.Operator.EQ, value)
 
     @classmethod
     def neq(cls, name: str, value: String) -> "Label":
+        """Return a label matcher that requires ``name != value`` (inequality)."""
         return cls(name, Label.Operator.NEQ, value)
 
     @classmethod
     def re(cls, name: str, value: String) -> "Label":
+        """Return a label matcher that requires ``name =~ value`` (RE2 regex match)."""
         return cls(name, cls.Operator.RE, value)
 
     @classmethod
     def nre(cls, name: str, value: String) -> "Label":
+        """Return a label matcher that requires ``name !~ value`` (negated RE2 regex match)."""
         return cls(name, Label.Operator.NRE, value)
 
 
 class InstantVector(Query):
+    """A PromQL instant vector selector.
+
+    Selects a set of time series and a single sample value for each at
+    the query evaluation timestamp.  Results can be filtered by label
+    matchers and shifted in time with ``offset`` or pinned to an absolute
+    Unix timestamp with ``@`` (also accepts the special values
+    ``"start()"`` and ``"end()"``.
+
+    Example::
+
+        InstantVector("http_requests_total", [Label.eq("job", String("api"))])
+        # → 'http_requests_total{job = "api"}'
+
+        InstantVector("up", [], offset=Duration(m=5))
+        # → 'up{} offset 5m'
+    """
+
     def __init__(
         self,
         metric: str,
@@ -67,6 +108,25 @@ class InstantVector(Query):
 
 
 class RangeVector(Query):
+    """A PromQL range vector selector.
+
+    Selects a set of time series and a range of sample values for each,
+    extending backwards from the query evaluation timestamp by ``range``.
+    The window is left-open and right-closed.
+
+    An optional sub-query ``resolution`` step may be provided to control
+    the evaluation frequency.  Results can be shifted with ``offset`` or
+    pinned to an absolute time with ``@``.
+
+    Example::
+
+        RangeVector("http_requests_total", [], range=Duration(m=5))
+        # → 'http_requests_total{}[5m]'
+
+        RangeVector("rate_query", [], range=Duration(h=1), resolution=Duration(m=1))
+        # → 'rate_query{}[1h:1m]'
+    """
+
     def __init__(
         self,
         metric: str,

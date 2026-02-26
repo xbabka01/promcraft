@@ -4,10 +4,12 @@ from prom_ql.base import Query
 
 
 class Scalar(Query, metaclass=ABCMeta):
-    pass
+    """Abstract base class for PromQL scalar values."""
 
 
 class Float(Scalar):
+    """A floating-point scalar literal (e.g. ``3.14``, ``-2.5e9``, ``0.0``)."""
+
     def __init__(self, value: float) -> None:
         self.value = value
 
@@ -16,6 +18,8 @@ class Float(Scalar):
 
 
 class Hex(Scalar):
+    """A hexadecimal integer scalar literal (e.g. ``0xff``, ``0x8f``)."""
+
     def __init__(self, value: int) -> None:
         self.value = value
 
@@ -24,6 +28,23 @@ class Hex(Scalar):
 
 
 class Duration(Scalar):
+    """A PromQL duration scalar composed of time-unit components.
+
+    Duration literals combine non-negative integers with unit suffixes:
+    ``ms`` (milliseconds), ``s`` (seconds), ``m`` (minutes), ``h`` (hours),
+    ``d`` (days, always 24 h), ``w`` (weeks, always 7 d), ``y`` (years,
+    always 365 d).  Multiple units may be combined from longest to shortest
+    (e.g. ``1h30m``, ``2d12h``, ``54s321ms``).  The optional ``neg`` flag
+    prepends a ``-`` sign for negative offsets.
+
+    Example::
+
+        Duration(h=1, m=30)  # → "1h30m"
+        Duration(ms=500)  # → "500ms"
+        Duration(d=1, neg=True)  # → "-1d"
+        Duration()  # → "0s"
+    """
+
     def __init__(
         self,
         *,
