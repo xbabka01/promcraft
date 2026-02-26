@@ -1,0 +1,30 @@
+name: Pytest
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python_version: ['3.14', '3.13', '3.12', '3.11', '3.10']
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: xbabka01/poetry-action@33b75886ee1504a47eb3ee3050045a2bb6d01db6 # v1
+        with:
+          python_version: ${{ matrix.python_version }}
+      - name: Poetry check
+        run: |
+          poetry check --lock
+      - name: Install dependencies
+        run: |
+          poetry install
+      - name: Test with pytest
+        id: pytest
+        shell: bash
+        run: |
+          poetry run pytest
