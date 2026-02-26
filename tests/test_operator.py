@@ -337,3 +337,41 @@ def test_binary_operator(expr: BinaryOprator, expected: str) -> None:
 )
 def test_binary_helpers(expr: BinaryOprator, expected: str) -> None:
     assert str(expr) == expected
+
+
+@pytest.mark.parametrize(
+    "expr, expected",
+    [
+        # arithmetic
+        (Float(1.0) + Float(2.0), "1.0 +  2.0"),
+        (Float(5.0) - Float(3.0), "5.0 -  3.0"),
+        (Float(2.0) * Float(3.0), "2.0 *  3.0"),
+        (Float(6.0) / Float(2.0), "6.0 /  2.0"),
+        (Float(7.0) % Float(3.0), "7.0 %  3.0"),
+        (Float(2.0) ** Float(8.0), "2.0 ^  8.0"),
+        # comparison
+        (Float(1.0) == Float(1.0), "1.0 ==  1.0"),
+        (Float(1.0) != Float(2.0), "1.0 !=  2.0"),
+        (Float(1.0) < Float(2.0), "1.0 <  2.0"),
+        (Float(1.0) <= Float(1.0), "1.0 <=  1.0"),
+        (Float(2.0) > Float(1.0), "2.0 >  1.0"),
+        (Float(2.0) >= Float(2.0), "2.0 >=  2.0"),
+        # logical / set  (&  →  and,  |  →  or)
+        (_left & _right, "left{} and  right{}"),
+        (_left | _right, "left{} or  right{}"),
+    ],
+)
+def test_dunder_operators(expr: BinaryOprator, expected: str) -> None:
+    assert str(expr) == expected
+
+
+def test_query_hashable() -> None:
+    """__hash__ is preserved despite the __eq__ override."""
+    a, b = Float(1.0), Float(2.0)
+    assert len({a, b}) == 2
+
+
+def test_eq_non_query_falls_back() -> None:
+    """__eq__ returns NotImplemented for non-Query objects."""
+    with pytest.raises(NotImplementedError, match="Cannot compare Query with non-Query object"):
+        assert Float(1.0).__eq__(42) is NotImplemented
