@@ -1,10 +1,10 @@
 import enum
 from typing import Literal
 
-from prom_ql import Duration
-from prom_ql.base import Query
-from prom_ql.scalar import Scalar
-from prom_ql.string import String
+from promcraft import Duration
+from promcraft.base import Query
+from promcraft.scalar import Scalar
+from promcraft.string import String
 
 
 class Label:
@@ -18,7 +18,7 @@ class Label:
     - ``=~`` (``Label.re``)  — RE2 regular-expression match (fully anchored)
     - ``!~`` (``Label.nre``) — negated RE2 regular-expression match
 
-    The matcher value must be a :class:`~prom_ql.string.String` instance.
+    The matcher value must be a :class:`~promcraft.string.String` instance.
 
     Example::
 

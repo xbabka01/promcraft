@@ -1,5 +1,5 @@
 [project]
-name = "prom-ql"
+name = "promcraft"
 version = "0.1.0"
 description = ""
 authors = [
@@ -25,7 +25,7 @@ addopts = """
 --strict-markers
 --tb=short
 
---cov=prom_ql
+--cov=promcraft
 --cov-report=html
 --cov-report=xml
 --cov-report=term
@@ -49,7 +49,7 @@ docstring-code-format = true
 
 [tool.mypy]
 python_version = "3.10"
-files = ["src/prom_ql", "tests"]
+files = ["src/promcraft", "tests"]
 strict = true
 warn_redundant_casts = true
 warn_unused_ignores = true
@@ -57,7 +57,7 @@ warn_unreachable = true
 
 
 [tool.poetry]
-packages = [{include = "prom_ql", from = "src"}]
+packages = [{include = "promcraft", from = "src"}]
 include = ["py.typed"]
 
 

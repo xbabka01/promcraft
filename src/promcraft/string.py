@@ -1,6 +1,6 @@
 from typing import Literal
 
-from prom_ql.base import Query
+from promcraft.base import Query
 
 
 class String(Query):
