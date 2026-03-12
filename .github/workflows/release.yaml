@@ -1,0 +1,40 @@
+name: Publish to PyPI
+on:
+  push:
+    tags:
+      - "v*"
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: xbabka01/poetry-action@33b75886ee1504a47eb3ee3050045a2bb6d01db6 # v1
+        with:
+          python_version: '3.13'
+      - name: Poetry check
+        run: poetry check --lock
+      - name: Install dependencies
+        run: poetry install
+      - name: Test with pytest
+        run: poetry run pytest
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: xbabka01/poetry-action@33b75886ee1504a47eb3ee3050045a2bb6d01db6 # v1
+        with:
+          python_version: '3.13'
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+      - name: Set version
+        run: poetry version "${GITHUB_REF_NAME#v}"
+      - name: Build package
+        run: poetry build
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # release/v1
