@@ -1,4 +1,4 @@
-from prom_ql.aggregation import (
+from promcraft.aggregation import (
     AggregationOperator,
     Grouping,
     avg,
@@ -16,8 +16,8 @@ from prom_ql.aggregation import (
     sum,
     topk,
 )
-from prom_ql.base import Query
-from prom_ql.operator import (
+from promcraft.base import Query
+from promcraft.operator import (
     BinaryOprator,
     Group,
     Match,
@@ -38,15 +38,15 @@ from prom_ql.operator import (
     sub,
     unless,
 )
-from prom_ql.scalar import Duration, Float, Hex, Scalar
-from prom_ql.string import String
-from prom_ql.vector import InstantVector, Label, RangeVector
+from promcraft.scalar import Duration, Float, Hex, Scalar
+from promcraft.string import String
+from promcraft.vector import InstantVector, Label, RangeVector
 
 # isort: split
-# prom_ql.functions must be imported AFTER prom_ql.scalar and prom_ql.vector so that
+# promcraft.functions must be imported AFTER promcraft.scalar and promcraft.vector so that
 # our 'scalar' and 'vector' function names overwrite the submodule bindings that Python
 # injects automatically when a submodule is imported.
-from prom_ql.functions import (
+from promcraft.functions import (
     Function,
     abs,
     absent,

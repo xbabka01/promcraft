@@ -1,17 +1,17 @@
-# prom-ql
+# promcraft
 
-[![pypi](https://img.shields.io/pypi/v/prom-ql)](https://pypi.org/project/prom-ql/)
-[![python](https://img.shields.io/pypi/pyversions/prom-ql.svg)](https://pypi.org/project/prom-ql/)
-[![Tests](https://github.com/xbabka01/prom-ql/actions/workflows/python.yml/badge.svg)](https://github.com/xbabka01/prom-ql/actions/workflows/python.yml)
+[![pypi](https://img.shields.io/pypi/v/promcraft)](https://pypi.org/project/promcraft/)
+[![python](https://img.shields.io/pypi/pyversions/promcraft.svg)](https://pypi.org/project/promcraft/)
+[![Tests](https://github.com/xbabka01/promcraft/actions/workflows/python.yml/badge.svg)](https://github.com/xbabka01/promcraft/actions/workflows/python.yml)
 
 A Python library for building [Prometheus QL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries programmatically. Instead of constructing raw query strings, use composable Python objects that serialize to valid PromQL syntax.
 
 ## Installation
 
 ```bash
-pip install prom-ql
+pip install promcraft
 # or with Poetry
-poetry add prom-ql
+poetry add promcraft
 ```
 
 Requires Python 3.10+.
@@ -19,7 +19,7 @@ Requires Python 3.10+.
 ## Quick Start
 
 ```python
-from prom_ql import InstantVector, RangeVector, Label, String, Duration, BinaryOprator
+from promcraft import InstantVector, RangeVector, Label, String, Duration, BinaryOprator
 
 # Simple metric selector
 query = InstantVector("up", [])
@@ -33,7 +33,7 @@ query = InstantVector("http_requests_total", [
 str(query)  # 'http_requests_total{job = "api-server", env = "production"}'
 
 # Range vector with rate()
-from prom_ql import rate
+from promcraft import rate
 query = rate(RangeVector("http_requests_total", [
     Label.eq("job", String("api-server")),
 ], Duration(m=5)))
@@ -55,7 +55,7 @@ str(ratio)  # 'http_requests_total{status = "500"} /  http_requests_total{}'
 Wraps a Python float for use in queries.
 
 ```python
-from prom_ql import Float
+from promcraft import Float
 
 Float(3.14)   # "3.14"
 Float(0.0)    # "0.0"
@@ -67,7 +67,7 @@ Float(-2.5)   # "-2.5"
 Represents a hexadecimal integer literal.
 
 ```python
-from prom_ql import Hex
+from promcraft import Hex
 
 Hex(255)  # "0xff"
 Hex(0)    # "0x0"
@@ -79,7 +79,7 @@ Hex(16)   # "0x10"
 Represents a Prometheus duration literal. All parameters are keyword-only.
 
 ```python
-from prom_ql import Duration
+from promcraft import Duration
 
 Duration()                              # "0s"  (default when no units given)
 Duration(s=5)                           # "5s"
@@ -108,7 +108,7 @@ Duration(m=5, neg=True)                 # "-5m"
 Represents a PromQL string literal with configurable quoting.
 
 ```python
-from prom_ql import String
+from promcraft import String
 
 String("hello")          # '"hello"'   (double-quote default)
 String("hello", '"')     # '"hello"'
@@ -125,7 +125,7 @@ Special characters are escaped automatically for `"` and `'` quotes. Backtick st
 Represents a label matcher used inside vector selectors. Use the factory methods for convenience.
 
 ```python
-from prom_ql import Label, String
+from promcraft import Label, String
 
 Label.eq("job", String("prometheus"))    # 'job = "prometheus"'
 Label.neq("env", String("prod"))         # 'env != "prod"'
@@ -151,7 +151,7 @@ InstantVector(metric, labels, *, offset=None, at=None)
 ```
 
 ```python
-from prom_ql import InstantVector, Label, String, Duration, Float
+from promcraft import InstantVector, Label, String, Duration, Float
 
 # Basic
 InstantVector("up", [])
@@ -191,7 +191,7 @@ RangeVector(metric, labels, range, *, resolution=None, offset=None, at=None)
 ```
 
 ```python
-from prom_ql import RangeVector, Label, String, Duration
+from promcraft import RangeVector, Label, String, Duration
 
 # Basic range
 RangeVector("http_requests_total", [], Duration(m=5))
@@ -253,7 +253,7 @@ BinaryOprator(op, left, right, *, match=None, group=None)
 Each operator has a module-level helper so you don't need to import the enum:
 
 ```python
-from prom_ql import (
+from promcraft import (
     add, sub, mul, div, mod, pow,
     eq, neq, lt, lte, gt, gte,
     and_, or_, unless, atan2,
@@ -278,7 +278,7 @@ div(v2, v1, match=Match.on(["job"]), group=Group.left([]))
 #### Basic usage
 
 ```python
-from prom_ql import BinaryOprator, Float
+from promcraft import BinaryOprator, Float
 
 Op = BinaryOprator.Operator
 
@@ -291,7 +291,7 @@ BinaryOprator(Op.MUL, Float(2.0), Float(3.0))  # "2.0 *  3.0"
 Use `on()` or `ignoring()` to control which labels are used for matching when combining two vector selectors:
 
 ```python
-from prom_ql import BinaryOprator, InstantVector, Label, String
+from promcraft import BinaryOprator, InstantVector, Label, String
 
 Op = BinaryOprator.Operator
 
@@ -346,7 +346,7 @@ str(outer)  # "(1.0 +  2.0) *  3.0"
 Controls label matching for binary operations (used directly or via `BinaryOprator` chainable methods).
 
 ```python
-from prom_ql import Match
+from promcraft import Match
 
 Match.on(["job", "env"])    # "on(job, env)"
 Match.on([])                # "on()"
@@ -360,7 +360,7 @@ Match.ignoring(["instance"]) # "ignoring(instance)"
 Controls grouping for many-to-one / one-to-many binary operations.
 
 ```python
-from prom_ql import Group
+from promcraft import Group
 
 Group.left(["env"])   # "group_left(env)"
 Group.left([])        # "group_left()"
@@ -382,7 +382,7 @@ AggregationOperator(op, vector, *, parameter=None, grouping=None)
 Controls label grouping for aggregations. Use `by()` to keep specified labels, `without()` to drop them:
 
 ```python
-from prom_ql import Grouping
+from promcraft import Grouping
 
 Grouping.by(["job", "env"])   # "by(job, env)"
 Grouping.by([])               # "by()"
@@ -392,7 +392,7 @@ Grouping.without(["instance"]) # "without(instance)"
 The `.by()` and `.without()` chainable methods on `AggregationOperator` return a new instance:
 
 ```python
-from prom_ql import AggregationOperator, InstantVector
+from promcraft import AggregationOperator, InstantVector
 
 v = InstantVector("http_requests_total", [])
 
@@ -407,7 +407,7 @@ Each aggregation operator has a module-level helper. Helpers for operators that 
 **No-parameter aggregations** — `sum`, `avg`, `min`, `max`, `count`, `group`, `stddev`, `stdvar`:
 
 ```python
-from prom_ql import (
+from promcraft import (
     sum, avg, min, max, count, group, stddev, stdvar,
     InstantVector, Grouping,
 )
@@ -423,7 +423,7 @@ stddev(v, grouping=Grouping.without(["env"]))
 **Scalar-parameter aggregations** — `topk`, `bottomk`, `quantile`, `limitk`, `limit_ratio`:
 
 ```python
-from prom_ql import topk, bottomk, quantile, limitk, limit_ratio, Float
+from promcraft import topk, bottomk, quantile, limitk, limit_ratio, Float
 
 topk(Float(5.0), v)                          # "topk(5.0, http_requests_total{})"
 bottomk(Float(3.0), v)                       # "bottomk(3.0, http_requests_total{})"
@@ -437,7 +437,7 @@ topk(Float(5.0), v, grouping=Grouping.by(["job"]))
 **String-parameter aggregation** — `count_values` (label name as a `String`):
 
 ```python
-from prom_ql import count_values, String
+from promcraft import count_values, String
 
 count_values(String("version"), v)
 # 'count_values("version", http_requests_total{})'
@@ -452,7 +452,7 @@ count_values(String("version"), v)
 #### Rate / counter functions
 
 ```python
-from prom_ql import RangeVector, Duration, rate, irate, increase, delta, deriv, resets
+from promcraft import RangeVector, Duration, rate, irate, increase, delta, deriv, resets
 
 rv = RangeVector("http_requests_total", [], Duration(m=5))
 
@@ -467,7 +467,7 @@ resets(rv)    # "resets(http_requests_total{}[5m])"
 #### `*_over_time` aggregations
 
 ```python
-from prom_ql import (
+from promcraft import (
     avg_over_time, min_over_time, max_over_time, sum_over_time,
     count_over_time, stddev_over_time, last_over_time,
     present_over_time, absent_over_time, quantile_over_time, Float,
@@ -480,7 +480,7 @@ quantile_over_time(Float(0.95), rv)      # "quantile_over_time(0.95, http_reques
 #### Math & rounding
 
 ```python
-from prom_ql import InstantVector, abs, ceil, floor, sqrt, round, clamp, clamp_min, clamp_max, Float
+from promcraft import InstantVector, abs, ceil, floor, sqrt, round, clamp, clamp_min, clamp_max, Float
 
 v = InstantVector("cpu_usage", [])
 
@@ -497,7 +497,7 @@ clamp_max(v, Float(1.0))         # "clamp_max(cpu_usage{}, 1.0)"
 #### Exponential & logarithm
 
 ```python
-from prom_ql import exp, ln, log2, log10
+from promcraft import exp, ln, log2, log10
 
 exp(v)    # "exp(cpu_usage{})"
 ln(v)     # "ln(cpu_usage{})"
@@ -508,7 +508,7 @@ log10(v)  # "log10(cpu_usage{})"
 #### Trigonometry
 
 ```python
-from prom_ql import sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, deg, rad, pi, sgn
+from promcraft import sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, deg, rad, pi, sgn
 
 sin(v)  # "sin(cpu_usage{})"
 deg(v)  # "deg(cpu_usage{})"
@@ -522,7 +522,7 @@ sgn(v)  # "sgn(cpu_usage{})"
 All accept an optional instant vector; when omitted they default to `vector(time())` in PromQL.
 
 ```python
-from prom_ql import hour, minute, day_of_week, day_of_month, month, year, time
+from promcraft import hour, minute, day_of_week, day_of_month, month, year, time
 
 hour()      # "hour()"
 hour(v)     # "hour(cpu_usage{})"
@@ -532,7 +532,7 @@ time()      # "time()"
 #### Sorting
 
 ```python
-from prom_ql import sort, sort_desc, sort_by_label, sort_by_label_desc, String
+from promcraft import sort, sort_desc, sort_by_label, sort_by_label_desc, String
 
 sort(v)                                    # "sort(cpu_usage{})"
 sort_desc(v)                               # "sort_desc(cpu_usage{})"
@@ -544,7 +544,7 @@ sort_by_label_desc(v, String("job"), String("env"))
 #### Label manipulation
 
 ```python
-from prom_ql import label_join, label_replace, String
+from promcraft import label_join, label_replace, String
 
 label_join(v, String("addr"), String(":"), String("host"), String("port"))
 # 'label_join(cpu_usage{}, "addr", ":", "host", "port")'
@@ -556,7 +556,7 @@ label_replace(v, String("job"), String("${1}"), String("job"), String("(.+)"))
 #### Type conversion
 
 ```python
-from prom_ql import scalar, vector, Float
+from promcraft import scalar, vector, Float
 
 scalar(v)         # "scalar(cpu_usage{})"
 vector(Float(1.0))  # "vector(1.0)"
@@ -565,7 +565,7 @@ vector(Float(1.0))  # "vector(1.0)"
 #### Histogram functions
 
 ```python
-from prom_ql import (
+from promcraft import (
     histogram_quantile, histogram_fraction,
     histogram_count, histogram_sum, histogram_avg,
     histogram_stddev, histogram_stdvar, Float,
@@ -579,7 +579,7 @@ histogram_count(v)                            # "histogram_count(cpu_usage{})"
 #### Prediction & smoothing
 
 ```python
-from prom_ql import predict_linear, double_exponential_smoothing
+from promcraft import predict_linear, double_exponential_smoothing
 
 predict_linear(rv, Float(3600.0))
 # "predict_linear(http_requests_total{}[5m], 3600.0)"
@@ -591,7 +591,7 @@ double_exponential_smoothing(rv, Float(0.1), Float(0.5))
 #### Absence detection
 
 ```python
-from prom_ql import absent, absent_over_time
+from promcraft import absent, absent_over_time
 
 absent(v)           # "absent(cpu_usage{})"
 absent_over_time(rv)  # "absent_over_time(http_requests_total{}[5m])"
@@ -602,7 +602,7 @@ absent_over_time(rv)  # "absent_over_time(http_requests_total{}[5m])"
 The `Function` class underlies all helpers and can be used directly for any custom function:
 
 ```python
-from prom_ql import Function, InstantVector
+from promcraft import Function, InstantVector
 
 Function("my_custom_func", [InstantVector("up", []), Float(42.0)])
 # "my_custom_func(up{}, 42.0)"
@@ -615,7 +615,7 @@ Function("my_custom_func", [InstantVector("up", []), Float(42.0)])
 All objects implement `__str__`, so you can compose arbitrarily deep expressions:
 
 ```python
-from prom_ql import (
+from promcraft import (
     BinaryOprator, InstantVector, RangeVector,
     Label, String, Duration, Float, rate, div,
 )

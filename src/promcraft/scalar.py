@@ -1,6 +1,6 @@
 from abc import ABCMeta
 
-from prom_ql.base import Query
+from promcraft.base import Query
 
 
 class Scalar(Query, metaclass=ABCMeta):

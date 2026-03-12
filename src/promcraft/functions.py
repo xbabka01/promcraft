@@ -1,6 +1,6 @@
-from prom_ql.base import Query
-from prom_ql.scalar import Scalar
-from prom_ql.string import String
+from promcraft.base import Query
+from promcraft.scalar import Scalar
+from promcraft.string import String
 
 
 class Function(Query):

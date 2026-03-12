@@ -1,6 +1,6 @@
 import pytest
 
-from prom_ql import (
+from promcraft import (
     BinaryOprator,
     Float,
     Group,

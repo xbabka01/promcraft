@@ -29,13 +29,13 @@ This is a Python library for building PromQL query strings programmatically. All
 
 ### Class Hierarchy
 
-- [src/prom_ql/base.py](src/prom_ql/base.py) — `Query`: abstract base class with a single required `__str__` method. Everything in the library inherits from it.
-- [src/prom_ql/scalar.py](src/prom_ql/scalar.py) — `Scalar(Query)` (abstract), then `Float`, `Hex`, `Duration`. Scalars are used as values in other query components (offsets, range windows, etc.).
-- [src/prom_ql/string.py](src/prom_ql/string.py) — `String(Query)`: PromQL string literals with configurable quoting (`"`, `'`, `` ` ``).
-- [src/prom_ql/vector.py](src/prom_ql/vector.py) — `Label` (label matcher), `InstantVector(Query)`, `RangeVector(Query)`. These are the primary selector types.
-- [src/prom_ql/operator.py](src/prom_ql/operator.py) — `Match`, `Group`, `BinaryOprator(Query)`. Note: `BinaryOprator` is the existing (intentionally preserved) spelling — do not rename it.
-- [src/prom_ql/aggregation.py](src/prom_ql/aggregation.py) — `Grouping`, `AggregationOperator(Query)`.
-- [src/prom_ql/__init__.py](src/prom_ql/__init__.py) — public API; all user-facing classes are re-exported here.
+- [src/promcraft/base.py](src/promcraft/base.py) — `Query`: abstract base class with a single required `__str__` method. Everything in the library inherits from it.
+- [src/promcraft/scalar.py](src/promcraft/scalar.py) — `Scalar(Query)` (abstract), then `Float`, `Hex`, `Duration`. Scalars are used as values in other query components (offsets, range windows, etc.).
+- [src/promcraft/string.py](src/promcraft/string.py) — `String(Query)`: PromQL string literals with configurable quoting (`"`, `'`, `` ` ``).
+- [src/promcraft/vector.py](src/promcraft/vector.py) — `Label` (label matcher), `InstantVector(Query)`, `RangeVector(Query)`. These are the primary selector types.
+- [src/promcraft/operator.py](src/promcraft/operator.py) — `Match`, `Group`, `BinaryOprator(Query)`. Note: `BinaryOprator` is the existing (intentionally preserved) spelling — do not rename it.
+- [src/promcraft/aggregation.py](src/promcraft/aggregation.py) — `Grouping`, `AggregationOperator(Query)`.
+- [src/promcraft/__init__.py](src/promcraft/__init__.py) — public API; all user-facing classes are re-exported here.
 
 ### Key Patterns
 
