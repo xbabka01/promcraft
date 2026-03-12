@@ -24,7 +24,7 @@ class Function(Query):
 # ---------------------------------------------------------------------------
 
 
-def abs(v: Query) -> Function:  # noqa: A001
+def abs(v: Query) -> Function:
     """Return the absolute value of each float sample in ``v``."""
     return Function("abs", [v])
 
@@ -165,7 +165,7 @@ def absent(v: Query) -> Function:
     return Function("absent", [v])
 
 
-def scalar(v: Query) -> Function:  # noqa: A001
+def scalar(v: Query) -> Function:
     """Return ``v``'s single float sample value as a scalar (``scalar(v)``).
 
     Returns NaN if ``v`` does not contain exactly one element.
@@ -336,7 +336,7 @@ def vector(s: Scalar) -> Function:
 # ---------------------------------------------------------------------------
 
 
-def round(v: Query, to_nearest: Scalar | None = None) -> Function:  # noqa: A001
+def round(v: Query, to_nearest: Scalar | None = None) -> Function:
     """Round float samples to the nearest integer, or to a multiple of ``to_nearest``."""
     return Function("round", [v] if to_nearest is None else [v, to_nearest])
 
@@ -346,12 +346,12 @@ def round(v: Query, to_nearest: Scalar | None = None) -> Function:  # noqa: A001
 # ---------------------------------------------------------------------------
 
 
-def clamp_max(v: Query, max: Scalar) -> Function:  # noqa: A002
+def clamp_max(v: Query, max: Scalar) -> Function:
     """Clamp float samples so that no value exceeds ``max``."""
     return Function("clamp_max", [v, max])
 
 
-def clamp_min(v: Query, min: Scalar) -> Function:  # noqa: A002
+def clamp_min(v: Query, min: Scalar) -> Function:
     """Clamp float samples so that no value falls below ``min``."""
     return Function("clamp_min", [v, min])
 
@@ -361,7 +361,7 @@ def clamp_min(v: Query, min: Scalar) -> Function:  # noqa: A002
 # ---------------------------------------------------------------------------
 
 
-def clamp(v: Query, min: Scalar, max: Scalar) -> Function:  # noqa: A002
+def clamp(v: Query, min: Scalar, max: Scalar) -> Function:
     """Clamp float samples so all values fall within [``min``, ``max``]."""
     return Function("clamp", [v, min, max])
 

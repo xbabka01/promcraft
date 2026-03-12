@@ -1,5 +1,9 @@
 # prom-ql
 
+[![pypi](https://img.shields.io/pypi/v/prom-ql)](https://pypi.org/project/prom-ql/)
+[![python](https://img.shields.io/pypi/pyversions/prom-ql.svg)](https://pypi.org/project/prom-ql/)
+[![Tests](https://github.com/xbabka01/prom-ql/actions/workflows/python.yml/badge.svg)](https://github.com/xbabka01/prom-ql/actions/workflows/python.yml)
+
 A Python library for building [Prometheus QL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries programmatically. Instead of constructing raw query strings, use composable Python objects that serialize to valid PromQL syntax.
 
 ## Installation
@@ -38,7 +42,7 @@ str(query)  # 'rate(http_requests_total{job = "api-server"}[5m])'
 # Binary operation
 left = InstantVector("http_requests_total", [Label.eq("status", String("500"))])
 right = InstantVector("http_requests_total", [])
-ratio = BinaryOprator(BinaryOprator.Operator.DIV, left, right)
+ratio = left / right
 str(ratio)  # 'http_requests_total{status = "500"} /  http_requests_total{}'
 ```
 
