@@ -43,3 +43,63 @@ def test_hex(query: Query, expected: str) -> None:
 )
 def test_duration(query: Query, expected: str) -> None:
     assert str(query) == expected
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (3, "3.0"),
+        (3.14, "3.14"),
+        (-2.5, "-2.5"),
+    ],
+)
+def test_float_from_value(value: float, expected: str) -> None:
+    assert str(Float.from_value(value)) == expected
+
+
+def test_float_from_value_passthrough() -> None:
+    original = Float(1.5)
+    assert Float.from_value(original) is original
+
+    other = Hex(255)
+    assert Float.from_value(other) is other
+    assert str(Float.from_value(other)) == "0xff"
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (255, "0xff"),
+        (0, "0x0"),
+        (3.7, "0x3"),
+    ],
+)
+def test_hex_from_value(value: float, expected: str) -> None:
+    assert str(Hex.from_value(value)) == expected
+
+
+def test_hex_from_value_passthrough() -> None:
+    original = Hex(16)
+    assert Hex.from_value(original) is original
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (0, "0s"),
+        (90, "1m30s"),
+        (3661, "1h1m1s"),
+        (1.5, "1s500ms"),
+        (86399, "23h59m59s"),
+        (86400, "1d"),
+        (691200, "1w1d"),
+        (33019506, "1y2w3d4h5m6s"),
+    ],
+)
+def test_duration_from_value(value: float, expected: str) -> None:
+    assert str(Duration.from_value(value)) == expected
+
+
+def test_duration_from_value_passthrough() -> None:
+    original = Duration(s=5)
+    assert Duration.from_value(original) is original

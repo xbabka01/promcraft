@@ -99,8 +99,8 @@ class Duration(Scalar):
         x, sec = divmod(x, 60)
         x, min = divmod(x, 60)
         x, hr = divmod(x, 24)
-        day = x % 7
-        year, week = divmod((x - day), 365)
+        year, x = divmod(x, 365)
+        week, day = divmod(x, 7)
 
         return cls(
             y=int(year),
