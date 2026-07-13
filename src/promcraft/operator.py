@@ -198,170 +198,138 @@ class BinaryOprator:
 def add(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left + right`` (arithmetic addition)."""
-    return BinaryOprator(BinaryOprator.Operator.ADD, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.ADD, left, right)
 
 
 def sub(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left - right`` (arithmetic subtraction)."""
-    return BinaryOprator(BinaryOprator.Operator.SUB, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.SUB, left, right)
 
 
 def mul(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left * right`` (arithmetic multiplication)."""
-    return BinaryOprator(BinaryOprator.Operator.MUL, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.MUL, left, right)
 
 
 def div(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left / right`` (arithmetic division)."""
-    return BinaryOprator(BinaryOprator.Operator.DIV, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.DIV, left, right)
 
 
 def mod(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left % right`` (arithmetic modulo)."""
-    return BinaryOprator(BinaryOprator.Operator.MOD, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.MOD, left, right)
 
 
 def pow(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left ^ right`` (exponentiation)."""
-    return BinaryOprator(BinaryOprator.Operator.POW, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.POW, left, right)
 
 
 def eq(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left == right`` (equality comparison; filters non-matching elements)."""
-    return BinaryOprator(BinaryOprator.Operator.EQ, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.EQ, left, right)
 
 
 def neq(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left != right`` (not-equal comparison)."""
-    return BinaryOprator(BinaryOprator.Operator.NEQ, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.NEQ, left, right)
 
 
 def lt(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left < right`` (less-than comparison)."""
-    return BinaryOprator(BinaryOprator.Operator.LT, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.LT, left, right)
 
 
 def lte(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left <= right`` (less-than-or-equal comparison)."""
-    return BinaryOprator(BinaryOprator.Operator.LTE, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.LTE, left, right)
 
 
 def gt(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left > right`` (greater-than comparison)."""
-    return BinaryOprator(BinaryOprator.Operator.GT, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.GT, left, right)
 
 
 def gte(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left >= right`` (greater-than-or-equal comparison)."""
-    return BinaryOprator(BinaryOprator.Operator.GTE, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.GTE, left, right)
 
 
 def and_(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left and right``.
 
     Set intersection: keeps left-side elements whose label set has a match in right.
     """
-    return BinaryOprator(BinaryOprator.Operator.AND, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.AND, left, right)
 
 
 def or_(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left or right``.
 
     Set union: combines all elements from both sides; left takes precedence for duplicates.
     """
-    return BinaryOprator(BinaryOprator.Operator.OR, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.OR, left, right)
 
 
 def unless(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left unless right``.
 
     Set complement: keeps left-side elements with no matching label set in right.
     """
-    return BinaryOprator(BinaryOprator.Operator.UNLESS, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.UNLESS, left, right)
 
 
 def atan2(
     left: Query,
     right: Query,
-    match: Match | None = None,
-    group: Group | None = None,
 ) -> BinaryOprator:
     """Return ``left atan2 right``.
 
     Trigonometric two-argument arctangent, applied element-wise via vector matching.
     """
-    return BinaryOprator(BinaryOprator.Operator.ATAN2, left, right, match=match, group=group)
+    return BinaryOprator(BinaryOprator.Operator.ATAN2, left, right)
