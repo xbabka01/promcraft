@@ -592,7 +592,7 @@ poetry install
 poetry run pytest
 
 # Run only unit tests
-poetry run pytest --no-header -p no:mypy -p no:ruff
+poetry run pytest -o addopts=""
 ```
 
 The test suite uses `pytest` with `pytest-mypy` for static type checking and `pytest-ruff` for linting. All checks run together by default.
