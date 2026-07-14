@@ -16,19 +16,15 @@ class Function(Query):
         self.args = args
 
     def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
-        if indent is None:
-            return f"{self.name}({', '.join(str(a) for a in self.args)})"
+        sep, space, pad, inner_pad, inner = self.get_indent(indent, indent_size)
 
         if not self.args:
-            return f"{self.name} ()"
+            return f"{self.name}()"
 
-        pad = " " * (indent * indent_size)
-        inner_pad = " " * ((indent + 1) * indent_size)
-        args_str = ",\n".join(
-            inner_pad + arg.to_string(indent=indent + 1, indent_size=indent_size)
-            for arg in self.args
+        args_str = f",{sep}".join(
+            arg.to_string(indent=inner, indent_size=indent_size) for arg in self.args
         )
-        return f"{self.name} (\n{args_str}\n{pad})"
+        return f"{pad}{self.name}({space}{args_str}{space}{pad})"
 
 
 # ---------------------------------------------------------------------------

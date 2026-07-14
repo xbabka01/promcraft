@@ -145,33 +145,19 @@ class BinaryOprator(Query):
         self.group = group
 
     def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
-        if indent is None:
-            match_str = f" {self.match}" if self.match else ""
-            group_str = f" {self.group}" if self.group else ""
-
-            left = str(self.left)
-            if not isinstance(self.left, Scalar | String | InstantVector | RangeVector):
-                left = f"({left})"
-            right = str(self.right)
-            if not isinstance(self.right, Scalar | String | InstantVector | RangeVector):
-                right = f"({right})"
-            expr = f"{left} {self.op} {match_str}{group_str} {right}"
-            return expr
-
-        pad = " " * (indent * indent_size)
-        inner_pad = " " * ((indent + 1) * indent_size)
+        sep, space, pad, inner_pad, inner = self.get_indent(indent, indent_size)
 
         def render_operand(operand: Query) -> str:
             if isinstance(operand, Scalar | String | InstantVector | RangeVector):
                 return operand.to_string(indent=indent, indent_size=indent_size)
-            body = operand.to_string(indent=indent + 1, indent_size=indent_size)
-            return f"(\n{inner_pad}{body}\n{pad})"
+            body = operand.to_string(indent=inner, indent_size=indent_size)
+            return f"({sep}{body}{sep}{pad})"
 
         match_str = f" {self.match}" if self.match else ""
         group_str = f" {self.group}" if self.group else ""
         left_str = render_operand(self.left)
         right_str = render_operand(self.right)
-        return f"{left_str}\n{pad}{self.op}{match_str}{group_str}\n{pad}{right_str}"
+        return f"{left_str}{sep}{self.op}{match_str}{group_str}{sep}{pad}{right_str}"
 
     def on(self, labels: list[str]) -> "BinaryOprator":
         """Return a copy of this operation with an ``on(labels)`` match clause."""

@@ -42,4 +42,5 @@ class String(Query):
                 content = self.value.replace("'", "\\'").encode("unicode_escape").decode("ascii")
             case _:
                 raise ValueError(f"Invalid quote character: {self.quote}")
-        return f"{self.quote}{content}{self.quote}"
+        pad = " " * (indent or 0)
+        return f"{pad}{self.quote}{content}{self.quote}"

@@ -32,151 +32,151 @@ _right = InstantVector("right", [])
         # arithmetic
         (
             add(Float(1.0), Float(2.0)),
-            "1.0 +  2.0",
+            "1.0 + 2.0",
         ),
         (
             sub(Float(5.0), Float(3.0)),
-            "5.0 -  3.0",
+            "5.0 - 3.0",
         ),
         (
             mul(Float(2.0), Float(3.0)),
-            "2.0 *  3.0",
+            "2.0 * 3.0",
         ),
         (
             div(Float(6.0), Float(2.0)),
-            "6.0 /  2.0",
+            "6.0 / 2.0",
         ),
         (
             mod(Float(7.0), Float(3.0)),
-            "7.0 %  3.0",
+            "7.0 % 3.0",
         ),
         (
             pow(Float(2.0), Float(8.0)),
-            "2.0 ^  8.0",
+            "2.0 ^ 8.0",
         ),
         # comparison
         (
             eq(Float(1.0), Float(1.0)),
-            "1.0 ==  1.0",
+            "1.0 == 1.0",
         ),
         (
             neq(Float(1.0), Float(2.0)),
-            "1.0 !=  2.0",
+            "1.0 != 2.0",
         ),
         (
             lt(Float(1.0), Float(2.0)),
-            "1.0 <  2.0",
+            "1.0 < 2.0",
         ),
         (
             lte(Float(1.0), Float(1.0)),
-            "1.0 <=  1.0",
+            "1.0 <= 1.0",
         ),
         (
             gt(Float(2.0), Float(1.0)),
-            "2.0 >  1.0",
+            "2.0 > 1.0",
         ),
         (
             gte(Float(2.0), Float(2.0)),
-            "2.0 >=  2.0",
+            "2.0 >= 2.0",
         ),
         # logical
         (
             and_(_left, _right),
-            "left{} and  right{}",
+            "left{} and right{}",
         ),
         (
             or_(_left, _right),
-            "left{} or  right{}",
+            "left{} or right{}",
         ),
         (
             unless(_left, _right),
-            "left{} unless  right{}",
+            "left{} unless right{}",
         ),
         (
             atan2(Float(1.0), Float(2.0)),
-            "1.0 atan2  2.0",
+            "1.0 atan2 2.0",
         ),
         # with match
         (
             add(_left, _right).on(["job"]),
-            "left{} +  on(job) right{}",
+            "left{} + on(job) right{}",
         ),
         (
             add(_left, _right).ignoring(["env"]),
-            "left{} +  ignoring(env) right{}",
+            "left{} + ignoring(env) right{}",
         ),
         # with group
         (
             add(_left, _right).group_left([]),
-            "left{} +  group_left() right{}",
+            "left{} + group_left() right{}",
         ),
         # with match and group
         (
             mul(_left, _right).ignoring(["env"]).group_right(["env"]),
-            "left{} *  ignoring(env) group_right(env) right{}",
+            "left{} * ignoring(env) group_right(env) right{}",
         ),
         # arithmetic
         (
             Float(1.0) + Float(2.0),
-            "1.0 +  2.0",
+            "1.0 + 2.0",
         ),
         (
             Float(5.0) - Float(3.0),
-            "5.0 -  3.0",
+            "5.0 - 3.0",
         ),
         (
             Float(2.0) * Float(3.0),
-            "2.0 *  3.0",
+            "2.0 * 3.0",
         ),
         (
             Float(6.0) / Float(2.0),
-            "6.0 /  2.0",
+            "6.0 / 2.0",
         ),
         (
             Float(7.0) % Float(3.0),
-            "7.0 %  3.0",
+            "7.0 % 3.0",
         ),
         (
             Float(2.0) ** Float(8.0),
-            "2.0 ^  8.0",
+            "2.0 ^ 8.0",
         ),
         # comparison
         (
             Float(1.0) == Float(1.0),
-            "1.0 ==  1.0",
+            "1.0 == 1.0",
         ),
         (
             Float(1.0) != Float(2.0),
-            "1.0 !=  2.0",
+            "1.0 != 2.0",
         ),
         (
             Float(1.0) < Float(2.0),
-            "1.0 <  2.0",
+            "1.0 < 2.0",
         ),
         (
             Float(1.0) <= Float(1.0),
-            "1.0 <=  1.0",
+            "1.0 <= 1.0",
         ),
         (
             Float(2.0) > Float(1.0),
-            "2.0 >  1.0",
+            "2.0 > 1.0",
         ),
         (
             Float(2.0) >= Float(2.0),
-            "2.0 >=  2.0",
+            "2.0 >= 2.0",
         ),
-        # logical / set  (&  →  and,  |  →  or)
+        # logical / set (& → and, | → or)
         (
             _left & _right,
-            "left{} and  right{}",
+            "left{} and right{}",
         ),
         (
             _left | _right,
-            "left{} or  right{}",
+            "left{} or right{}",
         ),
         (
             div(add(Float(1.0), Float(2.0)), Float(3.0)),
-            "(1.0 +  2.0) /  3.0",
+            "( 1.0 + 2.0 ) / 3.0",
         ),
     ],
 )
