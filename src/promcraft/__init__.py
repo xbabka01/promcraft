@@ -1,6 +1,4 @@
 from promcraft.aggregation import (
-    AggregationOperator,
-    Grouping,
     avg,
     bottomk,
     count,
@@ -8,19 +6,16 @@ from promcraft.aggregation import (
     group,
     limit_ratio,
     limitk,
-    max,
-    min,
+    max_,
+    min_,
     quantile,
     stddev,
     stdvar,
-    sum,
+    sum_,
     topk,
 )
 from promcraft.base import Query
 from promcraft.operator import (
-    BinaryOprator,
-    Group,
-    Match,
     add,
     and_,
     atan2,
@@ -47,7 +42,6 @@ from promcraft.vector import InstantVector, Label, RangeVector
 # our 'scalar' and 'vector' function names overwrite the submodule bindings that Python
 # injects automatically when a submodule is imported.
 from promcraft.functions import (
-    Function,
     abs,
     absent,
     absent_over_time,
@@ -127,17 +121,11 @@ from promcraft.functions import (
 )
 
 __all__ = [
-    "AggregationOperator",
-    "BinaryOprator",
     "Duration",
     "Float",
-    "Function",
-    "Group",
-    "Grouping",
     "Hex",
     "InstantVector",
     "Label",
-    "Match",
     "Query",
     "RangeVector",
     "Scalar",
@@ -204,9 +192,9 @@ __all__ = [
     "log10",
     "lt",
     "lte",
-    "max",
+    "max_",
     "max_over_time",
-    "min",
+    "min_",
     "min_over_time",
     "minute",
     "mod",
@@ -238,7 +226,7 @@ __all__ = [
     "stdvar",
     "stdvar_over_time",
     "sub",
-    "sum",
+    "sum_",
     "sum_over_time",
     "tan",
     "tanh",

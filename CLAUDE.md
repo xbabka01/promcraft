@@ -12,16 +12,16 @@ poetry install
 poetry run pytest
 
 # Run only unit tests (skip mypy and ruff)
-poetry run pytest --no-header -p no:mypy -p no:ruff
+poetry run pytest -o addopts=""
 
 # Run a single test file
-poetry run pytest tests/test_operator.py -p no:mypy -p no:ruff
+poetry run pytest tests/test_operator.py -o addopts=""
 
 # Run a single test by name
-poetry run pytest tests/test_operator.py::test_binary_operator -p no:mypy -p no:ruff
+poetry run pytest tests/test_operator.py::test_binary_helpers -o addopts=""
 ```
 
-`pytest` is configured (in `pyproject.toml`) to always run `--mypy`, `--ruff`, `--ruff-format`, and `--cov` alongside unit tests. Mypy and ruff violations are reported as test failures.
+`pytest` is configured (in `pyproject.toml`) to always run `--mypy`, `--ruff`, `--ruff-format`, and `--cov` alongside unit tests. Mypy and ruff violations are reported as test failures. `-p no:mypy -p no:ruff` does NOT work to skip them here — the plugins would be disabled while `addopts` still passes their `--mypy`/`--ruff`/`--ruff-format` flags, which pytest then rejects as unrecognized. Use `-o addopts=""` to clear the ini `addopts` instead.
 
 ## Architecture
 

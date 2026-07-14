@@ -1,6 +1,6 @@
 from promcraft.base import Query
-from promcraft.scalar import Scalar
-from promcraft.string import String
+from promcraft.scalar import SCALAR_TYPE, Float
+from promcraft.string import STRING_TYPE, String
 
 
 class Function(Query):
@@ -15,7 +15,7 @@ class Function(Query):
         self.name = name
         self.args = args
 
-    def __str__(self) -> str:
+    def to_string(self) -> str:
         return f"{self.name}({', '.join(str(a) for a in self.args)})"
 
 
@@ -326,9 +326,9 @@ def time() -> Function:
 # ---------------------------------------------------------------------------
 
 
-def vector(s: Scalar) -> Function:
+def vector(s: SCALAR_TYPE) -> Function:
     """Convert scalar ``s`` into a single-element instant vector with no labels."""
-    return Function("vector", [s])
+    return Function("vector", [Float.from_value(s)])
 
 
 # ---------------------------------------------------------------------------
@@ -336,9 +336,12 @@ def vector(s: Scalar) -> Function:
 # ---------------------------------------------------------------------------
 
 
-def round(v: Query, to_nearest: Scalar | None = None) -> Function:
+def round(v: Query, to_nearest: SCALAR_TYPE | None = None) -> Function:
     """Round float samples to the nearest integer, or to a multiple of ``to_nearest``."""
-    return Function("round", [v] if to_nearest is None else [v, to_nearest])
+    if to_nearest is None:
+        return Function("round", [v])
+    else:
+        return Function("round", [v, Float.from_value(to_nearest)])
 
 
 # ---------------------------------------------------------------------------
@@ -346,14 +349,14 @@ def round(v: Query, to_nearest: Scalar | None = None) -> Function:
 # ---------------------------------------------------------------------------
 
 
-def clamp_max(v: Query, max: Scalar) -> Function:
+def clamp_max(v: Query, max: SCALAR_TYPE) -> Function:
     """Clamp float samples so that no value exceeds ``max``."""
-    return Function("clamp_max", [v, max])
+    return Function("clamp_max", [v, Float.from_value(max)])
 
 
-def clamp_min(v: Query, min: Scalar) -> Function:
+def clamp_min(v: Query, min: SCALAR_TYPE) -> Function:
     """Clamp float samples so that no value falls below ``min``."""
-    return Function("clamp_min", [v, min])
+    return Function("clamp_min", [v, Float.from_value(min)])
 
 
 # ---------------------------------------------------------------------------
@@ -361,9 +364,9 @@ def clamp_min(v: Query, min: Scalar) -> Function:
 # ---------------------------------------------------------------------------
 
 
-def clamp(v: Query, min: Scalar, max: Scalar) -> Function:
+def clamp(v: Query, min: SCALAR_TYPE, max: SCALAR_TYPE) -> Function:
     """Clamp float samples so all values fall within [``min``, ``max``]."""
-    return Function("clamp", [v, min, max])
+    return Function("clamp", [v, Float.from_value(min), Float.from_value(max)])
 
 
 # ---------------------------------------------------------------------------
@@ -371,14 +374,14 @@ def clamp(v: Query, min: Scalar, max: Scalar) -> Function:
 # ---------------------------------------------------------------------------
 
 
-def quantile_over_time(quantile: Scalar, v: Query) -> Function:
+def quantile_over_time(quantile: SCALAR_TYPE, v: Query) -> Function:
     """φ-quantile of float samples over the specified range window."""
-    return Function("quantile_over_time", [quantile, v])
+    return Function("quantile_over_time", [Float.from_value(quantile), v])
 
 
-def histogram_quantile(phi: Scalar, b: Query) -> Function:
+def histogram_quantile(phi: SCALAR_TYPE, b: Query) -> Function:
     """φ-quantile estimated from a classic or native histogram ``b``."""
-    return Function("histogram_quantile", [phi, b])
+    return Function("histogram_quantile", [Float.from_value(phi), b])
 
 
 # ---------------------------------------------------------------------------
@@ -386,9 +389,9 @@ def histogram_quantile(phi: Scalar, b: Query) -> Function:
 # ---------------------------------------------------------------------------
 
 
-def histogram_fraction(lower: Scalar, upper: Scalar, b: Query) -> Function:
+def histogram_fraction(lower: SCALAR_TYPE, upper: SCALAR_TYPE, b: Query) -> Function:
     """Estimated fraction of observations in histogram ``b`` within (``lower``, ``upper``]."""
-    return Function("histogram_fraction", [lower, upper, b])
+    return Function("histogram_fraction", [Float.from_value(lower), Float.from_value(upper), b])
 
 
 # ---------------------------------------------------------------------------
@@ -396,12 +399,12 @@ def histogram_fraction(lower: Scalar, upper: Scalar, b: Query) -> Function:
 # ---------------------------------------------------------------------------
 
 
-def predict_linear(v: Query, t: Scalar) -> Function:
+def predict_linear(v: Query, t: SCALAR_TYPE) -> Function:
     """Predict the value of a gauge ``t`` seconds from now using linear regression.
 
     The regression is computed over the specified range window.
     """
-    return Function("predict_linear", [v, t])
+    return Function("predict_linear", [v, Float.from_value(t)])
 
 
 # ---------------------------------------------------------------------------
@@ -409,7 +412,7 @@ def predict_linear(v: Query, t: Scalar) -> Function:
 # ---------------------------------------------------------------------------
 
 
-def double_exponential_smoothing(v: Query, sf: Scalar, tf: Scalar) -> Function:
+def double_exponential_smoothing(v: Query, sf: SCALAR_TYPE, tf: SCALAR_TYPE) -> Function:
     """Produce a smoothed value using the Holt double exponential method.
 
     ``sf`` is the smoothing factor (0 < sf < 1); ``tf`` is the trend factor
@@ -418,7 +421,9 @@ def double_exponential_smoothing(v: Query, sf: Scalar, tf: Scalar) -> Function:
     Note:
         Experimental — may change in future Prometheus releases.
     """
-    return Function("double_exponential_smoothing", [v, sf, tf])
+    return Function(
+        "double_exponential_smoothing", [v, Float.from_value(sf), Float.from_value(tf)]
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -471,20 +476,30 @@ def year(v: Query | None = None) -> Function:
 # ---------------------------------------------------------------------------
 
 
-def label_join(v: Query, dst_label: String, separator: String, *src_labels: String) -> Function:
+def label_join(
+    v: Query, dst_label: STRING_TYPE, separator: STRING_TYPE, *src_labels: STRING_TYPE
+) -> Function:
     """Join ``src_labels`` values with ``separator`` and write the result to ``dst_label``.
 
     PromQL: ``label_join(v, dst_label, separator, src_label1, ...)``
     """
-    return Function("label_join", [v, dst_label, separator, *src_labels])
+    return Function(
+        "label_join",
+        [
+            v,
+            String.from_value(dst_label),
+            String.from_value(separator),
+            *(String.from_value(label) for label in src_labels),
+        ],
+    )
 
 
 def label_replace(
     v: Query,
-    dst_label: String,
-    replacement: String,
-    src_label: String,
-    regex: String,
+    dst_label: STRING_TYPE,
+    replacement: STRING_TYPE,
+    src_label: STRING_TYPE,
+    regex: STRING_TYPE,
 ) -> Function:
     """Match ``regex`` against ``src_label`` and write the substituted result to ``dst_label``.
 
@@ -492,17 +507,26 @@ def label_replace(
 
     PromQL: ``label_replace(v, dst_label, replacement, src_label, regex)``
     """
-    return Function("label_replace", [v, dst_label, replacement, src_label, regex])
+    return Function(
+        "label_replace",
+        [
+            v,
+            String.from_value(dst_label),
+            String.from_value(replacement),
+            String.from_value(src_label),
+            String.from_value(regex),
+        ],
+    )
 
 
-def sort_by_label(v: Query, *labels: String) -> Function:
+def sort_by_label(v: Query, *labels: STRING_TYPE) -> Function:
     """Sort instant vector elements by the values of the specified labels, ascending."""
-    return Function("sort_by_label", [v, *labels])
+    return Function("sort_by_label", [v, *(String.from_value(label) for label in labels)])
 
 
-def sort_by_label_desc(v: Query, *labels: String) -> Function:
+def sort_by_label_desc(v: Query, *labels: STRING_TYPE) -> Function:
     """Sort instant vector elements by the values of the specified labels, descending."""
-    return Function("sort_by_label_desc", [v, *labels])
+    return Function("sort_by_label_desc", [v, *(String.from_value(label) for label in labels)])
 
 
 # ---------------------------------------------------------------------------

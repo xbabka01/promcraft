@@ -1,6 +1,8 @@
-from typing import Literal
+from typing import Literal, Union
 
 from promcraft.base import Query
+
+STRING_TYPE = Union["String", str]
 
 
 class String(Query):
@@ -23,7 +25,13 @@ class String(Query):
         self.value = value
         self.quote = quote
 
-    def __str__(self) -> str:
+    @classmethod
+    def from_value(cls, value: STRING_TYPE) -> "String":
+        if isinstance(value, String):
+            return value
+        return cls(value)
+
+    def to_string(self) -> str:
         content: str
         match self.quote:
             case "`":

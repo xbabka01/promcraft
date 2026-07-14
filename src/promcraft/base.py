@@ -7,10 +7,13 @@ if TYPE_CHECKING:
 
 class Query(ABC):
     @abstractmethod
-    def __str__(self) -> str:
+    def to_string(self) -> str:
         raise NotImplementedError(
-            "Subclasses must implement __str__ method",
+            "Subclasses must implement to_string method",
         )
+
+    def __str__(self) -> str:
+        return self.to_string()
 
     def __add__(self, other: "Query") -> "BinaryOprator":
         from promcraft.operator import add

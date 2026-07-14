@@ -3,8 +3,8 @@ import pytest
 from promcraft import (
     Duration,
     Float,
-    Function,
     InstantVector,
+    Query,
     RangeVector,
     String,
     abs,
@@ -122,7 +122,7 @@ _rvec = RangeVector("http_requests_total", [], Duration(m=5))
         (scalar(_vec), "scalar(http_requests_total{})"),
     ],
 )
-def test_single_instant_vector(expr: Function, expected: str) -> None:
+def test_single_instant_vector(expr: Query, expected: str) -> None:
     assert str(expr) == expected
 
 
@@ -149,7 +149,7 @@ def test_single_instant_vector(expr: Function, expected: str) -> None:
         (absent_over_time(_rvec), "absent_over_time(http_requests_total{}[5m])"),
     ],
 )
-def test_single_range_vector(expr: Function, expected: str) -> None:
+def test_single_range_vector(expr: Query, expected: str) -> None:
     assert str(expr) == expected
 
 
@@ -160,7 +160,7 @@ def test_single_range_vector(expr: Function, expected: str) -> None:
         (time(), "time()"),
     ],
 )
-def test_no_args(expr: Function, expected: str) -> None:
+def test_no_args(expr: Query, expected: str) -> None:
     assert str(expr) == expected
 
 
@@ -175,7 +175,7 @@ def test_vector() -> None:
         (round(_vec, Float(0.5)), "round(http_requests_total{}, 0.5)"),
     ],
 )
-def test_round(expr: Function, expected: str) -> None:
+def test_round(expr: Query, expected: str) -> None:
     assert str(expr) == expected
 
 
@@ -187,7 +187,7 @@ def test_round(expr: Function, expected: str) -> None:
         (clamp_max(_vec, Float(1.0)), "clamp_max(http_requests_total{}, 1.0)"),
     ],
 )
-def test_clamp(expr: Function, expected: str) -> None:
+def test_clamp(expr: Query, expected: str) -> None:
     assert str(expr) == expected
 
 
@@ -208,7 +208,7 @@ def test_clamp(expr: Function, expected: str) -> None:
         ),
     ],
 )
-def test_scalar_then_query(expr: Function, expected: str) -> None:
+def test_scalar_then_query(expr: Query, expected: str) -> None:
     assert str(expr) == expected
 
 
@@ -225,7 +225,7 @@ def test_scalar_then_query(expr: Function, expected: str) -> None:
         ),
     ],
 )
-def test_range_vector_with_scalars(expr: Function, expected: str) -> None:
+def test_range_vector_with_scalars(expr: Query, expected: str) -> None:
     assert str(expr) == expected
 
 
@@ -246,7 +246,7 @@ def test_range_vector_with_scalars(expr: Function, expected: str) -> None:
         (year(_vec), "year(http_requests_total{})"),
     ],
 )
-def test_datetime_functions(expr: Function, expected: str) -> None:
+def test_datetime_functions(expr: Query, expected: str) -> None:
     assert str(expr) == expected
 
 
@@ -287,7 +287,7 @@ def test_datetime_functions(expr: Function, expected: str) -> None:
         ),
     ],
 )
-def test_label_manipulation(expr: Function, expected: str) -> None:
+def test_label_manipulation(expr: Query, expected: str) -> None:
     assert str(expr) == expected
 
 
@@ -301,7 +301,7 @@ def test_label_manipulation(expr: Function, expected: str) -> None:
         ),
     ],
 )
-def test_info(expr: Function, expected: str) -> None:
+def test_info(expr: Query, expected: str) -> None:
     assert str(expr) == expected
 
 
@@ -315,15 +315,5 @@ def test_info(expr: Function, expected: str) -> None:
         (histogram_stdvar(_vec), "histogram_stdvar(http_requests_total{})"),
     ],
 )
-def test_histogram_functions(expr: Function, expected: str) -> None:
+def test_histogram_functions(expr: Query, expected: str) -> None:
     assert str(expr) == expected
-
-
-def test_function_str_repr() -> None:
-    f = Function("my_func", [_vec, Float(1.0)])
-    assert str(f) == "my_func(http_requests_total{}, 1.0)"
-
-
-def test_function_no_args_str() -> None:
-    f = Function("noop", [])
-    assert str(f) == "noop()"

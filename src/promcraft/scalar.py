@@ -1,10 +1,22 @@
-from abc import ABCMeta
+import math
+from abc import ABCMeta, abstractmethod
+from typing import Union
 
 from promcraft.base import Query
+
+SCALAR_TYPE = Union["Scalar", float, int]
 
 
 class Scalar(Query, metaclass=ABCMeta):
     """Abstract base class for PromQL scalar values."""
+
+    @classmethod
+    @abstractmethod
+    def from_value(cls, value: SCALAR_TYPE) -> "Scalar":
+        """Create a Scalar instance from a float or int value."""
+        raise NotImplementedError(
+            "Subclasses must implement from_value method",
+        )
 
 
 class Float(Scalar):
@@ -13,7 +25,13 @@ class Float(Scalar):
     def __init__(self, value: float) -> None:
         self.value = value
 
-    def __str__(self) -> str:
+    @classmethod
+    def from_value(cls, value: SCALAR_TYPE) -> "Scalar":
+        if isinstance(value, Scalar):
+            return value
+        return cls(float(value))
+
+    def to_string(self) -> str:
         return str(self.value)
 
 
@@ -23,7 +41,13 @@ class Hex(Scalar):
     def __init__(self, value: int) -> None:
         self.value = value
 
-    def __str__(self) -> str:
+    @classmethod
+    def from_value(cls, value: SCALAR_TYPE) -> "Scalar":
+        if isinstance(value, Scalar):
+            return value
+        return cls(int(value))
+
+    def to_string(self) -> str:
         return hex(self.value)
 
 
@@ -67,7 +91,28 @@ class Duration(Scalar):
 
         self.neg = neg
 
-    def __str__(self) -> str:
+    @classmethod
+    def from_value(cls, value: SCALAR_TYPE) -> "Scalar":
+        if isinstance(value, Scalar):
+            return value
+        ms, x = math.modf(float(value))
+        x, sec = divmod(x, 60)
+        x, min = divmod(x, 60)
+        x, hr = divmod(x, 24)
+        year, x = divmod(x, 365)
+        week, day = divmod(x, 7)
+
+        return cls(
+            y=int(year),
+            w=int(week),
+            d=int(day),
+            h=int(hr),
+            m=int(min),
+            s=int(sec),
+            ms=int(ms * 1000),
+        )
+
+    def to_string(self) -> str:
         parts = []
         if self.y:
             parts.append(f"{self.y}y")

@@ -3,8 +3,8 @@ from typing import Literal
 
 from promcraft import Duration
 from promcraft.base import Query
-from promcraft.scalar import Scalar
-from promcraft.string import String
+from promcraft.scalar import SCALAR_TYPE, Float, Scalar
+from promcraft.string import STRING_TYPE, String
 
 
 class Label:
@@ -41,32 +41,32 @@ class Label:
         self,
         name: str,
         op: Operator,
-        value: String,
+        value: STRING_TYPE,
     ) -> None:
         self.name = name
         self.op = op
-        self.value = value
+        self.value = String.from_value(value)
 
     def __str__(self) -> str:
         return f"{self.name} {self.op} {self.value}"
 
     @classmethod
-    def eq(cls, name: str, value: String) -> "Label":
+    def eq(cls, name: str, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name = value`` (exact equality)."""
         return cls(name, Label.Operator.EQ, value)
 
     @classmethod
-    def neq(cls, name: str, value: String) -> "Label":
+    def neq(cls, name: str, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name != value`` (inequality)."""
         return cls(name, Label.Operator.NEQ, value)
 
     @classmethod
-    def re(cls, name: str, value: String) -> "Label":
+    def re(cls, name: str, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name =~ value`` (RE2 regex match)."""
         return cls(name, cls.Operator.RE, value)
 
     @classmethod
-    def nre(cls, name: str, value: String) -> "Label":
+    def nre(cls, name: str, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name !~ value`` (negated RE2 regex match)."""
         return cls(name, Label.Operator.NRE, value)
 
@@ -93,21 +93,22 @@ class InstantVector(Query):
         self,
         metric: str,
         labels: list[Label],
-        offset: Scalar | None = None,
-        at: Scalar | Literal["start()", "end()"] | None = None,
+        *,
+        offset: SCALAR_TYPE | None = None,
+        at: SCALAR_TYPE | Literal["start()", "end()"] | None = None,
     ) -> None:
         self.metric = metric
         self.labels = labels
-        self.offset = offset
-        self.at = at
+        self.offset = Float.from_value(offset) if offset is not None else None
+        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
 
-    def __str__(self) -> str:
+    def to_string(self) -> str:
         labels = ", ".join(str(label) for label in self.labels)
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
         return f"{self.metric}{{{labels}}}{offset}{at}"
 
-    def __getitem__(self, item: Duration | tuple[Duration, Duration]) -> "RangeVector":
+    def __getitem__(self, item: SCALAR_TYPE | tuple[SCALAR_TYPE, SCALAR_TYPE]) -> "RangeVector":
         if isinstance(item, tuple):
             range_ = item[0]
             resolution = item[1]
@@ -119,8 +120,8 @@ class InstantVector(Query):
             self.labels,
             range_,
             resolution,
-            self.offset,
-            self.at,
+            offset=self.offset,
+            at=self.at,
         )
 
 
@@ -148,19 +149,20 @@ class RangeVector(Query):
         self,
         metric: str,
         labels: list[Label],
-        range: Scalar,
-        resolution: Scalar | None = None,
-        offset: Scalar | None = None,
-        at: Scalar | Literal["start()", "end()"] | None = None,
+        range: SCALAR_TYPE,
+        resolution: SCALAR_TYPE | None = None,
+        *,
+        offset: SCALAR_TYPE | None = None,
+        at: SCALAR_TYPE | Literal["start()", "end()"] | None = None,
     ) -> None:
         self.metric = metric
         self.labels = labels
-        self.range = range
-        self.resolution = resolution
-        self.offset = offset
-        self.at = at
+        self.range = Duration.from_value(range)
+        self.resolution = Duration.from_value(resolution) if resolution is not None else None
+        self.offset = Float.from_value(offset) if offset is not None else None
+        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
 
-    def __str__(self) -> str:
+    def to_string(self) -> str:
         labels = ", ".join(str(label) for label in self.labels)
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
