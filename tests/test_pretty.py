@@ -2,6 +2,7 @@ from promcraft import (
     Duration,
     Float,
     InstantVector,
+    Label,
     add,
     sum_,
     topk,
@@ -106,3 +107,62 @@ def test_pretty_default_matches_compact_output() -> None:
     expr = sum_(vec).by(["label1", "label2"])
 
     assert expr.to_string() == str(expr) == "sum(metric{}) by(label1, label2)"
+
+
+def test_instant_vector_pretty_multiple_labels() -> None:
+    vec = InstantVector("metric", [Label.eq("job", "api"), Label.eq("env", "prod")])
+
+    assert vec.to_string(indent=0) == ('metric{\n    job = "api",\n    env = "prod"\n}')
+
+
+def test_instant_vector_pretty_no_labels_stays_compact() -> None:
+    vec = InstantVector("metric", [])
+
+    assert vec.to_string(indent=0) == "metric{}"
+
+
+def test_instant_vector_pretty_with_offset_and_at() -> None:
+    vec = InstantVector("metric", [Label.eq("job", "api")], offset=Duration(m=5), at="start()")
+
+    assert vec.to_string(indent=0) == ('metric{\n    job = "api"\n} offset 5m @ start()')
+
+
+def test_range_vector_pretty_with_labels_and_range() -> None:
+    vec = InstantVector("metric", [Label.eq("job", "api"), Label.eq("env", "prod")])[Duration(m=1)]
+
+    assert vec.to_string(indent=0) == ('metric{\n    job = "api",\n    env = "prod"\n}[1m]')
+
+
+def test_range_vector_pretty_with_resolution() -> None:
+    vec = InstantVector("metric", [Label.eq("job", "api")])[Duration(h=1), Duration(m=1)]
+
+    assert vec.to_string(indent=0) == 'metric{\n    job = "api"\n}[1h :1m]'
+
+
+def test_range_vector_pretty_no_labels_stays_compact() -> None:
+    vec = InstantVector("metric", [])[Duration(m=5)]
+
+    assert vec.to_string(indent=0) == "metric{}[5m]"
+
+
+def test_vector_with_labels_pretty_nested_in_aggregation() -> None:
+    vec = InstantVector("metric", [Label.eq("job", "api")])
+    expr = sum_(vec).by(["env"])
+
+    assert expr.to_string(indent=0) == (
+        'sum (\n    metric{\n        job = "api"\n    }\n) by (\n    env\n)'
+    )
+
+
+def test_vector_with_labels_pretty_as_binary_operand() -> None:
+    left = InstantVector("left", [Label.eq("job", "api")])
+    right = InstantVector("right", [])
+    expr = add(left, right)
+
+    assert expr.to_string(indent=0) == ('left{\n    job = "api"\n}\n+\nright{}')
+
+
+def test_vector_with_labels_compact_output_unchanged() -> None:
+    vec = InstantVector("metric", [Label.eq("job", "api"), Label.eq("env", "prod")])
+
+    assert vec.to_string() == str(vec) == 'metric{job = "api", env = "prod"}'

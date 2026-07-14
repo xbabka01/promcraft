@@ -102,10 +102,20 @@ class InstantVector(Query):
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
 
     def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
-        labels = ", ".join(str(label) for label in self.labels)
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
-        return f"{self.metric}{{{labels}}}{offset}{at}"
+
+        if indent is None:
+            labels = ", ".join(str(label) for label in self.labels)
+            return f"{self.metric}{{{labels}}}{offset}{at}"
+
+        if not self.labels:
+            return f"{self.metric}{{}}{offset}{at}"
+
+        pad = " " * (indent * indent_size)
+        inner_pad = " " * ((indent + 1) * indent_size)
+        labels_str = ",\n".join(inner_pad + str(label) for label in self.labels)
+        return f"{self.metric}{{\n{labels_str}\n{pad}}}{offset}{at}"
 
     def __getitem__(self, item: SCALAR_TYPE | tuple[SCALAR_TYPE, SCALAR_TYPE]) -> "RangeVector":
         if isinstance(item, tuple):
@@ -162,8 +172,18 @@ class RangeVector(Query):
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
 
     def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
-        labels = ", ".join(str(label) for label in self.labels)
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
         resolution = f" :{self.resolution}" if self.resolution else ""
-        return f"{self.metric}{{{labels}}}[{self.range}{resolution}]{offset}{at}"
+
+        if indent is None:
+            labels = ", ".join(str(label) for label in self.labels)
+            return f"{self.metric}{{{labels}}}[{self.range}{resolution}]{offset}{at}"
+
+        if not self.labels:
+            return f"{self.metric}{{}}[{self.range}{resolution}]{offset}{at}"
+
+        pad = " " * (indent * indent_size)
+        inner_pad = " " * ((indent + 1) * indent_size)
+        labels_str = ",\n".join(inner_pad + str(label) for label in self.labels)
+        return f"{self.metric}{{\n{labels_str}\n{pad}}}[{self.range}{resolution}]{offset}{at}"
