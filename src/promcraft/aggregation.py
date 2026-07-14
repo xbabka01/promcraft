@@ -21,6 +21,9 @@ class Grouping:
         self.type = type
         self.labels = labels
 
+        if not labels:
+            raise ValueError("labels cannot be empty")
+
     @classmethod
     def by(cls, labels: list[str]) -> "Grouping":
         """Return a ``by(labels)`` grouping clause."""

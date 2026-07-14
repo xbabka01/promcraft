@@ -107,10 +107,6 @@ _vec = InstantVector("http_requests_total", [])
             sum_(_vec).without(["env"]),
             "sum(http_requests_total{}) without (env)",
         ),
-        (
-            sum_(_vec).by([]),
-            "sum(http_requests_total{})",
-        ),
         # with grouping via chained methods
         (
             sum_(_vec).by(["job"]),

@@ -24,13 +24,6 @@ def test_aggregation_pretty_without_grouping_labels() -> None:
     assert expr.to_string(indent=0) == ("sum(\n    metric{}\n) without (\n    job\n)")
 
 
-def test_aggregation_pretty_empty_grouping_labels_collapses() -> None:
-    vec = InstantVector("metric", [])
-    expr = sum_(vec).by([])
-
-    assert expr.to_string(indent=0) == "sum(\n    metric{}\n)"
-
-
 def test_aggregation_pretty_no_grouping() -> None:
     vec = InstantVector("metric", [])
     expr = sum_(vec)
