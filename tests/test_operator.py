@@ -174,6 +174,10 @@ _right = InstantVector("right", [])
             _left | _right,
             "left{} or  right{}",
         ),
+        (
+            div(add(Float(1.0), Float(2.0)), Float(3.0)),
+            "(1.0 +  2.0) /  3.0",
+        ),
     ],
 )
 def test_binary_helpers(expr: Query, expected: str) -> None:

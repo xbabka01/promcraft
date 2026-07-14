@@ -1,9 +1,8 @@
 import enum
 from typing import Literal
 
-from promcraft import Duration
 from promcraft.base import Query
-from promcraft.scalar import SCALAR_TYPE, Float, Scalar
+from promcraft.scalar import SCALAR_TYPE, Duration, Float, Scalar
 from promcraft.string import STRING_TYPE, String
 
 

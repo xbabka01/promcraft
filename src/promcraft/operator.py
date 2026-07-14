@@ -2,6 +2,9 @@ import enum
 from typing import Literal
 
 from promcraft.base import Query
+from promcraft.scalar import Scalar
+from promcraft.string import String
+from promcraft.vector import InstantVector, RangeVector
 
 
 class Match:
@@ -76,7 +79,7 @@ class Group:
         return f"group_{self.type}({labels_str})"
 
 
-class BinaryOprator:
+class BinaryOprator(Query):
     """A PromQL binary operation between two query expressions.
 
     Supports arithmetic, comparison, logical/set, and trigonometric operators
@@ -141,17 +144,17 @@ class BinaryOprator:
         self.match = match
         self.group = group
 
-    def __str__(self) -> str:
+    def to_string(self) -> str:
         match_str = f" {self.match}" if self.match else ""
         group_str = f" {self.group}" if self.group else ""
 
         left = str(self.left)
-        if isinstance(self.left, BinaryOprator):
+        if not isinstance(self.left, Scalar | String | InstantVector | RangeVector):
             left = f"({left})"
         right = str(self.right)
-        if isinstance(self.right, BinaryOprator):
+        if not isinstance(self.right, Scalar | String | InstantVector | RangeVector):
             right = f"({right})"
-        expr = f"{self.left} {self.op} {match_str}{group_str} {self.right}"
+        expr = f"{left} {self.op} {match_str}{group_str} {right}"
         return expr
 
     def on(self, labels: list[str]) -> "BinaryOprator":
