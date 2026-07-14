@@ -76,7 +76,7 @@ class Group:
         return f"group_{self.type}({labels_str})"
 
 
-class BinaryOprator:
+class BinaryOprator(Query):
     """A PromQL binary operation between two query expressions.
 
     Supports arithmetic, comparison, logical/set, and trigonometric operators
@@ -141,7 +141,7 @@ class BinaryOprator:
         self.match = match
         self.group = group
 
-    def __str__(self) -> str:
+    def to_string(self) -> str:
         match_str = f" {self.match}" if self.match else ""
         group_str = f" {self.group}" if self.group else ""
 
