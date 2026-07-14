@@ -31,7 +31,7 @@ class String(Query):
             return value
         return cls(value)
 
-    def to_string(self) -> str:
+    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
         content: str
         match self.quote:
             case "`":

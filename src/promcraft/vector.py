@@ -101,7 +101,7 @@ class InstantVector(Query):
         self.offset = Float.from_value(offset) if offset is not None else None
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
 
-    def to_string(self) -> str:
+    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
         labels = ", ".join(str(label) for label in self.labels)
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
@@ -161,7 +161,7 @@ class RangeVector(Query):
         self.offset = Float.from_value(offset) if offset is not None else None
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
 
-    def to_string(self) -> str:
+    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
         labels = ", ".join(str(label) for label in self.labels)
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""

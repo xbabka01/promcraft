@@ -50,10 +50,28 @@ class Aggregation(Query):
         self.params = params
         self.grouping = grouping
 
-    def to_string(self) -> str:
-        grouping_str = f" {self.grouping}" if self.grouping else ""
-        params_str = ", ".join(str(param) for param in self.params)
-        return f"{self.operator}({params_str}){grouping_str}"
+    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
+        if indent is None:
+            grouping_str = f" {self.grouping}" if self.grouping else ""
+            params_str = ", ".join(str(param) for param in self.params)
+            return f"{self.operator}({params_str}){grouping_str}"
+
+        pad = " " * (indent * indent_size)
+        inner_pad = " " * ((indent + 1) * indent_size)
+        params_str = ",\n".join(
+            inner_pad + param.to_string(indent=indent + 1, indent_size=indent_size)
+            for param in self.params
+        )
+        result = f"{self.operator} (\n{params_str}\n{pad})"
+
+        if self.grouping:
+            if self.grouping.labels:
+                labels_str = ", ".join(self.grouping.labels)
+                result += f" {self.grouping.type} (\n{inner_pad}{labels_str}\n{pad})"
+            else:
+                result += f" {self.grouping.type} ()"
+
+        return result
 
     def by(self, labels: list[str]) -> "Aggregation":
         """Return a copy of this aggregation with a ``by(labels)`` grouping clause."""

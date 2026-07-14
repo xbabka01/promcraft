@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 class Query(ABC):
     @abstractmethod
-    def to_string(self) -> str:
+    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
         raise NotImplementedError(
             "Subclasses must implement to_string method",
         )
