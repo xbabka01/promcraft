@@ -15,8 +15,16 @@ class Function(Query):
         self.name = name
         self.args = args
 
-    def to_string(self) -> str:
-        return f"{self.name}({', '.join(str(a) for a in self.args)})"
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
+
+        if not self.args:
+            return f"{pad}{self.name}()"
+
+        args_str = f",{sep}".join(
+            arg.to_string(indent=indent, _indent_level=_indent_level + 1) for arg in self.args
+        )
+        return f"{pad}{self.name}({space}{args_str}{space}{pad})"
 
 
 # ---------------------------------------------------------------------------

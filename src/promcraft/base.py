@@ -1,13 +1,47 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 if TYPE_CHECKING:
     from promcraft.operator import BinaryOprator
 
 
+class Indent(NamedTuple):
+    sep: str
+    space: str
+    pad: str
+    inner_pad: str
+
+
 class Query(ABC):
+    @staticmethod
+    def get_indent(indent_size: str | int | None, _indent_level: int) -> Indent:
+        if indent_size is None:
+            return Indent(
+                " ",
+                "",
+                "",
+                "",
+            )
+
+        elif isinstance(indent_size, int):
+            return Indent(
+                "\n",
+                "\n",
+                " " * (_indent_level * indent_size),
+                " " * ((_indent_level + 1) * indent_size),
+            )
+        elif isinstance(indent_size, str) and indent_size.isspace():
+            return Indent(
+                "\n",
+                "\n",
+                indent_size * _indent_level,
+                indent_size * (_indent_level + 1),
+            )
+        else:
+            raise ValueError("Invalid indent_size")
+
     @abstractmethod
-    def to_string(self) -> str:
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         raise NotImplementedError(
             "Subclasses must implement to_string method",
         )

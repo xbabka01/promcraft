@@ -97,46 +97,42 @@ _vec = InstantVector("http_requests_total", [])
         # with grouping via constructor
         (
             sum_(_vec).by(["job"]),
-            "sum(http_requests_total{}) by(job)",
+            "sum(http_requests_total{}) by (job)",
         ),
         (
             sum_(_vec).by(["job", "env"]),
-            "sum(http_requests_total{}) by(job, env)",
+            "sum(http_requests_total{}) by (job, env)",
         ),
         (
             sum_(_vec).without(["env"]),
-            "sum(http_requests_total{}) without(env)",
-        ),
-        (
-            sum_(_vec).by([]),
-            "sum(http_requests_total{}) by()",
+            "sum(http_requests_total{}) without (env)",
         ),
         # with grouping via chained methods
         (
             sum_(_vec).by(["job"]),
-            "sum(http_requests_total{}) by(job)",
+            "sum(http_requests_total{}) by (job)",
         ),
         (
             count(_vec).without(["env"]),
-            "count(http_requests_total{}) without(env)",
+            "count(http_requests_total{}) without (env)",
         ),
         # parameter + grouping
         (
             topk(Float(5.0), _vec).by(["job"]),
-            "topk(5.0, http_requests_total{}) by(job)",
+            "topk(5.0, http_requests_total{}) by (job)",
         ),
         (
             quantile(Float(0.9), _vec).without(["env"]),
-            "quantile(0.9, http_requests_total{}) without(env)",
+            "quantile(0.9, http_requests_total{}) without (env)",
         ),
         # with grouping
         (
             topk(Float(5.0), _vec).by(["job"]),
-            "topk(5.0, http_requests_total{}) by(job)",
+            "topk(5.0, http_requests_total{}) by (job)",
         ),
         (
             count_values(String("version"), _vec).without(["env"]),
-            'count_values("version", http_requests_total{}) without(env)',
+            'count_values("version", http_requests_total{}) without (env)',
         ),
         (
             topk(Float(5.0), _vec),
@@ -189,11 +185,11 @@ _vec = InstantVector("http_requests_total", [])
         # with grouping
         (
             sum_(_vec).by(["job"]),
-            "sum(http_requests_total{}) by(job)",
+            "sum(http_requests_total{}) by (job)",
         ),
         (
             avg(_vec).without(["env"]),
-            "avg(http_requests_total{}) without(env)",
+            "avg(http_requests_total{}) without (env)",
         ),
     ],
 )

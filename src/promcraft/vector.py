@@ -101,11 +101,16 @@ class InstantVector(Query):
         self.offset = Float.from_value(offset) if offset is not None else None
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
 
-    def to_string(self) -> str:
-        labels = ", ".join(str(label) for label in self.labels)
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
-        return f"{self.metric}{{{labels}}}{offset}{at}"
+        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
+
+        if not self.labels:
+            return f"{pad}{self.metric}{{}}{offset}{at}"
+
+        labels_str = f",{sep}".join(inner_pad + str(label) for label in self.labels)
+        return f"{pad}{self.metric}{{{sep}{labels_str}{sep}{pad}}}{offset}{at}"
 
     def __getitem__(self, item: SCALAR_TYPE | tuple[SCALAR_TYPE, SCALAR_TYPE]) -> "RangeVector":
         if isinstance(item, tuple):
@@ -161,9 +166,14 @@ class RangeVector(Query):
         self.offset = Float.from_value(offset) if offset is not None else None
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
 
-    def to_string(self) -> str:
-        labels = ", ".join(str(label) for label in self.labels)
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
         resolution = f" :{self.resolution}" if self.resolution else ""
-        return f"{self.metric}{{{labels}}}[{self.range}{resolution}]{offset}{at}"
+        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
+
+        if not self.labels:
+            return f"{pad}{self.metric}{{}}[{self.range}{resolution}]{offset}{at}"
+
+        labels_str = f",{sep}".join(inner_pad + str(label) for label in self.labels)
+        return f"{pad}{self.metric}{{{sep}{labels_str}{sep}{pad}}}[{self.range}{resolution}]{offset}{at}"  # noqa: E501

@@ -144,18 +144,20 @@ class BinaryOprator(Query):
         self.match = match
         self.group = group
 
-    def to_string(self) -> str:
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
+
+        def render_operand(operand: Query) -> str:
+            if isinstance(operand, Scalar | String | InstantVector | RangeVector):
+                return operand.to_string(indent=indent, _indent_level=_indent_level)
+            body = operand.to_string(indent=indent, _indent_level=_indent_level + 1)
+            return f"({space}{body}{space}{pad})"
+
         match_str = f" {self.match}" if self.match else ""
         group_str = f" {self.group}" if self.group else ""
-
-        left = str(self.left)
-        if not isinstance(self.left, Scalar | String | InstantVector | RangeVector):
-            left = f"({left})"
-        right = str(self.right)
-        if not isinstance(self.right, Scalar | String | InstantVector | RangeVector):
-            right = f"({right})"
-        expr = f"{left} {self.op} {match_str}{group_str} {right}"
-        return expr
+        left_str = render_operand(self.left)
+        right_str = render_operand(self.right)
+        return f"{left_str}{sep}{self.op}{match_str}{group_str}{sep}{pad}{right_str}"
 
     def on(self, labels: list[str]) -> "BinaryOprator":
         """Return a copy of this operation with an ``on(labels)`` match clause."""

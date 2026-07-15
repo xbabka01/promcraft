@@ -31,7 +31,7 @@ class String(Query):
             return value
         return cls(value)
 
-    def to_string(self) -> str:
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         content: str
         match self.quote:
             case "`":
@@ -42,4 +42,5 @@ class String(Query):
                 content = self.value.replace("'", "\\'").encode("unicode_escape").decode("ascii")
             case _:
                 raise ValueError(f"Invalid quote character: {self.quote}")
-        return f"{self.quote}{content}{self.quote}"
+        fmt = self.get_indent(indent, _indent_level)
+        return f"{fmt.pad}{self.quote}{content}{self.quote}"

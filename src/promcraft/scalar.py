@@ -31,8 +31,9 @@ class Float(Scalar):
             return value
         return cls(float(value))
 
-    def to_string(self) -> str:
-        return str(self.value)
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        fmt = self.get_indent(indent, _indent_level)
+        return fmt.pad + str(self.value)
 
 
 class Hex(Scalar):
@@ -47,8 +48,9 @@ class Hex(Scalar):
             return value
         return cls(int(value))
 
-    def to_string(self) -> str:
-        return hex(self.value)
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        fmt = self.get_indent(indent, _indent_level)
+        return fmt.pad + hex(self.value)
 
 
 class Duration(Scalar):
@@ -112,7 +114,8 @@ class Duration(Scalar):
             ms=int(ms * 1000),
         )
 
-    def to_string(self) -> str:
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        fmt = self.get_indent(indent, _indent_level)
         parts = []
         if self.y:
             parts.append(f"{self.y}y")
@@ -129,5 +132,5 @@ class Duration(Scalar):
         if self.ms:
             parts.append(f"{self.ms}ms")
         if not parts:
-            return "0s"
-        return ("-" if self.neg else "") + "".join(parts)
+            return f"{fmt.pad}0s"
+        return fmt.pad + ("-" if self.neg else "") + "".join(parts)

@@ -21,6 +21,9 @@ class Grouping:
         self.type = type
         self.labels = labels
 
+        if not labels:
+            raise ValueError("labels cannot be empty")
+
     @classmethod
     def by(cls, labels: list[str]) -> "Grouping":
         """Return a ``by(labels)`` grouping clause."""
@@ -30,10 +33,6 @@ class Grouping:
     def without(cls, labels: list[str]) -> "Grouping":
         """Return a ``without(labels)`` grouping clause."""
         return cls("without", labels)
-
-    def __str__(self) -> str:
-        labels_str = ", ".join(self.labels)
-        return f"{self.type}({labels_str})"
 
 
 class Aggregation(Query):
@@ -50,10 +49,20 @@ class Aggregation(Query):
         self.params = params
         self.grouping = grouping
 
-    def to_string(self) -> str:
-        grouping_str = f" {self.grouping}" if self.grouping else ""
-        params_str = ", ".join(str(param) for param in self.params)
-        return f"{self.operator}({params_str}){grouping_str}"
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
+        params_str = f",{sep}".join(
+            param.to_string(indent=indent, _indent_level=_indent_level + 1)
+            for param in self.params
+        )
+        result = f"{pad}{self.operator}({space}{params_str}{space}{pad})"
+
+        if self.grouping and self.grouping.labels:
+            labels = self.grouping.labels
+            labels_str = ", ".join(labels)
+            result += f" {self.grouping.type} ({labels_str})"
+
+        return result
 
     def by(self, labels: list[str]) -> "Aggregation":
         """Return a copy of this aggregation with a ``by(labels)`` grouping clause."""
