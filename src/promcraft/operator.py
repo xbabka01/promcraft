@@ -144,13 +144,13 @@ class BinaryOprator(Query):
         self.match = match
         self.group = group
 
-    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
-        sep, space, pad, inner_pad, inner = self.get_indent(indent, indent_size)
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
 
         def render_operand(operand: Query) -> str:
             if isinstance(operand, Scalar | String | InstantVector | RangeVector):
-                return operand.to_string(indent=indent, indent_size=indent_size)
-            body = operand.to_string(indent=inner, indent_size=indent_size)
+                return operand.to_string(indent=indent, _indent_level=_indent_level)
+            body = operand.to_string(indent=indent, _indent_level=_indent_level + 1)
             return f"({sep}{body}{sep}{pad})"
 
         match_str = f" {self.match}" if self.match else ""

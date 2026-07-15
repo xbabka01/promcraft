@@ -10,32 +10,38 @@ class Indent(NamedTuple):
     space: str
     pad: str
     inner_pad: str
-    inner: int | None
 
 
 class Query(ABC):
     @staticmethod
-    def get_indent(indent: int | None, indent_size: int) -> Indent:
-        if indent is None:
+    def get_indent(indent_size: str | int | None, _indent_level: int) -> Indent:
+        if indent_size is None:
             return Indent(
                 " ",
                 "",
                 "",
                 "",
-                None,
             )
 
-        else:
+        elif isinstance(indent_size, int):
             return Indent(
                 "\n",
                 "\n",
-                " " * (indent * indent_size),
-                " " * ((indent + 1) * indent_size),
-                indent + 1,
+                " " * (_indent_level * indent_size),
+                " " * ((_indent_level + 1) * indent_size),
             )
+        elif isinstance(indent_size, str) and indent_size.isspace():
+            return Indent(
+                "\n",
+                "\n",
+                indent_size * _indent_level,
+                indent_size * (_indent_level + 1),
+            )
+        else:
+            raise ValueError("Invalid indent_size")
 
     @abstractmethod
-    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         raise NotImplementedError(
             "Subclasses must implement to_string method",
         )

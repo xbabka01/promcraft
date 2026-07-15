@@ -101,10 +101,10 @@ class InstantVector(Query):
         self.offset = Float.from_value(offset) if offset is not None else None
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
 
-    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
-        sep, space, pad, inner_pad, inner = self.get_indent(indent, indent_size)
+        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
 
         if not self.labels:
             return f"{pad}{self.metric}{{}}{offset}{at}"
@@ -166,11 +166,11 @@ class RangeVector(Query):
         self.offset = Float.from_value(offset) if offset is not None else None
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
 
-    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
         resolution = f" :{self.resolution}" if self.resolution else ""
-        sep, space, pad, inner_pad, inner = self.get_indent(indent, indent_size)
+        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
 
         if not self.labels:
             return f"{pad}{self.metric}{{}}[{self.range}{resolution}]{offset}{at}"

@@ -31,8 +31,8 @@ class Float(Scalar):
             return value
         return cls(float(value))
 
-    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
-        fmt = self.get_indent(indent, indent_size)
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        fmt = self.get_indent(indent, _indent_level)
         return fmt.pad + str(self.value)
 
 
@@ -48,8 +48,8 @@ class Hex(Scalar):
             return value
         return cls(int(value))
 
-    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
-        fmt = self.get_indent(indent, indent_size)
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        fmt = self.get_indent(indent, _indent_level)
         return fmt.pad + hex(self.value)
 
 
@@ -114,7 +114,7 @@ class Duration(Scalar):
             ms=int(ms * 1000),
         )
 
-    def to_string(self, *, indent: int | None = None, indent_size: int = 4) -> str:
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         parts = []
         if self.y:
             parts.append(f"{self.y}y")
@@ -132,5 +132,5 @@ class Duration(Scalar):
             parts.append(f"{self.ms}ms")
         if not parts:
             return "0s"
-        fmt = self.get_indent(indent, indent_size)
+        fmt = self.get_indent(indent, _indent_level)
         return fmt.pad + ("-" if self.neg else "") + "".join(parts)
