@@ -144,6 +144,41 @@ Special characters are escaped automatically for `"` and `'` quotes. Backtick st
 
 ---
 
+### `Variable`
+
+Represents a [Grafana dashboard template variable](https://grafana.com/docs/grafana/latest/dashboards/variables/) (`$name`, or `${name}` when braces are needed). Grafana interpolates the variable's selected value before the query text reaches Prometheus, so a `Variable` is accepted anywhere a query fragment, scalar, or string is expected — metric names, label names/values, `offset`/`at`/range/resolution, binary-operator operands, `on`/`ignoring`/`group_left`/`group_right`/`by`/`without` label lists, and aggregation/function arguments.
+
+```python
+from promcraft import Variable
+
+Variable("job")               # "$job"
+Variable("job", braces=True)  # "${job}"
+```
+
+```python
+from promcraft import InstantVector, Label, sum_, topk
+
+# dynamic metric name and label value
+InstantVector(Variable("metric_name"), [Label.eq("env", Variable("environment"))])
+# '$metric_name{ env = $environment }'
+
+# dynamic offset and range
+InstantVector("up", [], offset=Variable("offset_var"))[Variable("range_var")]
+# 'up{}[$range_var] offset $offset_var'
+
+# dynamic grouping labels
+sum_(InstantVector("requests", [])).by([Variable("groupby")])
+# 'sum(requests{}) by ($groupby)'
+
+# dynamic aggregation parameter
+topk(Variable("k"), InstantVector("requests", []))
+# 'topk($k, requests{})'
+```
+
+A `Variable` is never coerced into a literal — `Float.from_value()`, `Hex.from_value()`, `Duration.from_value()`, and `String.from_value()` all pass an existing `Variable` through unchanged, the same way they already do for `Scalar`/`String` instances.
+
+---
+
 ### `Label`
 
 Represents a label matcher used inside vector selectors. Use the factory methods for convenience. The value accepts either a raw `str` or a `String` instance.

@@ -4,6 +4,7 @@ from promcraft import (
     Float,
     InstantVector,
     Query,
+    Variable,
     add,
     and_,
     atan2,
@@ -177,6 +178,15 @@ _right = InstantVector("right", [])
         (
             div(add(Float(1.0), Float(2.0)), Float(3.0)),
             "(1.0 + 2.0) / 3.0",
+        ),
+        # variable (bare, unparenthesized, like Scalar/String/InstantVector)
+        (
+            add(Variable("threshold"), Float(1.0)),
+            "$threshold + 1.0",
+        ),
+        (
+            add(_left, Variable("offset", braces=True)),
+            "left{} + ${offset}",
         ),
     ],
 )

@@ -4,6 +4,7 @@ from typing import Literal
 from promcraft.base import Query
 from promcraft.scalar import SCALAR_TYPE, Duration, Float, Scalar
 from promcraft.string import STRING_TYPE, String
+from promcraft.variable import Variable
 
 
 class Label:
@@ -38,7 +39,7 @@ class Label:
 
     def __init__(
         self,
-        name: str,
+        name: str | Variable,
         op: Operator,
         value: STRING_TYPE,
     ) -> None:
@@ -50,22 +51,22 @@ class Label:
         return f"{self.name} {self.op} {self.value}"
 
     @classmethod
-    def eq(cls, name: str, value: STRING_TYPE) -> "Label":
+    def eq(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name = value`` (exact equality)."""
         return cls(name, Label.Operator.EQ, value)
 
     @classmethod
-    def neq(cls, name: str, value: STRING_TYPE) -> "Label":
+    def neq(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name != value`` (inequality)."""
         return cls(name, Label.Operator.NEQ, value)
 
     @classmethod
-    def re(cls, name: str, value: STRING_TYPE) -> "Label":
+    def re(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name =~ value`` (RE2 regex match)."""
         return cls(name, cls.Operator.RE, value)
 
     @classmethod
-    def nre(cls, name: str, value: STRING_TYPE) -> "Label":
+    def nre(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name !~ value`` (negated RE2 regex match)."""
         return cls(name, Label.Operator.NRE, value)
 
@@ -90,7 +91,7 @@ class InstantVector(Query):
 
     def __init__(
         self,
-        metric: str,
+        metric: str | Variable,
         labels: list[Label],
         *,
         offset: SCALAR_TYPE | None = None,
@@ -99,7 +100,7 @@ class InstantVector(Query):
         self.metric = metric
         self.labels = labels
         self.offset = Float.from_value(offset) if offset is not None else None
-        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
+        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar, Variable)) else at
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         offset = f" offset {self.offset}" if self.offset else ""
@@ -151,7 +152,7 @@ class RangeVector(Query):
 
     def __init__(
         self,
-        metric: str,
+        metric: str | Variable,
         labels: list[Label],
         range: SCALAR_TYPE,
         resolution: SCALAR_TYPE | None = None,
@@ -164,7 +165,7 @@ class RangeVector(Query):
         self.range = Duration.from_value(range)
         self.resolution = Duration.from_value(resolution) if resolution is not None else None
         self.offset = Float.from_value(offset) if offset is not None else None
-        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
+        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar, Variable)) else at
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         offset = f" offset {self.offset}" if self.offset else ""

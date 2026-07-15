@@ -3,8 +3,9 @@ from abc import ABCMeta, abstractmethod
 from typing import Union
 
 from promcraft.base import Query
+from promcraft.variable import Variable
 
-SCALAR_TYPE = Union["Scalar", float, int]
+SCALAR_TYPE = Union["Scalar", "Variable", float, int]
 
 
 class Scalar(Query, metaclass=ABCMeta):
@@ -12,8 +13,12 @@ class Scalar(Query, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def from_value(cls, value: SCALAR_TYPE) -> "Scalar":
-        """Create a Scalar instance from a float or int value."""
+    def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
+        """Create a Scalar instance from a float or int value.
+
+        A :class:`~promcraft.variable.Variable` is passed through unchanged,
+        since its value is only known once Grafana interpolates it.
+        """
         raise NotImplementedError(
             "Subclasses must implement from_value method",
         )
@@ -26,8 +31,8 @@ class Float(Scalar):
         self.value = value
 
     @classmethod
-    def from_value(cls, value: SCALAR_TYPE) -> "Scalar":
-        if isinstance(value, Scalar):
+    def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
+        if isinstance(value, Scalar | Variable):
             return value
         return cls(float(value))
 
@@ -43,8 +48,8 @@ class Hex(Scalar):
         self.value = value
 
     @classmethod
-    def from_value(cls, value: SCALAR_TYPE) -> "Scalar":
-        if isinstance(value, Scalar):
+    def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
+        if isinstance(value, Scalar | Variable):
             return value
         return cls(int(value))
 
@@ -94,8 +99,8 @@ class Duration(Scalar):
         self.neg = neg
 
     @classmethod
-    def from_value(cls, value: SCALAR_TYPE) -> "Scalar":
-        if isinstance(value, Scalar):
+    def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
+        if isinstance(value, Scalar | Variable):
             return value
         ms, x = math.modf(float(value))
         x, sec = divmod(x, 60)

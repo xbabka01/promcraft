@@ -4,6 +4,7 @@ from typing import Literal
 from promcraft.base import Query
 from promcraft.scalar import Scalar
 from promcraft.string import String
+from promcraft.variable import Variable
 from promcraft.vector import InstantVector, RangeVector
 
 
@@ -23,22 +24,22 @@ class Match:
         Match.ignoring(["instance"])  # → 'ignoring(instance)'
     """
 
-    def __init__(self, type: Literal["on", "ignoring"], labels: list[str]) -> None:
+    def __init__(self, type: Literal["on", "ignoring"], labels: list[str | Variable]) -> None:
         self.type = type
         self.labels = labels
 
     @classmethod
-    def on(cls, labels: list[str]) -> "Match":
+    def on(cls, labels: list[str | Variable]) -> "Match":
         """Return an ``on(labels)`` match clause."""
         return cls("on", labels)
 
     @classmethod
-    def ignoring(cls, labels: list[str]) -> "Match":
+    def ignoring(cls, labels: list[str | Variable]) -> "Match":
         """Return an ``ignoring(labels)`` match clause."""
         return cls("ignoring", labels)
 
     def __str__(self) -> str:
-        labels_str = ", ".join(self.labels)
+        labels_str = ", ".join(str(label) for label in self.labels)
         return f"{self.type}({labels_str})"
 
 
@@ -60,22 +61,22 @@ class Group:
         Group.right([])  # → 'group_right()'
     """
 
-    def __init__(self, type: Literal["left", "right"], labels: list[str]) -> None:
+    def __init__(self, type: Literal["left", "right"], labels: list[str | Variable]) -> None:
         self.type = type
         self.labels = labels
 
     @classmethod
-    def left(cls, labels: list[str]) -> "Group":
+    def left(cls, labels: list[str | Variable]) -> "Group":
         """Return a ``group_left(labels)`` modifier."""
         return cls("left", labels)
 
     @classmethod
-    def right(cls, labels: list[str]) -> "Group":
+    def right(cls, labels: list[str | Variable]) -> "Group":
         """Return a ``group_right(labels)`` modifier."""
         return cls("right", labels)
 
     def __str__(self) -> str:
-        labels_str = ", ".join(self.labels)
+        labels_str = ", ".join(str(label) for label in self.labels)
         return f"group_{self.type}({labels_str})"
 
 
@@ -148,7 +149,7 @@ class BinaryOprator(Query):
         sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
 
         def render_operand(operand: Query) -> str:
-            if isinstance(operand, Scalar | String | InstantVector | RangeVector):
+            if isinstance(operand, Scalar | String | InstantVector | RangeVector | Variable):
                 return operand.to_string(indent=indent, _indent_level=_indent_level)
             body = operand.to_string(indent=indent, _indent_level=_indent_level + 1)
             return f"({space}{body}{space}{pad})"
@@ -159,7 +160,7 @@ class BinaryOprator(Query):
         right_str = render_operand(self.right)
         return f"{left_str}{sep}{self.op}{match_str}{group_str}{sep}{pad}{right_str}"
 
-    def on(self, labels: list[str]) -> "BinaryOprator":
+    def on(self, labels: list[str | Variable]) -> "BinaryOprator":
         """Return a copy of this operation with an ``on(labels)`` match clause."""
         return BinaryOprator(
             op=self.op,
@@ -169,7 +170,7 @@ class BinaryOprator(Query):
             group=self.group,
         )
 
-    def ignoring(self, labels: list[str]) -> "BinaryOprator":
+    def ignoring(self, labels: list[str | Variable]) -> "BinaryOprator":
         """Return a copy of this operation with an ``ignoring(labels)`` match clause."""
         return BinaryOprator(
             op=self.op,
@@ -179,7 +180,7 @@ class BinaryOprator(Query):
             group=self.group,
         )
 
-    def group_left(self, labels: list[str]) -> "BinaryOprator":
+    def group_left(self, labels: list[str | Variable]) -> "BinaryOprator":
         """Return a copy of this operation with a ``group_left(labels)`` modifier."""
         return BinaryOprator(
             op=self.op,
@@ -189,7 +190,7 @@ class BinaryOprator(Query):
             group=Group.left(labels),
         )
 
-    def group_right(self, labels: list[str]) -> "BinaryOprator":
+    def group_right(self, labels: list[str | Variable]) -> "BinaryOprator":
         """Return a copy of this operation with a ``group_right(labels)`` modifier."""
         return BinaryOprator(
             op=self.op,
