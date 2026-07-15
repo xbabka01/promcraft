@@ -30,20 +30,20 @@ query = InstantVector("http_requests_total", [
     Label.eq("job", "api-server"),
     Label.eq("env", "production"),
 ])
-str(query)  # 'http_requests_total{job = "api-server", env = "production"}'
+str(query)  # 'http_requests_total{ job = "api-server", env = "production" }'
 
 # Range vector with rate()
 from promcraft import rate
 query = rate(RangeVector("http_requests_total", [
     Label.eq("job", "api-server"),
 ], Duration(m=5)))
-str(query)  # 'rate(http_requests_total{job = "api-server"}[5m])'
+str(query)  # 'rate(http_requests_total{ job = "api-server" }[5m])'
 
 # Binary operation
 left = InstantVector("http_requests_total", [Label.eq("status", "500")])
 right = InstantVector("http_requests_total", [])
 ratio = left / right
-str(ratio)  # 'http_requests_total{status = "500"} /  http_requests_total{}'
+str(ratio)  # 'http_requests_total{ status = "500" } / http_requests_total{}'
 ```
 
 ### Raw values instead of wrapper types
@@ -186,7 +186,7 @@ InstantVector("http_requests_total", [
     Label.eq("job", "api"),
     Label.re("status", "5.."),
 ])
-# 'http_requests_total{job = "api", status =~ "5.."}'
+# 'http_requests_total{ job = "api", status =~ "5.." }'
 
 # With offset
 InstantVector("up", [], offset=Duration(m=5))
@@ -238,7 +238,7 @@ RangeVector(
     offset=Duration(m=1),
     at="end()",
 )
-# 'http_requests_total{job = "api"}[5m :30s] offset 1m @ end()'
+# 'http_requests_total{ job = "api" }[5m :30s] offset 1m @ end()'
 ```
 
 `InstantVector` also supports subscript syntax as a shortcut for building a `RangeVector` that reuses its metric, labels, offset and `@` modifier:
@@ -265,10 +265,10 @@ from promcraft import (
 v1 = InstantVector("requests", [])
 v2 = InstantVector("errors", [])
 
-add(Float(1.0), Float(2.0))  # "1.0 +  2.0"
-div(v2, v1)                  # "errors{} /  requests{}"
-gt(v1, Float(0.0))           # "requests{} >  0.0"
-and_(v1, v2)                 # "requests{} and  errors{}"
+add(Float(1.0), Float(2.0))  # "1.0 + 2.0"
+div(v2, v1)                  # "errors{} / requests{}"
+gt(v1, Float(0.0))           # "requests{} > 0.0"
+and_(v1, v2)                 # "requests{} and errors{}"
 ```
 
 | Helper   | Symbol   | Category       |
@@ -303,7 +303,7 @@ Nested binary expressions are automatically parenthesized to preserve evaluation
 ```python
 inner = add(Float(1.0), Float(2.0))
 outer = mul(inner, Float(3.0))
-str(outer)  # "(1.0 +  2.0) *  3.0"
+str(outer)  # "(1.0 + 2.0) * 3.0"
 ```
 
 #### Label matching
@@ -316,11 +316,11 @@ errors   = InstantVector("http_errors_total", [])
 
 # Match on specific labels
 expr = div(errors, requests).on(["job", "env"])
-# 'http_errors_total{} /  on(job, env) http_requests_total{}'
+# 'http_errors_total{} / on(job, env) http_requests_total{}'
 
 # Ignore specific labels
 expr = div(errors, requests).ignoring(["instance"])
-# 'http_errors_total{} /  ignoring(instance) http_requests_total{}'
+# 'http_errors_total{} / ignoring(instance) http_requests_total{}'
 ```
 
 #### Grouping
@@ -358,12 +358,15 @@ from promcraft import sum_, avg, min_, max_, count, group, stddev, stdvar, Insta
 v = InstantVector("http_requests_total", [])
 
 sum_(v)                    # "sum(http_requests_total{})"
-avg(v).by(["job"])         # "avg(http_requests_total{}) by(job)"
+avg(v).by(["job"])         # "avg(http_requests_total{}) by (job)"
 stddev(v).without(["env"])
-# "stddev(http_requests_total{}) without(env)"
+# "stddev(http_requests_total{}) without (env)"
 ```
 
 Use `.by(labels)` to keep only the listed labels in the grouped result, or `.without(labels)` to drop the listed labels and keep everything else. Both are chainable and return a new instance.
+
+`labels` must be non-empty — `.by([])`/`.without([])` raise `ValueError`. To aggregate away
+all labels, omit `.by()`/`.without()` entirely rather than passing an empty list.
 
 **Scalar-parameter aggregations** — `topk`, `bottomk`, `quantile`, `limitk`, `limit_ratio`. The parameter accepts a raw `float`/`int` or a `Float`:
 
@@ -376,7 +379,7 @@ quantile(0.95, v)                     # "quantile(0.95, http_requests_total{})"
 limitk(10, v)                         # "limitk(10.0, http_requests_total{})"
 limit_ratio(0.1, v)                   # "limit_ratio(0.1, http_requests_total{})"
 topk(5, v).by(["job"])
-# "topk(5.0, http_requests_total{}) by(job)"
+# "topk(5.0, http_requests_total{}) by (job)"
 ```
 
 **String-parameter aggregation** — `count_values` (label name, accepts a raw `str` or a `String`):
@@ -578,9 +581,32 @@ total_rate = rate(RangeVector("http_requests_total", [job_label], Duration(m=5))
 
 ratio = div(error_rate, total_rate).on(["job"])
 str(ratio)
-# 'rate(http_requests_total{job = "api", status =~ "5.."}[5m])
-#   /  on(job) rate(http_requests_total{job = "api"}[5m])'
+# '(rate(http_requests_total{ job = "api", status =~ "5.." }[5m]))
+#   / on(job) (rate(http_requests_total{ job = "api" }[5m]))'
 ```
+
+### Pretty printing
+
+Every `to_string()` accepts an optional `indent` argument to render multi-line, indented
+output instead of the single-line compact form. Pass an `int` (spaces per level) or a
+whitespace string (e.g. `"\t"`):
+
+```python
+from promcraft import InstantVector, Duration, sum_
+
+vec = InstantVector("metric", [])[Duration(m=1)]
+expr = sum_(vec).by(["job", "env"])
+
+print(expr.to_string(indent=4))
+# sum(
+#     metric{}[1m]
+# ) by (
+#     job, env
+# )
+```
+
+Omitting `indent` (or passing `None`) keeps the existing single-line output — `str(query)`
+is unaffected either way.
 
 ## Development
 

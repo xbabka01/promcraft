@@ -176,7 +176,7 @@ _right = InstantVector("right", [])
         ),
         (
             div(add(Float(1.0), Float(2.0)), Float(3.0)),
-            "( 1.0 + 2.0 ) / 3.0",
+            "(1.0 + 2.0) / 3.0",
         ),
     ],
 )

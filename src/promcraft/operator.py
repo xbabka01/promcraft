@@ -151,7 +151,7 @@ class BinaryOprator(Query):
             if isinstance(operand, Scalar | String | InstantVector | RangeVector):
                 return operand.to_string(indent=indent, _indent_level=_indent_level)
             body = operand.to_string(indent=indent, _indent_level=_indent_level + 1)
-            return f"({sep}{body}{sep}{pad})"
+            return f"({space}{body}{space}{pad})"
 
         match_str = f" {self.match}" if self.match else ""
         group_str = f" {self.group}" if self.group else ""

@@ -159,3 +159,22 @@ def test_vector_with_labels_compact_output_unchanged() -> None:
     vec = InstantVector("metric", [Label.eq("job", "api"), Label.eq("env", "prod")])
 
     assert vec.to_string(indent=None) == str(vec) == 'metric{ job = "api", env = "prod" }'
+
+
+def test_duration_pretty_zero_value_nested_gets_indent() -> None:
+    expr = sum_(Duration())
+
+    assert expr.to_string(indent=4) == "sum(\n    0s\n)"
+
+
+def test_function_pretty_zero_args_nested_gets_indent() -> None:
+    expr = sum_(Function("time", []))
+
+    assert expr.to_string(indent=4) == "sum(\n    time()\n)"
+
+
+def test_binary_operator_compact_nested_no_paren_padding() -> None:
+    vec = InstantVector("metric", [])
+    expr = add(sum_(vec), Float(1.0))
+
+    assert str(expr) == "(sum(metric{})) + 1.0"

@@ -115,6 +115,7 @@ class Duration(Scalar):
         )
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        fmt = self.get_indent(indent, _indent_level)
         parts = []
         if self.y:
             parts.append(f"{self.y}y")
@@ -131,6 +132,5 @@ class Duration(Scalar):
         if self.ms:
             parts.append(f"{self.ms}ms")
         if not parts:
-            return "0s"
-        fmt = self.get_indent(indent, _indent_level)
+            return f"{fmt.pad}0s"
         return fmt.pad + ("-" if self.neg else "") + "".join(parts)

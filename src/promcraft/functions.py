@@ -19,7 +19,7 @@ class Function(Query):
         sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
 
         if not self.args:
-            return f"{self.name}()"
+            return f"{pad}{self.name}()"
 
         args_str = f",{sep}".join(
             arg.to_string(indent=indent, _indent_level=_indent_level + 1) for arg in self.args
