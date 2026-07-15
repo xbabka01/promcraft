@@ -1,8 +1,9 @@
 from typing import Literal, Union
 
 from promcraft.base import Query
+from promcraft.variable import Variable
 
-STRING_TYPE = Union["String", str]
+STRING_TYPE = Union["String", "Variable", str]
 
 
 class String(Query):
@@ -26,8 +27,8 @@ class String(Query):
         self.quote = quote
 
     @classmethod
-    def from_value(cls, value: STRING_TYPE) -> "String":
-        if isinstance(value, String):
+    def from_value(cls, value: STRING_TYPE) -> "String | Variable":
+        if isinstance(value, String | Variable):
             return value
         return cls(value)
 

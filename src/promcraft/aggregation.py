@@ -3,6 +3,7 @@ from typing import Literal
 from promcraft.base import Query
 from promcraft.scalar import SCALAR_TYPE, Float
 from promcraft.string import STRING_TYPE, String
+from promcraft.variable import Variable
 
 
 class Grouping:
@@ -17,7 +18,7 @@ class Grouping:
         Grouping.without(["instance"])  # → 'without(instance)'
     """
 
-    def __init__(self, type: Literal["by", "without"], labels: list[str]) -> None:
+    def __init__(self, type: Literal["by", "without"], labels: list[str | Variable]) -> None:
         self.type = type
         self.labels = labels
 
@@ -25,12 +26,12 @@ class Grouping:
             raise ValueError("labels cannot be empty")
 
     @classmethod
-    def by(cls, labels: list[str]) -> "Grouping":
+    def by(cls, labels: list[str | Variable]) -> "Grouping":
         """Return a ``by(labels)`` grouping clause."""
         return cls("by", labels)
 
     @classmethod
-    def without(cls, labels: list[str]) -> "Grouping":
+    def without(cls, labels: list[str | Variable]) -> "Grouping":
         """Return a ``without(labels)`` grouping clause."""
         return cls("without", labels)
 
@@ -59,12 +60,12 @@ class Aggregation(Query):
 
         if self.grouping and self.grouping.labels:
             labels = self.grouping.labels
-            labels_str = ", ".join(labels)
+            labels_str = ", ".join(str(label) for label in labels)
             result += f" {self.grouping.type} ({labels_str})"
 
         return result
 
-    def by(self, labels: list[str]) -> "Aggregation":
+    def by(self, labels: list[str | Variable]) -> "Aggregation":
         """Return a copy of this aggregation with a ``by(labels)`` grouping clause."""
         return self.__class__(
             operator=self.operator,
@@ -72,7 +73,7 @@ class Aggregation(Query):
             grouping=Grouping.by(labels),
         )
 
-    def without(self, labels: list[str]) -> "Aggregation":
+    def without(self, labels: list[str | Variable]) -> "Aggregation":
         """Return a copy of this aggregation with a ``without(labels)`` grouping clause."""
         return self.__class__(
             operator=self.operator,

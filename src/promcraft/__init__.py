@@ -35,6 +35,7 @@ from promcraft.operator import (
 )
 from promcraft.scalar import Duration, Float, Hex, Scalar
 from promcraft.string import String
+from promcraft.variable import Variable
 from promcraft.vector import InstantVector, Label, RangeVector
 
 # isort: split
@@ -130,6 +131,7 @@ __all__ = [
     "RangeVector",
     "Scalar",
     "String",
+    "Variable",
     "abs",
     "absent",
     "absent_over_time",

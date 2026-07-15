@@ -4,6 +4,7 @@ from typing import Literal
 from promcraft.base import Query
 from promcraft.scalar import SCALAR_TYPE, Duration, Float, Scalar
 from promcraft.string import STRING_TYPE, String
+from promcraft.variable import Variable
 
 
 class Label:
@@ -99,7 +100,7 @@ class InstantVector(Query):
         self.metric = metric
         self.labels = labels
         self.offset = Float.from_value(offset) if offset is not None else None
-        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
+        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar, Variable)) else at
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         offset = f" offset {self.offset}" if self.offset else ""
@@ -164,7 +165,7 @@ class RangeVector(Query):
         self.range = Duration.from_value(range)
         self.resolution = Duration.from_value(resolution) if resolution is not None else None
         self.offset = Float.from_value(offset) if offset is not None else None
-        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar)) else at
+        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar, Variable)) else at
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         offset = f" offset {self.offset}" if self.offset else ""
