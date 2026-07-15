@@ -34,10 +34,6 @@ class Grouping:
         """Return a ``without(labels)`` grouping clause."""
         return cls("without", labels)
 
-    def __str__(self) -> str:
-        labels_str = ", ".join(self.labels)
-        return f"{self.type}({labels_str})"
-
 
 class Aggregation(Query):
     """A PromQL aggregation expression that collapses multiple time series into fewer results."""
@@ -62,8 +58,9 @@ class Aggregation(Query):
         result = f"{pad}{self.operator}({space}{params_str}{space}{pad})"
 
         if self.grouping and self.grouping.labels:
-            labels_str = ", ".join(self.grouping.labels)
-            result += f" {self.grouping.type} ({space}{inner_pad}{labels_str}{space}{pad})"
+            labels = self.grouping.labels
+            labels_str = ", ".join(labels)
+            result += f" {self.grouping.type} ({labels_str})"
 
         return result
 

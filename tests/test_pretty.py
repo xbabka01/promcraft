@@ -14,14 +14,14 @@ def test_aggregation_pretty_matches_target_example() -> None:
     vec = InstantVector("metric", [])[Duration(m=1)]
     expr = sum_(vec).by(["label1", "label2"])
 
-    assert expr.to_string(indent=4) == ("sum(\n    metric{}[1m]\n) by (\n    label1, label2\n)")
+    assert expr.to_string(indent=4) == ("sum(\n    metric{}[1m]\n) by (label1, label2)")
 
 
 def test_aggregation_pretty_without_grouping_labels() -> None:
     vec = InstantVector("metric", [])
     expr = sum_(vec).without(["job"])
 
-    assert expr.to_string(indent=4) == ("sum(\n    metric{}\n) without (\n    job\n)")
+    assert expr.to_string(indent=4) == ("sum(\n    metric{}\n) without (job)")
 
 
 def test_aggregation_pretty_no_grouping() -> None:
@@ -35,9 +35,7 @@ def test_aggregation_pretty_nested_aggregation() -> None:
     vec = InstantVector("metric", [])
     expr = sum_(sum_(vec)).by(["label"])
 
-    assert expr.to_string(indent=4) == (
-        "sum(\n    sum(\n        metric{}\n    )\n) by (\n    label\n)"
-    )
+    assert expr.to_string(indent=4) == ("sum(\n    sum(\n        metric{}\n    )\n) by (label)")
 
 
 def test_aggregation_pretty_multi_param() -> None:
@@ -51,7 +49,7 @@ def test_aggregation_pretty_custom_indent_size() -> None:
     vec = InstantVector("metric", [])
     expr = sum_(vec).by(["label"])
 
-    assert expr.to_string(indent=2) == ("sum(\n  metric{}\n) by (\n  label\n)")
+    assert expr.to_string(indent=2) == ("sum(\n  metric{}\n) by (label)")
 
 
 def test_function_pretty_multiple_args() -> None:
@@ -93,6 +91,27 @@ def test_binary_operator_pretty_with_group_left() -> None:
     expr = add(left, right).group_left(["region"])
 
     assert expr.to_string(indent=4) == "left{}\n+ group_left(region)\nright{}"
+
+
+def test_aggregation_pretty_grouping_three_or_more_labels_breaks() -> None:
+    vec = InstantVector("metric", [])[Duration(m=1)]
+    expr = sum_(vec).by(["job", "env", "game", "2"])
+
+    assert expr.to_string(indent=4) == ("sum(\n    metric{}[1m]\n) by (job, env, game, 2)")
+
+
+def test_aggregation_pretty_grouping_exactly_three_labels_breaks() -> None:
+    vec = InstantVector("metric", [])
+    expr = sum_(vec).by(["job", "env", "game"])
+
+    assert expr.to_string(indent=4) == ("sum(\n    metric{}\n) by (job, env, game)")
+
+
+def test_aggregation_pretty_grouping_many_labels_stays_compact_without_indent() -> None:
+    vec = InstantVector("metric", [])
+    expr = sum_(vec).by(["job", "env", "game", "2"])
+
+    assert expr.to_string(indent=None) == "sum(metric{}) by (job, env, game, 2)"
 
 
 def test_pretty_default_matches_compact_output() -> None:
@@ -143,7 +162,7 @@ def test_vector_with_labels_pretty_nested_in_aggregation() -> None:
     expr = sum_(vec).by(["env"])
 
     assert expr.to_string(indent=4) == (
-        'sum(\n    metric{\n        job = "api"\n    }\n) by (\n    env\n)'
+        'sum(\n    metric{\n        job = "api"\n    }\n) by (env)'
     )
 
 
