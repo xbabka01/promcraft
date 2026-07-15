@@ -39,7 +39,7 @@ class Label:
 
     def __init__(
         self,
-        name: str,
+        name: str | Variable,
         op: Operator,
         value: STRING_TYPE,
     ) -> None:
@@ -51,22 +51,22 @@ class Label:
         return f"{self.name} {self.op} {self.value}"
 
     @classmethod
-    def eq(cls, name: str, value: STRING_TYPE) -> "Label":
+    def eq(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name = value`` (exact equality)."""
         return cls(name, Label.Operator.EQ, value)
 
     @classmethod
-    def neq(cls, name: str, value: STRING_TYPE) -> "Label":
+    def neq(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name != value`` (inequality)."""
         return cls(name, Label.Operator.NEQ, value)
 
     @classmethod
-    def re(cls, name: str, value: STRING_TYPE) -> "Label":
+    def re(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name =~ value`` (RE2 regex match)."""
         return cls(name, cls.Operator.RE, value)
 
     @classmethod
-    def nre(cls, name: str, value: STRING_TYPE) -> "Label":
+    def nre(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name !~ value`` (negated RE2 regex match)."""
         return cls(name, Label.Operator.NRE, value)
 
@@ -91,7 +91,7 @@ class InstantVector(Query):
 
     def __init__(
         self,
-        metric: str,
+        metric: str | Variable,
         labels: list[Label],
         *,
         offset: SCALAR_TYPE | None = None,
@@ -152,7 +152,7 @@ class RangeVector(Query):
 
     def __init__(
         self,
-        metric: str,
+        metric: str | Variable,
         labels: list[Label],
         range: SCALAR_TYPE,
         resolution: SCALAR_TYPE | None = None,

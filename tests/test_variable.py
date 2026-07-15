@@ -88,6 +88,21 @@ def test_variable_as_function_scalar_argument() -> None:
     assert str(round(_left, Variable("nearest"))) == "round(left{}, $nearest)"
 
 
+# --- in place of a raw str/int identifier (metric name, label name) --------
+
+
+def test_variable_as_instant_vector_metric() -> None:
+    assert str(InstantVector(Variable("metric_name"), [])) == "$metric_name{}"
+
+
+def test_variable_as_range_vector_metric() -> None:
+    assert str(RangeVector(Variable("metric_name"), [], Duration(m=5))) == "$metric_name{}[5m]"
+
+
+def test_variable_as_label_name() -> None:
+    assert str(Label.eq(Variable("label_key"), "prod")) == '$label_key = "prod"'
+
+
 # --- in place of a String ---------------------------------------------------
 
 
