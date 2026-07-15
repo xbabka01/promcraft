@@ -600,9 +600,7 @@ expr = sum_(vec).by(["job", "env"])
 print(expr.to_string(indent=4))
 # sum(
 #     metric{}[1m]
-# ) by (
-#     job, env
-# )
+# ) by (job, env)
 ```
 
 Omitting `indent` (or passing `None`) keeps the existing single-line output — `str(query)`
