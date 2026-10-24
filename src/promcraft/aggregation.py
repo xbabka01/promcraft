@@ -62,9 +62,8 @@ class Aggregation(Query):
         )
         result = f"{pad}{self.operator}({space}{params_str}{space}{pad})"
 
-        if self.grouping and self.grouping.labels:
-            labels = self.grouping.labels
-            labels_str = ", ".join(str(label) for label in labels)
+        if self.grouping is not None:
+            labels_str = ", ".join(str(label) for label in self.grouping.labels)
             result += f" {self.grouping.type} ({labels_str})"
 
         return result
