@@ -442,6 +442,13 @@ gt(v1, v2).bool().on(["job"])  # "requests{} > bool on(job) errors{}"
 -(v1 + v2)  # "-(requests{} + errors{})"
 ```
 
+In PromQL `-2 ^ 2` means `-(2 ^ 2)`, because `^` binds tighter than unary minus. promcraft therefore parenthesises a negative base of `^`, whether it is a literal or a negation:
+
+```python
+Float(-2) ** 2  # "(-2) ^ 2"
+(-v1) ** 2  # "(-requests{}) ^ 2"
+```
+
 #### Label matching
 
 Use `.on()` or `.ignoring()` to control which labels are used for matching when combining two vector selectors:
