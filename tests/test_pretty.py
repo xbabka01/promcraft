@@ -4,6 +4,7 @@ from promcraft import (
     InstantVector,
     Label,
     add,
+    rate,
     sum_,
     topk,
 )
@@ -42,7 +43,7 @@ def test_aggregation_pretty_multi_param() -> None:
     vec = InstantVector("metric", [])
     expr = topk(5, vec)
 
-    assert expr.to_string(indent=4) == "topk(\n    5.0,\n    metric{}\n)"
+    assert expr.to_string(indent=4) == "topk(\n    5,\n    metric{}\n)"
 
 
 def test_aggregation_pretty_custom_indent_size() -> None:
@@ -55,7 +56,7 @@ def test_aggregation_pretty_custom_indent_size() -> None:
 def test_function_pretty_multiple_args() -> None:
     fn = Function("label_replace", [InstantVector("metric", []), Float(1.0), Float(2.0)])
 
-    assert fn.to_string(indent=4) == ("label_replace(\n    metric{},\n    1.0,\n    2.0\n)")
+    assert fn.to_string(indent=4) == ("label_replace(\n    metric{},\n    1,\n    2\n)")
 
 
 def test_function_pretty_zero_args_collapses() -> None:
@@ -67,21 +68,21 @@ def test_function_pretty_zero_args_collapses() -> None:
 def test_binary_operator_pretty_atomic_operands() -> None:
     expr = add(Float(1.0), Float(2.0))
 
-    assert expr.to_string(indent=4) == "1.0\n+\n2.0"
+    assert expr.to_string(indent=4) == "1\n+\n2"
 
 
 def test_binary_operator_pretty_nested_non_atomic_operand() -> None:
     vec = InstantVector("metric", [])
     expr = add(sum_(vec), Float(1.0))
 
-    assert expr.to_string(indent=4) == ("sum(\n    metric{}\n)\n+\n1.0")
+    assert expr.to_string(indent=4) == ("sum(\n    metric{}\n)\n+\n1")
 
 
 def test_binary_operator_pretty_nested_binary_operand() -> None:
     vec = InstantVector("metric", [])
     expr = add(vec, Float(1.0)) * vec
 
-    assert expr.to_string(indent=2) == ("(\n  metric{}\n  +\n  1.0\n)\n*\nmetric{}")
+    assert expr.to_string(indent=2) == ("(\n  metric{}\n  +\n  1\n)\n*\nmetric{}")
 
 
 def test_binary_operator_pretty_doubly_nested() -> None:
@@ -89,7 +90,7 @@ def test_binary_operator_pretty_doubly_nested() -> None:
     expr = sum_(add(vec, add(vec, Float(1.0))))
 
     assert expr.to_string(indent=2) == (
-        "sum(\n  metric{}\n  +\n  (\n    metric{}\n    +\n    1.0\n  )\n)"
+        "sum(\n  metric{}\n  +\n  (\n    metric{}\n    +\n    1\n  )\n)"
     )
 
 
@@ -212,11 +213,24 @@ def test_binary_operator_compact_nested_no_paren_padding() -> None:
     vec = InstantVector("metric", [])
     expr = add(sum_(vec), Float(1.0))
 
-    assert str(expr) == "sum(metric{}) + 1.0"
+    assert str(expr) == "sum(metric{}) + 1"
 
 
 def test_binary_operator_compact_nested_binary_keeps_parens() -> None:
     vec = InstantVector("metric", [])
     expr = add(sum_(vec), Float(1.0)) / Float(2.0)
 
-    assert str(expr) == "(sum(metric{}) + 1.0) / 2.0"
+    assert str(expr) == "(sum(metric{}) + 1) / 2"
+
+
+def test_negation_pretty_atomic_operand() -> None:
+    expr = -rate(InstantVector("metric", [])[Duration(m=5)])
+
+    assert expr.to_string(indent=2) == "-rate(\n  metric{}[5m]\n)"
+
+
+def test_negation_pretty_binary_operand() -> None:
+    vec = InstantVector("metric", [])
+    expr = sum_(-(vec + vec))
+
+    assert expr.to_string(indent=2) == ("sum(\n  -(\n    metric{}\n    +\n    metric{}\n  )\n)")

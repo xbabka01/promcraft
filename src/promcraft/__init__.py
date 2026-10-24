@@ -18,6 +18,7 @@ from promcraft.aggregation import (
 )
 from promcraft.base import Query
 from promcraft.operator import (
+    Negation,
     add,
     and_,
     atan2,
@@ -129,6 +130,7 @@ __all__ = [
     "Hex",
     "InstantVector",
     "Label",
+    "Negation",
     "Query",
     "RangeVector",
     "Scalar",

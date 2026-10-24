@@ -84,6 +84,7 @@ from promcraft import (
     vector,
     year,
 )
+from promcraft.functions import Function
 
 _vec = InstantVector("http_requests_total", [])
 _rvec = RangeVector("http_requests_total", [], Duration(m=5))
@@ -165,7 +166,7 @@ def test_no_args(expr: Query, expected: str) -> None:
 
 
 def test_vector() -> None:
-    assert str(vector(Float(1.0))) == "vector(1.0)"
+    assert str(vector(Float(1.0))) == "vector(1)"
 
 
 @pytest.mark.parametrize(
@@ -182,9 +183,9 @@ def test_round(expr: Query, expected: str) -> None:
 @pytest.mark.parametrize(
     ("expr", "expected"),
     [
-        (clamp(_vec, Float(0.0), Float(1.0)), "clamp(http_requests_total{}, 0.0, 1.0)"),
-        (clamp_min(_vec, Float(0.0)), "clamp_min(http_requests_total{}, 0.0)"),
-        (clamp_max(_vec, Float(1.0)), "clamp_max(http_requests_total{}, 1.0)"),
+        (clamp(_vec, Float(0.0), Float(1.0)), "clamp(http_requests_total{}, 0, 1)"),
+        (clamp_min(_vec, Float(0.0)), "clamp_min(http_requests_total{}, 0)"),
+        (clamp_max(_vec, Float(1.0)), "clamp_max(http_requests_total{}, 1)"),
     ],
 )
 def test_clamp(expr: Query, expected: str) -> None:
@@ -204,7 +205,7 @@ def test_clamp(expr: Query, expected: str) -> None:
         ),
         (
             histogram_fraction(Float(0.0), Float(1.0), _vec),
-            "histogram_fraction(0.0, 1.0, http_requests_total{})",
+            "histogram_fraction(0, 1, http_requests_total{})",
         ),
     ],
 )
@@ -217,7 +218,7 @@ def test_scalar_then_query(expr: Query, expected: str) -> None:
     [
         (
             predict_linear(_rvec, Float(3600.0)),
-            "predict_linear(http_requests_total{}[5m], 3600.0)",
+            "predict_linear(http_requests_total{}[5m], 3600)",
         ),
         (
             double_exponential_smoothing(_rvec, Float(0.1), Float(0.5)),
@@ -317,3 +318,8 @@ def test_info(expr: Query, expected: str) -> None:
 )
 def test_histogram_functions(expr: Query, expected: str) -> None:
     assert str(expr) == expected
+
+
+def test_function_wraps_numeric_args() -> None:
+    assert str(Function("vector", [1])) == "vector(1)"
+    assert str(Function("clamp", [_vec, 0, 1.5])) == "clamp(http_requests_total{}, 0, 1.5)"

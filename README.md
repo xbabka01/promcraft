@@ -83,10 +83,10 @@ Wraps a Python float for use in queries.
 from promcraft import Float
 
 Float(3.14)  # "3.14"
-Float(0.0)  # "0.0"
+Float(0.0)  # "0"
 Float(-2.5)  # "-2.5"
 
-Float.from_value(3)  # Float(3.0) -- "3.0"
+Float.from_value(3)  # Float(3) -- "3"
 Float.from_value(Float(3.14))  # passthrough, still "3.14"
 ```
 
@@ -243,7 +243,7 @@ InstantVector("up", [], offset=Duration(m=5))
 
 # With @ modifier (Unix timestamp)
 InstantVector("up", [], at=1609746000.0)
-# "up{} @ 1609746000.0"
+# "up{} @ 1609746000"
 
 # With @ modifier (range function references)
 InstantVector("up", [], at="start()")
@@ -328,9 +328,9 @@ from promcraft import (
 v1 = InstantVector("requests", [])
 v2 = InstantVector("errors", [])
 
-add(Float(1.0), Float(2.0))  # "1.0 + 2.0"
+add(Float(1.0), Float(2.0))  # "1 + 2"
 div(v2, v1)  # "errors{} / requests{}"
-gt(v1, Float(0.0))  # "requests{} > 0.0"
+gt(v1, Float(0.0))  # "requests{} > 0"
 and_(v1, v2)  # "requests{} and errors{}"
 ```
 
@@ -358,8 +358,8 @@ Python's own operators also work directly on any `Query` (`+ - * / % **`,
 
 ```python
 requests + errors  # same as add(requests, errors)
-errors / requests * 100  # "(errors{} / requests{}) * 100.0"
-1 - errors / requests  # "1.0 - (errors{} / requests{})"
+errors / requests * 100  # "(errors{} / requests{}) * 100"
+1 - errors / requests  # "1 - (errors{} / requests{})"
 ```
 
 Because comparisons build PromQL expressions, `Query` objects have no truth value:
@@ -373,7 +373,25 @@ Nested binary expressions are automatically parenthesized to preserve evaluation
 ```python
 inner = add(Float(1.0), Float(2.0))
 outer = mul(inner, Float(3.0))
-str(outer)  # "(1.0 + 2.0) * 3.0"
+str(outer)  # "(1 + 2) * 3"
+```
+
+#### `bool` modifier
+
+Comparisons filter by default. `.bool()` makes them return `0`/`1` per element instead,
+which PromQL requires when both sides are scalars. It is only valid on comparison operators:
+
+```python
+(v1 > 0).bool()  # "requests{} > bool 0"
+(Float(1) > Float(2)).bool()  # "1 > bool 2"
+gt(v1, v2).bool().on(["job"])  # "requests{} > bool on(job) errors{}"
+```
+
+#### Unary minus
+
+```python
+-rate(v1[Duration(m=5)])  # "-rate(requests{}[5m])"
+-(v1 + v2)  # "-(requests{} + errors{})"
 ```
 
 #### Label matching
@@ -443,13 +461,13 @@ all labels, omit `.by()`/`.without()` entirely rather than passing an empty list
 ```python
 from promcraft import topk, bottomk, quantile, limitk, limit_ratio
 
-topk(5, v)  # "topk(5.0, http_requests_total{})"
-bottomk(3, v)  # "bottomk(3.0, http_requests_total{})"
+topk(5, v)  # "topk(5, http_requests_total{})"
+bottomk(3, v)  # "bottomk(3, http_requests_total{})"
 quantile(0.95, v)  # "quantile(0.95, http_requests_total{})"
-limitk(10, v)  # "limitk(10.0, http_requests_total{})"
+limitk(10, v)  # "limitk(10, http_requests_total{})"
 limit_ratio(0.1, v)  # "limit_ratio(0.1, http_requests_total{})"
 topk(5, v).by(["job"])
-# "topk(5.0, http_requests_total{}) by (job)"
+# "topk(5, http_requests_total{}) by (job)"
 ```
 
 **String-parameter aggregation** — `count_values` (label name, accepts a raw `str` or a `String`):
@@ -514,9 +532,9 @@ ceil(v)  # "ceil(cpu_usage{})"
 sqrt(v)  # "sqrt(cpu_usage{})"
 round(v)  # "round(cpu_usage{})"
 round(v, 0.5)  # "round(cpu_usage{}, 0.5)"
-clamp(v, 0.0, 1.0)  # "clamp(cpu_usage{}, 0.0, 1.0)"
-clamp_min(v, 0.0)  # "clamp_min(cpu_usage{}, 0.0)"
-clamp_max(v, 1.0)  # "clamp_max(cpu_usage{}, 1.0)"
+clamp(v, 0.0, 1.0)  # "clamp(cpu_usage{}, 0, 1)"
+clamp_min(v, 0.0)  # "clamp_min(cpu_usage{}, 0)"
+clamp_max(v, 1.0)  # "clamp_max(cpu_usage{}, 1)"
 ```
 
 #### Exponential & logarithm
@@ -584,7 +602,7 @@ label_replace(v, "job", "${1}", "job", "(.+)")
 from promcraft import scalar, vector
 
 scalar(v)  # "scalar(cpu_usage{})"
-vector(1.0)  # "vector(1.0)"
+vector(1.0)  # "vector(1)"
 ```
 
 #### Histogram functions
@@ -601,7 +619,7 @@ from promcraft import (
 )
 
 histogram_quantile(0.95, v)  # "histogram_quantile(0.95, cpu_usage{})"
-histogram_fraction(0.0, 1.0, v)  # "histogram_fraction(0.0, 1.0, cpu_usage{})"
+histogram_fraction(0.0, 1.0, v)  # "histogram_fraction(0, 1, cpu_usage{})"
 histogram_count(v)  # "histogram_count(cpu_usage{})"
 ```
 
@@ -611,7 +629,7 @@ histogram_count(v)  # "histogram_count(cpu_usage{})"
 from promcraft import predict_linear, double_exponential_smoothing
 
 predict_linear(rv, 3600.0)
-# "predict_linear(http_requests_total{}[5m], 3600.0)"
+# "predict_linear(http_requests_total{}[5m], 3600)"
 
 double_exponential_smoothing(rv, 0.1, 0.5)
 # "double_exponential_smoothing(http_requests_total{}[5m], 0.1, 0.5)"
@@ -635,7 +653,7 @@ from promcraft.functions import Function
 from promcraft import InstantVector, Float
 
 Function("my_custom_func", [InstantVector("up", []), Float(42.0)])
-# "my_custom_func(up{}, 42.0)"
+# "my_custom_func(up{}, 42)"
 ```
 
 ---

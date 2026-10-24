@@ -1,8 +1,12 @@
+from collections.abc import Callable
+
 import pytest
 
 from promcraft import (
+    Duration,
     Float,
     InstantVector,
+    Negation,
     Query,
     Variable,
     add,
@@ -19,9 +23,11 @@ from promcraft import (
     neq,
     or_,
     pow,
+    rate,
     sub,
     unless,
 )
+from promcraft.operator import BinaryOprator
 
 _left = InstantVector("left", [])
 _right = InstantVector("right", [])
@@ -33,52 +39,52 @@ _right = InstantVector("right", [])
         # arithmetic
         (
             add(Float(1.0), Float(2.0)),
-            "1.0 + 2.0",
+            "1 + 2",
         ),
         (
             sub(Float(5.0), Float(3.0)),
-            "5.0 - 3.0",
+            "5 - 3",
         ),
         (
             mul(Float(2.0), Float(3.0)),
-            "2.0 * 3.0",
+            "2 * 3",
         ),
         (
             div(Float(6.0), Float(2.0)),
-            "6.0 / 2.0",
+            "6 / 2",
         ),
         (
             mod(Float(7.0), Float(3.0)),
-            "7.0 % 3.0",
+            "7 % 3",
         ),
         (
             pow(Float(2.0), Float(8.0)),
-            "2.0 ^ 8.0",
+            "2 ^ 8",
         ),
         # comparison
         (
             eq(Float(1.0), Float(1.0)),
-            "1.0 == 1.0",
+            "1 == 1",
         ),
         (
             neq(Float(1.0), Float(2.0)),
-            "1.0 != 2.0",
+            "1 != 2",
         ),
         (
             lt(Float(1.0), Float(2.0)),
-            "1.0 < 2.0",
+            "1 < 2",
         ),
         (
             lte(Float(1.0), Float(1.0)),
-            "1.0 <= 1.0",
+            "1 <= 1",
         ),
         (
             gt(Float(2.0), Float(1.0)),
-            "2.0 > 1.0",
+            "2 > 1",
         ),
         (
             gte(Float(2.0), Float(2.0)),
-            "2.0 >= 2.0",
+            "2 >= 2",
         ),
         # logical
         (
@@ -95,7 +101,7 @@ _right = InstantVector("right", [])
         ),
         (
             atan2(Float(1.0), Float(2.0)),
-            "1.0 atan2 2.0",
+            "1 atan2 2",
         ),
         # with match
         (
@@ -119,52 +125,52 @@ _right = InstantVector("right", [])
         # arithmetic
         (
             Float(1.0) + Float(2.0),
-            "1.0 + 2.0",
+            "1 + 2",
         ),
         (
             Float(5.0) - Float(3.0),
-            "5.0 - 3.0",
+            "5 - 3",
         ),
         (
             Float(2.0) * Float(3.0),
-            "2.0 * 3.0",
+            "2 * 3",
         ),
         (
             Float(6.0) / Float(2.0),
-            "6.0 / 2.0",
+            "6 / 2",
         ),
         (
             Float(7.0) % Float(3.0),
-            "7.0 % 3.0",
+            "7 % 3",
         ),
         (
             Float(2.0) ** Float(8.0),
-            "2.0 ^ 8.0",
+            "2 ^ 8",
         ),
         # comparison
         (
             Float(1.0) == Float(1.0),
-            "1.0 == 1.0",
+            "1 == 1",
         ),
         (
             Float(1.0) != Float(2.0),
-            "1.0 != 2.0",
+            "1 != 2",
         ),
         (
             Float(1.0) < Float(2.0),
-            "1.0 < 2.0",
+            "1 < 2",
         ),
         (
             Float(1.0) <= Float(1.0),
-            "1.0 <= 1.0",
+            "1 <= 1",
         ),
         (
             Float(2.0) > Float(1.0),
-            "2.0 > 1.0",
+            "2 > 1",
         ),
         (
             Float(2.0) >= Float(2.0),
-            "2.0 >= 2.0",
+            "2 >= 2",
         ),
         # logical / set (& → and, | → or)
         (
@@ -177,12 +183,12 @@ _right = InstantVector("right", [])
         ),
         (
             div(add(Float(1.0), Float(2.0)), Float(3.0)),
-            "(1.0 + 2.0) / 3.0",
+            "(1 + 2) / 3",
         ),
         # variable (bare, unparenthesized, like Scalar/String/InstantVector)
         (
             add(Variable("threshold"), Float(1.0)),
-            "$threshold + 1.0",
+            "$threshold + 1",
         ),
         (
             add(_left, Variable("offset", braces=True)),
@@ -217,17 +223,17 @@ def test_arithmetic_non_operand_raises() -> None:
 @pytest.mark.parametrize(
     ("expr", "expected"),
     [
-        (_left + 1, "left{} + 1.0"),
-        (_left == 0, "left{} == 0.0"),
+        (_left + 1, "left{} + 1"),
+        (_left == 0, "left{} == 0"),
         (_left > 0.5, "left{} > 0.5"),
-        (1 + _left, "1.0 + left{}"),
-        (1 - _left, "1.0 - left{}"),
-        (2 * _left, "2.0 * left{}"),
-        (1 / _left, "1.0 / left{}"),
-        (10 % _left, "10.0 % left{}"),
-        (2**_left, "2.0 ^ left{}"),
-        (0 < _left, "left{} > 0.0"),  # noqa: SIM300 - reflected comparison
-        (add(_left, 1), "left{} + 1.0"),
+        (1 + _left, "1 + left{}"),
+        (1 - _left, "1 - left{}"),
+        (2 * _left, "2 * left{}"),
+        (1 / _left, "1 / left{}"),
+        (10 % _left, "10 % left{}"),
+        (2**_left, "2 ^ left{}"),
+        (0 < _left, "left{} > 0"),  # noqa: SIM300 - reflected comparison
+        (add(_left, 1), "left{} + 1"),
     ],
 )
 def test_numeric_operands(expr: Query, expected: str) -> None:
@@ -239,3 +245,45 @@ def test_query_has_no_truth_value() -> None:
         bool(_left)
     with pytest.raises(TypeError, match="no truth value"):
         _ = Float(1.0) in [Float(2.0), Float(3.0)]
+
+
+@pytest.mark.parametrize(
+    ("expr", "expected"),
+    [
+        (gt(_left, _right).bool(), "left{} > bool right{}"),
+        ((Float(1) > Float(2)).bool(), "1 > bool 2"),
+        ((_left == 0).bool(), "left{} == bool 0"),
+        (lte(_left, _right).bool().on(["job"]), "left{} <= bool on(job) right{}"),
+        (
+            neq(_left, _right).on(["job"]).bool().group_left(["env"]),
+            "left{} != bool on(job) group_left(env) right{}",
+        ),
+        (gte(_left, _right).ignoring(["env"]).bool(), "left{} >= bool ignoring(env) right{}"),
+    ],
+)
+def test_bool_modifier(expr: Query, expected: str) -> None:
+    assert str(expr) == expected
+
+
+@pytest.mark.parametrize("helper", [add, and_, or_, unless, atan2])
+def test_bool_modifier_rejects_non_comparison(helper: Callable[..., BinaryOprator]) -> None:
+    with pytest.raises(ValueError, match="only valid for comparison operators"):
+        helper(_left, _right).bool()
+
+
+@pytest.mark.parametrize(
+    ("expr", "expected"),
+    [
+        (-_left, "-left{}"),
+        (-(_left + _right), "-(left{} + right{})"),
+        (Negation(-_left), "-(-left{})"),
+        (-_left * _right, "(-left{}) * right{}"),
+        (_left**-_right, "left{} ^ (-right{})"),
+        (-rate(_left[Duration(m=5)]), "-rate(left{}[5m])"),
+        (-Float(2), "-2"),
+        (Negation(1), "-1"),
+        (-Variable("x"), "-$x"),
+    ],
+)
+def test_negation(expr: Query, expected: str) -> None:
+    assert str(expr) == expected

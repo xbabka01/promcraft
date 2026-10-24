@@ -1,6 +1,7 @@
 """PromQL function helpers (``rate``, ``abs``, ``histogram_quantile``, ...)."""
 
 from promcraft.base import Query
+from promcraft.operator import OPERAND_TYPE, _as_operand
 from promcraft.scalar import SCALAR_TYPE, Float
 from promcraft.string import STRING_TYPE, String
 
@@ -10,12 +11,13 @@ class Function(Query):
 
     This class is the return type for all function helper functions in this
     module.  Construct it directly only when a helper does not exist for the
-    function you need.
+    function you need; raw numbers in ``args`` are wrapped in
+    :class:`~promcraft.scalar.Float`.
     """
 
-    def __init__(self, name: str, args: list[Query]) -> None:
+    def __init__(self, name: str, args: list[OPERAND_TYPE]) -> None:
         self.name = name
-        self.args = args
+        self.args = [_as_operand(arg) for arg in args]
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         """Render this expression as a PromQL string."""
