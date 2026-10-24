@@ -39,7 +39,8 @@ class Float(Scalar):
         """Wrap a raw number, passing ``Scalar`` and ``Variable`` through unchanged."""
         if isinstance(value, Scalar | Variable):
             return value
-        return cls(value)
+        # bool is an int subclass but would render as "True"/"False"
+        return cls(int(value) if isinstance(value, bool) else value)
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         """Render this expression as a PromQL string."""

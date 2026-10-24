@@ -55,6 +55,8 @@ def test_duration(query: Query, expected: str) -> None:
     [
         (3, "3"),
         (3.0, "3.0"),
+        (True, "1"),
+        (False, "0"),
         (3.14, "3.14"),
         (-2.5, "-2.5"),
     ],
