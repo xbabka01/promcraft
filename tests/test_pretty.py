@@ -148,7 +148,7 @@ def test_range_vector_pretty_with_labels_and_range() -> None:
 def test_range_vector_pretty_with_resolution() -> None:
     vec = InstantVector("metric", [Label.eq("job", "api")])[Duration(h=1), Duration(m=1)]
 
-    assert vec.to_string(indent=4) == 'metric{\n    job = "api"\n}[1h :1m]'
+    assert vec.to_string(indent=4) == 'metric{\n    job = "api"\n}[1h:1m]'
 
 
 def test_range_vector_pretty_no_labels_stays_compact() -> None:

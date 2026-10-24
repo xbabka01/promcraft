@@ -61,7 +61,7 @@ def test_variable_as_range_vector_range() -> None:
 def test_variable_as_range_vector_resolution() -> None:
     assert (
         str(RangeVector("up", [], Duration(m=5), resolution=Variable("res_var")))
-        == "up{}[5m :$res_var]"
+        == "up{}[5m:$res_var]"
     )
 
 
