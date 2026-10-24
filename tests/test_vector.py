@@ -5,7 +5,7 @@ from promcraft.base import Query
 
 
 @pytest.mark.parametrize(
-    "label, expected",
+    ("label", "expected"),
     [
         (Label.eq("job", String("prometheus", '"')), 'job = "prometheus"'),
         (Label.neq("env", String("prod", '"')), 'env != "prod"'),
@@ -18,7 +18,7 @@ def test_label(label: Label, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "query, expected",
+    ("query", "expected"),
     [
         (InstantVector("up", []), "up{}"),
         (
@@ -55,7 +55,7 @@ def test_instant_vector(query: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "query, expected",
+    ("query", "expected"),
     [
         (
             RangeVector(

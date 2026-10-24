@@ -1,3 +1,5 @@
+"""Abstract base class shared by every PromQL query component."""
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, NamedTuple
 
@@ -6,6 +8,8 @@ if TYPE_CHECKING:
 
 
 class Indent(NamedTuple):
+    """Whitespace fragments used when pretty-printing a query."""
+
     sep: str
     space: str
     pad: str
@@ -13,8 +17,11 @@ class Indent(NamedTuple):
 
 
 class Query(ABC):
+    """Base class for all PromQL query components."""
+
     @staticmethod
     def get_indent(indent_size: str | int | None, _indent_level: int) -> Indent:
+        """Compute the separators and padding for the given indent size and level."""
         if indent_size is None:
             return Indent(
                 " ",
@@ -23,28 +30,32 @@ class Query(ABC):
                 "",
             )
 
-        elif isinstance(indent_size, int):
+        if isinstance(indent_size, int):
             return Indent(
                 "\n",
                 "\n",
                 " " * (_indent_level * indent_size),
                 " " * ((_indent_level + 1) * indent_size),
             )
-        elif isinstance(indent_size, str) and indent_size.isspace():
+        if isinstance(indent_size, str) and indent_size.isspace():
             return Indent(
                 "\n",
                 "\n",
                 indent_size * _indent_level,
                 indent_size * (_indent_level + 1),
             )
-        else:
-            raise ValueError("Invalid indent_size")
+        msg = "Invalid indent_size"
+        raise ValueError(msg)
 
     @abstractmethod
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
-        raise NotImplementedError(
-            "Subclasses must implement to_string method",
-        )
+        """Render this expression as a PromQL string.
+
+        ``indent`` enables multi-line output: an ``int`` is a number of spaces
+        per level, a whitespace ``str`` is used verbatim per level.
+        """
+        msg = "Subclasses must implement to_string method"
+        raise NotImplementedError(msg)
 
     def __str__(self) -> str:
         return self.to_string()
@@ -83,7 +94,8 @@ class Query(ABC):
         from promcraft.operator import eq
 
         if not isinstance(other, Query):
-            raise NotImplementedError("Cannot compare Query with non-Query object")
+            msg = "Cannot compare Query with non-Query object"
+            raise NotImplementedError(msg)
         return eq(self, other)
 
     def __hash__(self) -> int:
@@ -93,7 +105,8 @@ class Query(ABC):
         from promcraft.operator import neq
 
         if not isinstance(other, Query):
-            raise NotImplementedError("Cannot compare Query with non-Query object")
+            msg = "Cannot compare Query with non-Query object"
+            raise NotImplementedError(msg)
         return neq(self, other)
 
     def __lt__(self, other: "Query") -> "BinaryOprator":

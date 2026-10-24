@@ -1,3 +1,5 @@
+"""PromQL scalar literals: floats, hex integers and durations."""
+
 import math
 from abc import ABCMeta, abstractmethod
 from typing import Union
@@ -19,9 +21,8 @@ class Scalar(Query, metaclass=ABCMeta):
         A :class:`~promcraft.variable.Variable` is passed through unchanged,
         since its value is only known once Grafana interpolates it.
         """
-        raise NotImplementedError(
-            "Subclasses must implement from_value method",
-        )
+        msg = "Subclasses must implement from_value method"
+        raise NotImplementedError(msg)
 
 
 class Float(Scalar):
@@ -32,11 +33,13 @@ class Float(Scalar):
 
     @classmethod
     def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
+        """Wrap a raw number, passing ``Scalar`` and ``Variable`` through unchanged."""
         if isinstance(value, Scalar | Variable):
             return value
         return cls(float(value))
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)
         return fmt.pad + str(self.value)
 
@@ -49,11 +52,13 @@ class Hex(Scalar):
 
     @classmethod
     def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
+        """Wrap a raw number, passing ``Scalar`` and ``Variable`` through unchanged."""
         if isinstance(value, Scalar | Variable):
             return value
         return cls(int(value))
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)
         return fmt.pad + hex(self.value)
 
@@ -100,6 +105,7 @@ class Duration(Scalar):
 
     @classmethod
     def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
+        """Wrap a raw number, passing ``Scalar`` and ``Variable`` through unchanged."""
         if isinstance(value, Scalar | Variable):
             return value
         ms, x = math.modf(float(value))
@@ -120,6 +126,7 @@ class Duration(Scalar):
         )
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)
         parts = []
         if self.y:

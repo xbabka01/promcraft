@@ -1,3 +1,5 @@
+"""PromQL instant and range vector selectors with label matchers."""
+
 import enum
 from typing import Literal
 
@@ -103,9 +105,10 @@ class InstantVector(Query):
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar, Variable)) else at
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        """Render this expression as a PromQL string."""
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
-        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
+        sep, _space, pad, inner_pad = self.get_indent(indent, _indent_level)
 
         if not self.labels:
             return f"{pad}{self.metric}{{}}{offset}{at}"
@@ -168,10 +171,11 @@ class RangeVector(Query):
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar, Variable)) else at
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        """Render this expression as a PromQL string."""
         offset = f" offset {self.offset}" if self.offset else ""
         at = f" @ {self.at}" if self.at else ""
         resolution = f" :{self.resolution}" if self.resolution else ""
-        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
+        sep, _space, pad, inner_pad = self.get_indent(indent, _indent_level)
 
         if not self.labels:
             return f"{pad}{self.metric}{{}}[{self.range}{resolution}]{offset}{at}"

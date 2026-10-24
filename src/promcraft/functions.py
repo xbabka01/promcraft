@@ -1,3 +1,5 @@
+"""PromQL function helpers (``rate``, ``abs``, ``histogram_quantile``, ...)."""
+
 from promcraft.base import Query
 from promcraft.scalar import SCALAR_TYPE, Float
 from promcraft.string import STRING_TYPE, String
@@ -16,7 +18,8 @@ class Function(Query):
         self.args = args
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
-        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
+        """Render this expression as a PromQL string."""
+        sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
 
         if not self.args:
             return f"{pad}{self.name}()"
@@ -237,12 +240,12 @@ def count_over_time(v: Query) -> Function:
 
 
 def stddev_over_time(v: Query) -> Function:
-    """Population standard deviation of float samples in the range window."""
+    """Compute the population standard deviation of float samples in the range window."""
     return Function("stddev_over_time", [v])
 
 
 def stdvar_over_time(v: Query) -> Function:
-    """Population standard variance of float samples in the range window."""
+    """Compute the population standard variance of float samples in the range window."""
     return Function("stdvar_over_time", [v])
 
 
@@ -305,12 +308,12 @@ def deriv(v: Query) -> Function:
 
 
 def resets(v: Query) -> Function:
-    """Number of counter resets within the specified range window."""
+    """Count the counter resets within the specified range window."""
     return Function("resets", [v])
 
 
 def changes(v: Query) -> Function:
-    """Number of times a gauge value changed within the specified range window."""
+    """Count how often a gauge value changed within the specified range window."""
     return Function("changes", [v])
 
 
@@ -348,8 +351,7 @@ def round(v: Query, to_nearest: SCALAR_TYPE | None = None) -> Function:
     """Round float samples to the nearest integer, or to a multiple of ``to_nearest``."""
     if to_nearest is None:
         return Function("round", [v])
-    else:
-        return Function("round", [v, Float.from_value(to_nearest)])
+    return Function("round", [v, Float.from_value(to_nearest)])
 
 
 # ---------------------------------------------------------------------------
@@ -428,6 +430,7 @@ def double_exponential_smoothing(v: Query, sf: SCALAR_TYPE, tf: SCALAR_TYPE) -> 
 
     Note:
         Experimental — may change in future Prometheus releases.
+
     """
     return Function(
         "double_exponential_smoothing", [v, Float.from_value(sf), Float.from_value(tf)]
@@ -440,7 +443,7 @@ def double_exponential_smoothing(v: Query, sf: SCALAR_TYPE, tf: SCALAR_TYPE) -> 
 
 
 def day_of_month(v: Query | None = None) -> Function:
-    """Day of the month (1–31) in UTC; defaults to ``time()`` when ``v`` is omitted."""
+    """Day of the month (1-31) in UTC; defaults to ``time()`` when ``v`` is omitted."""
     return Function("day_of_month", [v] if v is not None else [])
 
 
@@ -450,27 +453,27 @@ def day_of_week(v: Query | None = None) -> Function:
 
 
 def day_of_year(v: Query | None = None) -> Function:
-    """Day of the year (1–365/366) in UTC for each timestamp in ``v``."""
+    """Day of the year (1-365/366) in UTC for each timestamp in ``v``."""
     return Function("day_of_year", [v] if v is not None else [])
 
 
 def days_in_month(v: Query | None = None) -> Function:
-    """Number of days in the month in UTC for each timestamp in ``v``."""
+    """Return the number of days in the month in UTC for each timestamp in ``v``."""
     return Function("days_in_month", [v] if v is not None else [])
 
 
 def hour(v: Query | None = None) -> Function:
-    """Hour of the day (0–23) in UTC for each timestamp in ``v``."""
+    """Hour of the day (0-23) in UTC for each timestamp in ``v``."""
     return Function("hour", [v] if v is not None else [])
 
 
 def minute(v: Query | None = None) -> Function:
-    """Minute of the hour (0–59) in UTC for each timestamp in ``v``."""
+    """Minute of the hour (0-59) in UTC for each timestamp in ``v``."""
     return Function("minute", [v] if v is not None else [])
 
 
 def month(v: Query | None = None) -> Function:
-    """Month of the year (1–12) in UTC for each timestamp in ``v``."""
+    """Month of the year (1-12) in UTC for each timestamp in ``v``."""
     return Function("month", [v] if v is not None else [])
 
 
@@ -549,5 +552,6 @@ def info(v: Query, data_label_selector: Query | None = None) -> Function:
 
     Note:
         Experimental — may change in future Prometheus releases.
+
     """
     return Function("info", [v] if data_label_selector is None else [v, data_label_selector])

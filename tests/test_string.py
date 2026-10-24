@@ -5,7 +5,7 @@ from promcraft.base import Query
 
 
 @pytest.mark.parametrize(
-    "query, expected",
+    ("query", "expected"),
     [
         (String("hello", "`"), "`hello`"),
         (String("hello", '"'), '"hello"'),

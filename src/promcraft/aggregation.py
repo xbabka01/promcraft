@@ -1,3 +1,5 @@
+"""PromQL aggregation operators (``sum``, ``topk``, ``count_values``, ...)."""
+
 from typing import Literal
 
 from promcraft.base import Query
@@ -23,7 +25,8 @@ class Grouping:
         self.labels = labels
 
         if not labels:
-            raise ValueError("labels cannot be empty")
+            msg = "labels cannot be empty"
+            raise ValueError(msg)
 
     @classmethod
     def by(cls, labels: list[str | Variable]) -> "Grouping":
@@ -51,7 +54,8 @@ class Aggregation(Query):
         self.grouping = grouping
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
-        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
+        """Render this expression as a PromQL string."""
+        sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
         params_str = f",{sep}".join(
             param.to_string(indent=indent, _indent_level=_indent_level + 1)
             for param in self.params
@@ -84,42 +88,36 @@ class Aggregation(Query):
 
 def sum_(query: Query) -> Aggregation:
     """Sum of all sample values across the aggregated dimensions (``sum(v)``)."""
-
     return Aggregation(operator="sum", params=[query])
 
 
 def avg(query: Query) -> Aggregation:
     """Arithmetic mean of sample values across the aggregated dimensions (``avg(v)``)."""
-
     return Aggregation(operator="avg", params=[query])
 
 
 def min_(query: Query) -> Aggregation:
     """Smallest sample value across the aggregated dimensions (``min(v)``)."""
-
     return Aggregation(operator="min", params=[query])
 
 
 def max_(query: Query) -> Aggregation:
     """Largest sample value across the aggregated dimensions (``max(v)``)."""
-
     return Aggregation(operator="max", params=[query])
 
 
 def count(query: Query) -> Aggregation:
-    """Number of time series in the aggregated dimensions (``count(v)``)."""
-
+    """Count the time series in the aggregated dimensions (``count(v)``)."""
     return Aggregation(operator="count", params=[query])
 
 
 def group(query: Query) -> Aggregation:
     """Return 1 for each group that contains at least one element (``group(v)``)."""
-
     return Aggregation(operator="group", params=[query])
 
 
 def stddev(query: Query) -> Aggregation:
-    """Population standard deviation of sample values across the aggregated dimensions.
+    """Compute the population standard deviation of sample values across the aggregated dimensions.
 
     PromQL: ``stddev(v)``
     """
@@ -127,7 +125,7 @@ def stddev(query: Query) -> Aggregation:
 
 
 def stdvar(query: Query) -> Aggregation:
-    """Population standard variance of sample values across the aggregated dimensions.
+    """Compute the population standard variance of sample values across the aggregated dimensions.
 
     PromQL: ``stdvar(v)``
     """
@@ -136,13 +134,11 @@ def stdvar(query: Query) -> Aggregation:
 
 def topk(k: SCALAR_TYPE, query: Query) -> Aggregation:
     """Largest ``k`` sample values across the aggregated dimensions (``topk(k, v)``)."""
-
     return Aggregation(operator="topk", params=[Float.from_value(k), query])
 
 
 def bottomk(k: SCALAR_TYPE, query: Query) -> Aggregation:
     """Smallest ``k`` sample values across the aggregated dimensions (``bottomk(k, v)``)."""
-
     return Aggregation(operator="bottomk", params=[Float.from_value(k), query])
 
 
@@ -151,7 +147,6 @@ def count_values(label: STRING_TYPE, query: Query) -> Aggregation:
 
     PromQL: ``count_values(label, v)``
     """
-
     return Aggregation(operator="count_values", params=[String.from_value(label), query])
 
 
@@ -160,17 +155,14 @@ def quantile(phi: SCALAR_TYPE, query: Query) -> Aggregation:
 
     PromQL: ``quantile(φ, v)``
     """
-
     return Aggregation(operator="quantile", params=[Float.from_value(phi), query])
 
 
 def limitk(k: SCALAR_TYPE, query: Query) -> Aggregation:
     """Pseudo-randomly sample at most ``k`` series from the input (``limitk(k, v)``)."""
-
     return Aggregation(operator="limitk", params=[Float.from_value(k), query])
 
 
 def limit_ratio(r: SCALAR_TYPE, query: Query) -> Aggregation:
     """Pseudo-randomly sample fraction ``r`` of series from the input (``limit_ratio(r, v)``)."""
-
     return Aggregation(operator="limit_ratio", params=[Float.from_value(r), query])

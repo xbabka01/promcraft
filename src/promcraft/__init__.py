@@ -1,3 +1,5 @@
+"""Build PromQL query strings programmatically."""
+
 from promcraft.aggregation import (
     avg,
     bottomk,

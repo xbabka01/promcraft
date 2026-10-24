@@ -1,3 +1,5 @@
+"""Grafana template variables usable in place of PromQL expressions."""
+
 from promcraft.base import Query
 
 
@@ -23,6 +25,7 @@ class Variable(Query):
         self.braces = braces
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)
         body = f"${{{self.name}}}" if self.braces else f"${self.name}"
         return fmt.pad + body

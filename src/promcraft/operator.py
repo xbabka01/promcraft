@@ -1,3 +1,5 @@
+"""PromQL binary operators and vector matching modifiers."""
+
 import enum
 from typing import Literal
 
@@ -99,6 +101,7 @@ class BinaryOprator(Query):
 
         add(http_requests_total, Float(1)).on(["env"])
         # → 'http_requests_total{} + on(env)  1.0'
+
     """
 
     class Operator(enum.Enum):
@@ -146,7 +149,8 @@ class BinaryOprator(Query):
         self.group = group
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
-        sep, space, pad, inner_pad = self.get_indent(indent, _indent_level)
+        """Render this expression as a PromQL string."""
+        sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
 
         def render_operand(operand: Query) -> str:
             if isinstance(operand, Scalar | String | InstantVector | RangeVector | Variable):
