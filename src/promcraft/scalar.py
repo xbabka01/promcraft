@@ -1,6 +1,5 @@
 """PromQL scalar literals: floats, hex integers and durations."""
 
-import math
 from abc import ABCMeta, abstractmethod
 from typing import Union
 
@@ -109,21 +108,22 @@ class Duration(Scalar):
         if isinstance(value, Scalar | Variable):
             return value
         number = float(value)
-        ms, x = math.modf(abs(number))
+        # Round to whole milliseconds first so float error (e.g. 2.3 → 2.2999…) isn't truncated
+        x, ms = divmod(round(abs(number) * 1000), 1000)
         x, sec = divmod(x, 60)
-        x, min = divmod(x, 60)
+        x, mins = divmod(x, 60)
         x, hr = divmod(x, 24)
         year, x = divmod(x, 365)
         week, day = divmod(x, 7)
 
         return cls(
-            y=int(year),
-            w=int(week),
-            d=int(day),
-            h=int(hr),
-            m=int(min),
-            s=int(sec),
-            ms=int(ms * 1000),
+            y=year,
+            w=week,
+            d=day,
+            h=hr,
+            m=mins,
+            s=sec,
+            ms=ms,
             neg=number < 0,
         )
 
