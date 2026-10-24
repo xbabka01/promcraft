@@ -79,11 +79,22 @@ def test_float_from_value_passthrough() -> None:
     [
         (255, "0xff"),
         (0, "0x0"),
-        (3.7, "0x3"),
+        (3.0, "0x3"),
     ],
 )
 def test_hex_from_value(value: float, expected: str) -> None:
     assert str(Hex.from_value(value)) == expected
+
+
+def test_hex_from_value_rejects_fraction() -> None:
+    with pytest.raises(ValueError, match=r"must be integers, got 3\.7"):
+        Hex.from_value(3.7)
+
+
+@pytest.mark.parametrize("field", ["y", "w", "d", "h", "m", "s", "ms"])
+def test_duration_rejects_negative_fields(field: str) -> None:
+    with pytest.raises(ValueError, match=rf"non-negative \({field}\); use neg=True"):
+        Duration(**{field: -1})  # type: ignore[arg-type]
 
 
 def test_hex_from_value_passthrough() -> None:

@@ -59,6 +59,9 @@ class Hex(Scalar):
         """Wrap a raw number, passing ``Scalar`` and ``Variable`` through unchanged."""
         if isinstance(value, Scalar | Variable):
             return value
+        if isinstance(value, float) and not value.is_integer():
+            msg = f"Hex literals must be integers, got {value}"
+            raise ValueError(msg)
         return cls(int(value))
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
@@ -97,6 +100,11 @@ class Duration(Scalar):
         ms: int = 0,
         neg: bool = False,
     ) -> None:
+        fields = {"y": y, "w": w, "d": d, "h": h, "m": m, "s": s, "ms": ms}
+        negative = [name for name, value in fields.items() if value < 0]
+        if negative:
+            msg = f"Duration fields must be non-negative ({', '.join(negative)}); use neg=True"
+            raise ValueError(msg)
         self.y = y
         self.w = w
         self.d = d
