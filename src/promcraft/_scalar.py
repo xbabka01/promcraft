@@ -3,8 +3,8 @@
 from abc import ABCMeta, abstractmethod
 from typing import TypedDict, Union, Unpack
 
-from promcraft.base import Query
-from promcraft.variable import Variable
+from promcraft._base import Query
+from promcraft._variable import Variable
 
 SCALAR_TYPE = Union["Scalar", "Variable", float, int]
 
@@ -17,7 +17,7 @@ class Scalar(Query, metaclass=ABCMeta):
     def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
         """Create a Scalar instance from a float or int value.
 
-        A :class:`~promcraft.variable.Variable` is passed through unchanged,
+        A :class:`~promcraft._variable.Variable` is passed through unchanged,
         since its value is only known once Grafana interpolates it.
         """
         msg = "Subclasses must implement from_value method"

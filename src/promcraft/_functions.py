@@ -1,9 +1,9 @@
 """PromQL function helpers (``rate``, ``abs``, ``histogram_quantile``, ...)."""
 
+from promcraft._base import Query
+from promcraft._operator import OPERAND_TYPE, _as_operand
 from promcraft._scalar import SCALAR_TYPE, Float
-from promcraft.base import Query
-from promcraft.operator import OPERAND_TYPE, _as_operand
-from promcraft.string import STRING_TYPE, String
+from promcraft._string import STRING_TYPE, String
 
 
 class Function(Query):

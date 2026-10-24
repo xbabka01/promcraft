@@ -3,14 +3,14 @@
 import enum
 from typing import TYPE_CHECKING, Literal, overload
 
+from promcraft._base import Query
 from promcraft._scalar import SCALAR_TYPE, Duration, Float, Scalar
-from promcraft.base import Query
-from promcraft.string import STRING_TYPE, String
-from promcraft.variable import Variable
+from promcraft._string import STRING_TYPE, String
+from promcraft._variable import Variable
 
 if TYPE_CHECKING:
-    from promcraft.base import SUBQUERY_SLICE
-    from promcraft.subquery import Subquery
+    from promcraft._base import SUBQUERY_SLICE
+    from promcraft._subquery import Subquery
 
 
 class Label:
@@ -24,7 +24,7 @@ class Label:
     - ``=~`` (``Label.re``)  — RE2 regular-expression match (fully anchored)
     - ``!~`` (``Label.nre``) — negated RE2 regular-expression match
 
-    The matcher value must be a :class:`~promcraft.string.String` instance.
+    The matcher value must be a :class:`~promcraft._string.String` instance.
 
     Example::
 

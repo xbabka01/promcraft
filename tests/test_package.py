@@ -1,8 +1,8 @@
 import importlib
+import pkgutil
 
 import promcraft
-from promcraft import Float, InstantVector
-from promcraft.functions import Function
+from promcraft import Float, Function, InstantVector
 
 
 def test_scalar_and_vector_are_functions() -> None:
@@ -19,3 +19,16 @@ def test_importing_modules_keeps_functions() -> None:
     assert vector_module.InstantVector is InstantVector
     assert str(promcraft.scalar(InstantVector("up", []))) == "scalar(up{})"
     assert str(promcraft.vector(1)) == "vector(1)"
+
+
+def test_submodules_are_private() -> None:
+    """Users import from ``promcraft`` only; every implementation module is ``_``-prefixed."""
+    public = [
+        m.name for m in pkgutil.iter_modules(promcraft.__path__) if not m.name.startswith("_")
+    ]
+    assert public == []
+
+
+def test_all_names_are_exported() -> None:
+    missing = [name for name in promcraft.__all__ if not hasattr(promcraft, name)]
+    assert missing == []

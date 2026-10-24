@@ -1,6 +1,6 @@
 """Grafana template variables usable in place of PromQL expressions."""
 
-from promcraft.base import Query
+from promcraft._base import Query
 
 
 class Variable(Query):
@@ -10,7 +10,7 @@ class Variable(Query):
     braces are needed — e.g. immediately followed by another identifier
     character — ``${name}``). Grafana substitutes the variable's selected
     value(s) before the resulting text is sent to Prometheus, so a
-    ``Variable`` can stand in anywhere a :class:`~promcraft.base.Query` is
+    ``Variable`` can stand in anywhere a :class:`~promcraft._base.Query` is
     expected: as a metric selector, a binary-operator operand, or an
     aggregation/function argument.
 

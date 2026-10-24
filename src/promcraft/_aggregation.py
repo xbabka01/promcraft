@@ -2,11 +2,11 @@
 
 from typing import Literal
 
+from promcraft._base import Query
+from promcraft._operator import OPERAND_TYPE, _as_operand
 from promcraft._scalar import SCALAR_TYPE, Float
-from promcraft.base import Query
-from promcraft.operator import OPERAND_TYPE, _as_operand
-from promcraft.string import STRING_TYPE, String
-from promcraft.variable import Variable
+from promcraft._string import STRING_TYPE, String
+from promcraft._variable import Variable
 
 
 class Grouping:

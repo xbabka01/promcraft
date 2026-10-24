@@ -29,16 +29,16 @@ This is a Python library for building PromQL query strings programmatically. All
 
 ### Class Hierarchy
 
-- [src/promcraft/base.py](src/promcraft/base.py) — `Query`: abstract base class with a single required `__str__` method. Everything in the library inherits from it.
+- [src/promcraft/_base.py](src/promcraft/_base.py) — `Query`: abstract base class with a single required `__str__` method. Everything in the library inherits from it.
 - [src/promcraft/_scalar.py](src/promcraft/_scalar.py) — `Scalar(Query)` (abstract), then `Float`, `Hex`, `Duration`. Scalars are used as values in other query components (offsets, range windows, etc.).
-- [src/promcraft/string.py](src/promcraft/string.py) — `String(Query)`: PromQL string literals with configurable quoting (`"`, `'`, `` ` ``).
+- [src/promcraft/_string.py](src/promcraft/_string.py) — `String(Query)`: PromQL string literals with configurable quoting (`"`, `'`, `` ` ``).
 - [src/promcraft/_vector.py](src/promcraft/_vector.py) — `Label` (label matcher), `InstantVector(Query)`, `RangeVector(Query)`. These are the primary selector types.
-- [src/promcraft/subquery.py](src/promcraft/subquery.py) — `Subquery(Query)`: `<expr>[range:resolution]` over any instant-vector expression, built via `Query.subquery()` or slice syntax (`expr[range:resolution]`). On `InstantVector`, plain and tuple indexing still return a `RangeVector`; only slices return a `Subquery`. mypy rejects non-int slice bounds at call sites, so tests using `Duration` slices carry `# type: ignore[misc]`.
-- [src/promcraft/operator.py](src/promcraft/operator.py) — `Match`, `Group`, `BinaryOprator(Query)`. Note: `BinaryOprator` is the existing (intentionally preserved) spelling — do not rename it.
-- [src/promcraft/aggregation.py](src/promcraft/aggregation.py) — `Grouping`, `AggregationOperator(Query)`.
+- [src/promcraft/_subquery.py](src/promcraft/_subquery.py) — `Subquery(Query)`: `<expr>[range:resolution]` over any instant-vector expression, built via `Query.subquery()` or slice syntax (`expr[range:resolution]`). On `InstantVector`, plain and tuple indexing still return a `RangeVector`; only slices return a `Subquery`. mypy rejects non-int slice bounds at call sites, so tests using `Duration` slices carry `# type: ignore[misc]`.
+- [src/promcraft/_operator.py](src/promcraft/_operator.py) — `Match`, `Group`, `BinaryOprator(Query)`. Note: `BinaryOprator` is the existing (intentionally preserved) spelling — do not rename it.
+- [src/promcraft/_aggregation.py](src/promcraft/_aggregation.py) — `Grouping`, `AggregationOperator(Query)`.
 - [src/promcraft/__init__.py](src/promcraft/__init__.py) — public API; all user-facing classes are re-exported here.
 
-`_scalar.py` and `_vector.py` are underscore-prefixed because the package also exports the PromQL functions `scalar()` and `vector()`; a public `promcraft.scalar`/`promcraft.vector` submodule would clash with them. Import from `promcraft` rather than from these modules.
+All implementation modules are `_`-prefixed: users import only from `promcraft`, so every user-facing name must be re-exported in `__init__.py` and listed in `__all__` (enforced by `tests/test_package.py`). Do not add compatibility shims at the old unprefixed paths: `promcraft.scalar`/`promcraft.vector` are also PromQL function names, and a shim submodule would rebind them on first import.
 
 ### Key Patterns
 

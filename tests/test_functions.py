@@ -3,6 +3,7 @@ import pytest
 from promcraft import (
     Duration,
     Float,
+    Function,
     InstantVector,
     Query,
     RangeVector,
@@ -85,7 +86,6 @@ from promcraft import (
     vector,
     year,
 )
-from promcraft.functions import Function
 
 _vec = InstantVector("http_requests_total", [])
 _rvec = RangeVector("http_requests_total", [], Duration(m=5))

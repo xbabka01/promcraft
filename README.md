@@ -714,7 +714,7 @@ absent_over_time(rv)  # "absent_over_time(http_requests_total{}[5m])"
 All of the helpers above build a `Function` instance internally. It isn't part of the top-level `promcraft` public API — import it from its submodule if you need to call a custom or newly-added Prometheus function that doesn't have a helper yet:
 
 ```python
-from promcraft.functions import Function
+from promcraft import Function
 from promcraft import InstantVector, Float
 
 Function("my_custom_func", [InstantVector("up", []), Float(42.0)])
