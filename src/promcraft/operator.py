@@ -30,8 +30,8 @@ class Match:
 
     Example::
 
-        Match.on(["env", "job"])  # → 'on(env, job)'
-        Match.ignoring(["instance"])  # → 'ignoring(instance)'
+        Match.on(["env", "job"])  # → 'on (env, job)'
+        Match.ignoring(["instance"])  # → 'ignoring (instance)'
     """
 
     def __init__(self, type: Literal["on", "ignoring"], labels: list[str | Variable]) -> None:
@@ -50,7 +50,7 @@ class Match:
 
     def __str__(self) -> str:
         labels_str = ", ".join(str(label) for label in self.labels)
-        return f"{self.type}({labels_str})"
+        return f"{self.type} ({labels_str})"
 
 
 class Group:
@@ -67,8 +67,8 @@ class Group:
 
     Example::
 
-        Group.left(["region"])  # → 'group_left(region)'
-        Group.right([])  # → 'group_right()'
+        Group.left(["region"])  # → 'group_left (region)'
+        Group.right([])  # → 'group_right ()'
     """
 
     def __init__(self, type: Literal["left", "right"], labels: list[str | Variable]) -> None:
@@ -87,7 +87,7 @@ class Group:
 
     def __str__(self) -> str:
         labels_str = ", ".join(str(label) for label in self.labels)
-        return f"group_{self.type}({labels_str})"
+        return f"group_{self.type} ({labels_str})"
 
 
 class BinaryOprator(Query):
@@ -108,7 +108,7 @@ class BinaryOprator(Query):
     Example::
 
         add(http_requests_total, Float(1)).on(["env"])
-        # → 'http_requests_total{} + on(env) 1'
+        # → 'http_requests_total{} + on (env) 1'
 
         gt(errors, Float(0)).bool()
         # → 'errors{} > bool 0'

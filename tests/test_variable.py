@@ -126,25 +126,25 @@ def test_variable_as_function_string_argument() -> None:
 
 def test_variable_in_on_labels() -> None:
     assert str(add(_left, _right).on(["job", Variable("labels")])) == (
-        "left{} + on(job, $labels) right{}"
+        "left{} + on (job, $labels) right{}"
     )
 
 
 def test_variable_in_ignoring_labels() -> None:
     assert str(add(_left, _right).ignoring([Variable("labels")])) == (
-        "left{} + ignoring($labels) right{}"
+        "left{} + ignoring ($labels) right{}"
     )
 
 
 def test_variable_in_group_left_labels() -> None:
     assert str(add(_left, _right).group_left([Variable("labels")])) == (
-        "left{} + group_left($labels) right{}"
+        "left{} + group_left ($labels) right{}"
     )
 
 
 def test_variable_in_group_right_labels() -> None:
     assert str(add(_left, _right).group_right([Variable("labels")])) == (
-        "left{} + group_right($labels) right{}"
+        "left{} + group_right ($labels) right{}"
     )
 
 

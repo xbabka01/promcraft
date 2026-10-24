@@ -19,6 +19,7 @@ from promcraft import (
     sum_,
     topk,
 )
+from promcraft.aggregation import Grouping
 from promcraft.base import Query
 
 _vec = InstantVector("http_requests_total", [])
@@ -146,3 +147,15 @@ _vec = InstantVector("http_requests_total", [])
 )
 def test_aggregation_operator(expr: Query, expected: str) -> None:
     assert str(expr) == expected
+
+
+@pytest.mark.parametrize(
+    ("grouping", "expected"),
+    [
+        (Grouping.by(["job", "env"]), "by (job, env)"),
+        (Grouping.without(["instance"]), "without (instance)"),
+        (Grouping.by([]), "by ()"),
+    ],
+)
+def test_grouping_str(grouping: Grouping, expected: str) -> None:
+    assert str(grouping) == expected
