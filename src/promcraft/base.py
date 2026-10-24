@@ -4,7 +4,9 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, NamedTuple
 
 if TYPE_CHECKING:
-    from promcraft.operator import BinaryOprator
+    from collections.abc import Callable
+
+    from promcraft.operator import OPERAND_TYPE, BinaryOprator
 
 
 class Indent(NamedTuple):
@@ -60,81 +62,122 @@ class Query(ABC):
     def __str__(self) -> str:
         return self.to_string()
 
-    def __add__(self, other: "Query") -> "BinaryOprator":
-        from promcraft.operator import add
-
-        return add(self, other)
-
-    def __sub__(self, other: "Query") -> "BinaryOprator":
-        from promcraft.operator import sub
-
-        return sub(self, other)
-
-    def __mul__(self, other: "Query") -> "BinaryOprator":
-        from promcraft.operator import mul
-
-        return mul(self, other)
-
-    def __truediv__(self, other: "Query") -> "BinaryOprator":
-        from promcraft.operator import div
-
-        return div(self, other)
-
-    def __mod__(self, other: "Query") -> "BinaryOprator":
-        from promcraft.operator import mod
-
-        return mod(self, other)
-
-    def __pow__(self, other: "Query") -> "BinaryOprator":
-        from promcraft.operator import pow
-
-        return pow(self, other)
-
-    def __eq__(self, other: object) -> "BinaryOprator":  # type: ignore[override]
-        from promcraft.operator import eq
-
-        if not isinstance(other, Query):
-            msg = "Cannot compare Query with non-Query object"
-            raise NotImplementedError(msg)
-        return eq(self, other)
+    def __bool__(self) -> bool:
+        # Comparison operators build PromQL expressions instead of returning
+        # bools, so truthiness would silently be True (e.g. ``x in [y]``).
+        msg = "Query objects have no truth value; compare with `is None` instead"
+        raise TypeError(msg)
 
     def __hash__(self) -> int:
         return id(self)
 
+    def _binary(
+        self,
+        helper: "Callable[[OPERAND_TYPE, OPERAND_TYPE], BinaryOprator]",
+        other: object,
+        *,
+        reflected: bool = False,
+    ) -> "BinaryOprator":
+        if not isinstance(other, Query | int | float):
+            return NotImplemented  # type: ignore[no-any-return]  # lets Python raise TypeError
+        return helper(other, self) if reflected else helper(self, other)
+
+    def __add__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
+        from promcraft.operator import add
+
+        return self._binary(add, other)
+
+    def __radd__(self, other: float) -> "BinaryOprator":
+        from promcraft.operator import add
+
+        return self._binary(add, other, reflected=True)
+
+    def __sub__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
+        from promcraft.operator import sub
+
+        return self._binary(sub, other)
+
+    def __rsub__(self, other: float) -> "BinaryOprator":
+        from promcraft.operator import sub
+
+        return self._binary(sub, other, reflected=True)
+
+    def __mul__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
+        from promcraft.operator import mul
+
+        return self._binary(mul, other)
+
+    def __rmul__(self, other: float) -> "BinaryOprator":
+        from promcraft.operator import mul
+
+        return self._binary(mul, other, reflected=True)
+
+    def __truediv__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
+        from promcraft.operator import div
+
+        return self._binary(div, other)
+
+    def __rtruediv__(self, other: float) -> "BinaryOprator":
+        from promcraft.operator import div
+
+        return self._binary(div, other, reflected=True)
+
+    def __mod__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
+        from promcraft.operator import mod
+
+        return self._binary(mod, other)
+
+    def __rmod__(self, other: float) -> "BinaryOprator":
+        from promcraft.operator import mod
+
+        return self._binary(mod, other, reflected=True)
+
+    def __pow__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
+        from promcraft.operator import pow
+
+        return self._binary(pow, other)
+
+    def __rpow__(self, other: float) -> "BinaryOprator":
+        from promcraft.operator import pow
+
+        return self._binary(pow, other, reflected=True)
+
+    def __eq__(self, other: object) -> "BinaryOprator":  # type: ignore[override]
+        from promcraft.operator import eq
+
+        return self._binary(eq, other)
+
     def __ne__(self, other: object) -> "BinaryOprator":  # type: ignore[override]
         from promcraft.operator import neq
 
-        if not isinstance(other, Query):
-            msg = "Cannot compare Query with non-Query object"
-            raise NotImplementedError(msg)
-        return neq(self, other)
+        return self._binary(neq, other)
 
-    def __lt__(self, other: "Query") -> "BinaryOprator":
+    def __lt__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
         from promcraft.operator import lt
 
-        return lt(self, other)
+        return self._binary(lt, other)
 
-    def __le__(self, other: "Query") -> "BinaryOprator":
+    def __le__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
         from promcraft.operator import lte
 
-        return lte(self, other)
+        return self._binary(lte, other)
 
-    def __gt__(self, other: "Query") -> "BinaryOprator":
+    def __gt__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
         from promcraft.operator import gt
 
-        return gt(self, other)
+        return self._binary(gt, other)
 
-    def __ge__(self, other: "Query") -> "BinaryOprator":
+    def __ge__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
         from promcraft.operator import gte
 
-        return gte(self, other)
+        return self._binary(gte, other)
 
     def __and__(self, other: "Query") -> "BinaryOprator":
         from promcraft.operator import and_
 
-        return and_(self, other)
+        return self._binary(and_, other)
 
     def __or__(self, other: "Query") -> "BinaryOprator":
         from promcraft.operator import or_
 
-        return or_(self, other)
+        return self._binary(or_, other)

@@ -4,7 +4,17 @@ import enum
 from typing import Literal
 
 from promcraft.base import Query
+from promcraft.scalar import Float
 from promcraft.variable import Variable
+
+OPERAND_TYPE = Query | float
+
+
+def _as_operand(value: OPERAND_TYPE) -> Query:
+    """Return ``value`` as a ``Query``, wrapping raw numbers in :class:`Float`."""
+    if isinstance(value, Query):
+        return value
+    return Float.from_value(value)
 
 
 class Match:
@@ -134,14 +144,14 @@ class BinaryOprator(Query):
     def __init__(
         self,
         op: Operator,
-        left: Query,
-        right: Query,
+        left: OPERAND_TYPE,
+        right: OPERAND_TYPE,
         match: Match | None = None,
         group: Group | None = None,
     ) -> None:
         self.op = op
-        self.left = left
-        self.right = right
+        self.left = _as_operand(left)
+        self.right = _as_operand(right)
         self.match = match
         self.group = group
 
@@ -205,104 +215,104 @@ class BinaryOprator(Query):
 
 
 def add(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left + right`` (arithmetic addition)."""
     return BinaryOprator(BinaryOprator.Operator.ADD, left, right)
 
 
 def sub(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left - right`` (arithmetic subtraction)."""
     return BinaryOprator(BinaryOprator.Operator.SUB, left, right)
 
 
 def mul(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left * right`` (arithmetic multiplication)."""
     return BinaryOprator(BinaryOprator.Operator.MUL, left, right)
 
 
 def div(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left / right`` (arithmetic division)."""
     return BinaryOprator(BinaryOprator.Operator.DIV, left, right)
 
 
 def mod(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left % right`` (arithmetic modulo)."""
     return BinaryOprator(BinaryOprator.Operator.MOD, left, right)
 
 
 def pow(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left ^ right`` (exponentiation)."""
     return BinaryOprator(BinaryOprator.Operator.POW, left, right)
 
 
 def eq(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left == right`` (equality comparison; filters non-matching elements)."""
     return BinaryOprator(BinaryOprator.Operator.EQ, left, right)
 
 
 def neq(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left != right`` (not-equal comparison)."""
     return BinaryOprator(BinaryOprator.Operator.NEQ, left, right)
 
 
 def lt(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left < right`` (less-than comparison)."""
     return BinaryOprator(BinaryOprator.Operator.LT, left, right)
 
 
 def lte(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left <= right`` (less-than-or-equal comparison)."""
     return BinaryOprator(BinaryOprator.Operator.LTE, left, right)
 
 
 def gt(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left > right`` (greater-than comparison)."""
     return BinaryOprator(BinaryOprator.Operator.GT, left, right)
 
 
 def gte(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left >= right`` (greater-than-or-equal comparison)."""
     return BinaryOprator(BinaryOprator.Operator.GTE, left, right)
 
 
 def and_(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left and right``.
 
@@ -312,8 +322,8 @@ def and_(
 
 
 def or_(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left or right``.
 
@@ -323,8 +333,8 @@ def or_(
 
 
 def unless(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left unless right``.
 
@@ -334,8 +344,8 @@ def unless(
 
 
 def atan2(
-    left: Query,
-    right: Query,
+    left: OPERAND_TYPE,
+    right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return ``left atan2 right``.
 
