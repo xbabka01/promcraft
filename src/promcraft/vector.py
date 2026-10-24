@@ -101,13 +101,13 @@ class InstantVector(Query):
     ) -> None:
         self.metric = metric
         self.labels = labels
-        self.offset = Float.from_value(offset) if offset is not None else None
+        self.offset = Duration.from_value(offset) if offset is not None else None
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar, Variable)) else at
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         """Render this expression as a PromQL string."""
-        offset = f" offset {self.offset}" if self.offset else ""
-        at = f" @ {self.at}" if self.at else ""
+        offset = f" offset {self.offset}" if self.offset is not None else ""
+        at = f" @ {self.at}" if self.at is not None else ""
         sep, _space, pad, inner_pad = self.get_indent(indent, _indent_level)
 
         if not self.labels:
@@ -167,14 +167,14 @@ class RangeVector(Query):
         self.labels = labels
         self.range = Duration.from_value(range)
         self.resolution = Duration.from_value(resolution) if resolution is not None else None
-        self.offset = Float.from_value(offset) if offset is not None else None
+        self.offset = Duration.from_value(offset) if offset is not None else None
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar, Variable)) else at
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         """Render this expression as a PromQL string."""
-        offset = f" offset {self.offset}" if self.offset else ""
-        at = f" @ {self.at}" if self.at else ""
-        resolution = f" :{self.resolution}" if self.resolution else ""
+        offset = f" offset {self.offset}" if self.offset is not None else ""
+        at = f" @ {self.at}" if self.at is not None else ""
+        resolution = f":{self.resolution}" if self.resolution is not None else ""
         sep, _space, pad, inner_pad = self.get_indent(indent, _indent_level)
 
         if not self.labels:

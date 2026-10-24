@@ -61,8 +61,9 @@ str(ratio)  # 'http_requests_total{ status = "500" } / http_requests_total{}'
 Anywhere a `String` is expected (label values, `count_values`, label-manipulation function
 arguments), you can pass a plain `str` instead — it's converted with `String.from_value()`
 under the hood. Anywhere a `Scalar` is expected (`Float`-typed function/aggregation
-parameters, `offset`, `at`), you can pass a plain `float`/`int` instead, converted with
-`Float.from_value()`. Passing an existing `String`/`Scalar` instance through is a no-op, so
+parameters, `at`, binary-operator operands), you can pass a plain `float`/`int` instead,
+converted with `Float.from_value()`. Range, resolution and `offset` values are converted with
+`Duration.from_value()` instead, so `offset=300` renders as `offset 5m`. Passing an existing `String`/`Scalar` instance through is a no-op, so
 both styles compose freely:
 
 ```python
@@ -271,7 +272,7 @@ RangeVector("http_requests_total", [], Duration(m=5))
 
 # With resolution (subquery step)
 RangeVector("up", [], Duration(m=5), resolution=Duration(s=30))
-# "up{}[5m :30s]"
+# "up{}[5m:30s]"
 
 # With offset
 RangeVector("up", [], Duration(m=5), offset=Duration(m=1))
@@ -286,7 +287,7 @@ RangeVector(
     offset=Duration(m=1),
     at="end()",
 )
-# 'http_requests_total{ job = "api" }[5m :30s] offset 1m @ end()'
+# 'http_requests_total{ job = "api" }[5m:30s] offset 1m @ end()'
 ```
 
 `InstantVector` also supports subscript syntax as a shortcut for building a `RangeVector` that reuses its metric, labels, offset and `@` modifier:
@@ -352,15 +353,22 @@ and_(v1, v2)  # "requests{} and errors{}"
 | `unless` | `unless` | Logical/Set    |
 | `atan2`  | `atan2`  | Trigonometric  |
 
-Python's own operators also work directly on any `Query` (`+ - * / % **`):
+Python's own operators also work directly on any `Query` (`+ - * / % **`,
+`== != < <= > >=`, `&` for `and`, `|` for `or`). Plain numbers are accepted on either side:
 
 ```python
 requests + errors  # same as add(requests, errors)
+errors / requests * 100  # "(errors{} / requests{}) * 100.0"
+1 - errors / requests  # "1.0 - (errors{} / requests{})"
 ```
+
+Because comparisons build PromQL expressions, `Query` objects have no truth value:
+`bool(q)`, `if q:` and `q in some_list` raise `TypeError`. Use `is None` / `is` instead.
 
 #### Nested expressions
 
-Nested binary expressions are automatically parenthesized to preserve evaluation order:
+Nested binary expressions are automatically parenthesized to preserve evaluation order
+(function calls and aggregations are self-delimiting and are left unwrapped):
 
 ```python
 inner = add(Float(1.0), Float(2.0))

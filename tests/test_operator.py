@@ -200,7 +200,42 @@ def test_query_hashable() -> None:
     assert len({a, b}) == 2
 
 
-def test_eq_non_query_falls_back() -> None:
-    """__eq__ returns NotImplemented for non-Query objects."""
-    with pytest.raises(NotImplementedError, match="Cannot compare Query with non-Query object"):
-        assert Float(1.0).__eq__(42) is NotImplemented
+def test_eq_non_operand_falls_back() -> None:
+    """__eq__ returns NotImplemented for unsupported objects, so Python falls back to identity."""
+    assert Float(1.0).__eq__("x") is NotImplemented
+    eq_result: object = Float(1.0) == "x"
+    ne_result: object = Float(1.0) != None  # noqa: E711
+    assert eq_result is False
+    assert ne_result is True
+
+
+def test_arithmetic_non_operand_raises() -> None:
+    with pytest.raises(TypeError):
+        _left + "x"  # type: ignore[operator]
+
+
+@pytest.mark.parametrize(
+    ("expr", "expected"),
+    [
+        (_left + 1, "left{} + 1.0"),
+        (_left == 0, "left{} == 0.0"),
+        (_left > 0.5, "left{} > 0.5"),
+        (1 + _left, "1.0 + left{}"),
+        (1 - _left, "1.0 - left{}"),
+        (2 * _left, "2.0 * left{}"),
+        (1 / _left, "1.0 / left{}"),
+        (10 % _left, "10.0 % left{}"),
+        (2**_left, "2.0 ^ left{}"),
+        (0 < _left, "left{} > 0.0"),  # noqa: SIM300 - reflected comparison
+        (add(_left, 1), "left{} + 1.0"),
+    ],
+)
+def test_numeric_operands(expr: Query, expected: str) -> None:
+    assert str(expr) == expected
+
+
+def test_query_has_no_truth_value() -> None:
+    with pytest.raises(TypeError, match="no truth value"):
+        bool(_left)
+    with pytest.raises(TypeError, match="no truth value"):
+        _ = Float(1.0) in [Float(2.0), Float(3.0)]

@@ -36,6 +36,10 @@ def test_label(label: Label, expected: str) -> None:
             'http_requests_total{ job = "prometheus", env = "prod" }',
         ),
         (InstantVector("up", [], offset=Duration(m=5)), "up{} offset 5m"),
+        (InstantVector("up", [], offset=300), "up{} offset 5m"),
+        (InstantVector("up", [], offset=-90), "up{} offset -1m30s"),
+        (InstantVector("up", [], offset=Float(1.5)), "up{} offset 1.5"),
+        (InstantVector("up", [], at=0), "up{} @ 0.0"),
         (InstantVector("up", [], at=Float(1609746000.0)), "up{} @ 1609746000.0"),
         (InstantVector("up", [], at="start()"), "up{} @ start()"),
         (InstantVector("up", [], at="end()"), "up{} @ end()"),
@@ -80,7 +84,7 @@ def test_instant_vector(query: Query, expected: str) -> None:
                 Duration(m=5),
                 resolution=Duration(s=30),
             ),
-            "up{}[5m :30s]",
+            "up{}[5m:30s]",
         ),
         (
             RangeVector(
@@ -91,6 +95,7 @@ def test_instant_vector(query: Query, expected: str) -> None:
             ),
             "up{}[5m] offset 1m",
         ),
+        (RangeVector("up", [], 3600, 60, offset=86400), "up{}[1h:1m] offset 1d"),
         (
             RangeVector(
                 "up",
@@ -118,7 +123,7 @@ def test_instant_vector(query: Query, expected: str) -> None:
                 offset=Duration(m=1),
                 at="end()",
             ),
-            'up{ job = "prom" }[5m :30s] offset 1m @ end()',
+            'up{ job = "prom" }[5m:30s] offset 1m @ end()',
         ),
     ],
 )
