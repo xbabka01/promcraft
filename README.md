@@ -573,6 +573,7 @@ from promcraft import (
     sum_over_time,
     count_over_time,
     stddev_over_time,
+    first_over_time,
     last_over_time,
     present_over_time,
     absent_over_time,
@@ -581,6 +582,7 @@ from promcraft import (
 
 avg_over_time(rv)  # "avg_over_time(http_requests_total{}[5m])"
 quantile_over_time(0.95, rv)  # "quantile_over_time(0.95, http_requests_total{}[5m])"
+first_over_time(rv)  # "first_over_time(http_requests_total{}[5m])"
 ```
 
 #### Math & rounding

@@ -266,6 +266,11 @@ def absent_over_time(v: Query) -> Function:
     return Function("absent_over_time", [v])
 
 
+def first_over_time(v: Query) -> Function:
+    """Earliest sample value in the specified range window."""
+    return Function("first_over_time", [v])
+
+
 def rate(v: Query) -> Function:
     """Per-second average rate of increase of a counter over the range window.
 
