@@ -14,7 +14,7 @@ pip install promcraft
 poetry add promcraft
 ```
 
-Requires Python 3.10+.
+Requires Python 3.11+.
 
 ## Quick Start
 
