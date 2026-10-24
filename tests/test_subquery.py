@@ -36,6 +36,8 @@ _m = Duration(m=1)
             "(http_requests_total{} + http_requests_total{})[1h:1m]",
         ),
         (Variable("q").subquery(Variable("__range")), "$q[$__range:]"),
+        ((-_vec).subquery(_h), "(-http_requests_total{})[1h:]"),
+        ((-_rate).subquery(_h, _m), "(-rate(http_requests_total{}[5m]))[1h:1m]"),
         (_rate.subquery(3600, 60), "rate(http_requests_total{}[5m])[1h:1m]"),
         # selectors
         (_vec.subquery(_h), "http_requests_total{}[1h:]"),

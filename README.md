@@ -304,7 +304,8 @@ InstantVector("up", [])[Duration(m=5), Duration(s=30)]  # range + resolution
 A subquery evaluates any instant-vector expression over a range at a fixed resolution,
 producing a range vector for functions like `max_over_time`. Build one with `.subquery()`
 on any query, or construct `Subquery` directly. Leaving out `resolution` uses the global
-evaluation interval (`[1h:]`). Binary operations are parenthesized automatically.
+evaluation interval (`[1h:]`). Binary operations and negations are
+parenthesized automatically.
 
 ```python
 from promcraft import Duration, InstantVector, Subquery, max_over_time, rate, sum_

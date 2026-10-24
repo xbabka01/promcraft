@@ -3,7 +3,7 @@
 from typing import Literal
 
 from promcraft.base import Query
-from promcraft.operator import BinaryOprator
+from promcraft.operator import BinaryOprator, Negation
 from promcraft.scalar import SCALAR_TYPE, Duration, Float, Scalar
 from promcraft.variable import Variable
 from promcraft.vector import RangeVector
@@ -15,8 +15,8 @@ class Subquery(Query):
     Evaluates ``query`` (any instant-vector expression) over ``range`` at every
     ``resolution`` step, producing a range vector that can be passed to
     range-vector functions such as ``max_over_time``.  Without ``resolution``
-    the global evaluation interval is used (``[1h:]``).  Binary-operation
-    queries are parenthesised.  Like selectors, subqueries accept ``offset``
+    the global evaluation interval is used (``[1h:]``).  Binary operations
+    and negations are parenthesised.  Like selectors, subqueries accept ``offset``
     and ``@`` modifiers.
 
     Usually built with :meth:`Query.subquery <promcraft.base.Query.subquery>`.
@@ -56,7 +56,8 @@ class Subquery(Query):
         at = f" @ {self.at}" if self.at is not None else ""
         suffix = f"[{self.range}:{resolution}]{offset}{at}"
 
-        if isinstance(self.query, BinaryOprator):
+        # Unparenthesised, ``-x[1h:]`` would negate the range vector, which PromQL rejects
+        if isinstance(self.query, BinaryOprator | Negation):
             body = self.query.to_string(indent=indent, _indent_level=_indent_level + 1)
             return f"{pad}({space}{body}{space}{pad}){suffix}"
         return self.query.to_string(indent=indent, _indent_level=_indent_level) + suffix
