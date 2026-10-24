@@ -169,19 +169,22 @@ class BinaryOprator(Query):
         """Render this expression as a PromQL string."""
         sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
 
-        def render_operand(operand: Query) -> str:
+        def render_operand(operand: Query, *, pow_base: builtins.bool = False) -> str:
             # Function calls and aggregations are self-delimiting; only nested
             # binary operations and negations need parentheses to preserve
             # evaluation order (``-a ^ b`` is ``-(a ^ b)`` in PromQL).
             if not isinstance(operand, BinaryOprator | Negation):
-                return operand.to_string(indent=indent, _indent_level=_indent_level)
+                rendered = operand.to_string(indent=indent, _indent_level=_indent_level)
+                # A negative literal base has the same problem: ``-2 ^ 2`` is ``-(2 ^ 2)``
+                if not (pow_base and rendered.removeprefix(pad).startswith("-")):
+                    return rendered
             body = operand.to_string(indent=indent, _indent_level=_indent_level + 1)
             return f"{pad}({space}{body}{space}{pad})"
 
         bool_str = " bool" if self.return_bool else ""
         match_str = f" {self.match}" if self.match else ""
         group_str = f" {self.group}" if self.group else ""
-        left_str = render_operand(self.left)
+        left_str = render_operand(self.left, pow_base=self.op is BinaryOprator.Operator.POW)
         right_str = render_operand(self.right)
         modifiers = f"{bool_str}{match_str}{group_str}"
         return f"{left_str}{sep}{pad}{self.op}{modifiers}{sep}{right_str}"

@@ -5,6 +5,7 @@ import pytest
 from promcraft import (
     Duration,
     Float,
+    Hex,
     InstantVector,
     Negation,
     Query,
@@ -287,3 +288,26 @@ def test_bool_modifier_rejects_non_comparison(helper: Callable[..., BinaryOprato
 )
 def test_negation(expr: Query, expected: str) -> None:
     assert str(expr) == expected
+
+
+@pytest.mark.parametrize(
+    ("expr", "expected"),
+    [
+        # ``-2 ^ 2`` parses as ``-(2 ^ 2)``, so a negative base is parenthesised
+        (Float(-2) ** 2, "(-2) ^ 2"),
+        (pow(-2, 2), "(-2) ^ 2"),
+        (pow(Float(-1.5), _right), "(-1.5) ^ right{}"),
+        (pow(Hex(-2), 2), "(-0x2) ^ 2"),
+        (pow(Duration(m=5, neg=True), 2), "(-5m) ^ 2"),
+        # Only the base of ``^`` is affected
+        (pow(2, -2), "2 ^ -2"),
+        (Float(-2) * 2, "-2 * 2"),
+        (pow(Float(2), 2), "2 ^ 2"),
+    ],
+)
+def test_negative_pow_base(expr: Query, expected: str) -> None:
+    assert str(expr) == expected
+
+
+def test_negative_pow_base_pretty() -> None:
+    assert pow(-2, 2).to_string(indent=4) == "(\n    -2\n)\n^\n2"
