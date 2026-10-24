@@ -33,7 +33,7 @@ This is a Python library for building PromQL query strings programmatically. All
 - [src/promcraft/scalar.py](src/promcraft/scalar.py) — `Scalar(Query)` (abstract), then `Float`, `Hex`, `Duration`. Scalars are used as values in other query components (offsets, range windows, etc.).
 - [src/promcraft/string.py](src/promcraft/string.py) — `String(Query)`: PromQL string literals with configurable quoting (`"`, `'`, `` ` ``).
 - [src/promcraft/vector.py](src/promcraft/vector.py) — `Label` (label matcher), `InstantVector(Query)`, `RangeVector(Query)`. These are the primary selector types.
-- [src/promcraft/subquery.py](src/promcraft/subquery.py) — `Subquery(Query)`: `<expr>[range:resolution]` over any instant-vector expression, built via `Query.subquery()`. Plain `InstantVector[...]` indexing still returns a `RangeVector`.
+- [src/promcraft/subquery.py](src/promcraft/subquery.py) — `Subquery(Query)`: `<expr>[range:resolution]` over any instant-vector expression, built via `Query.subquery()` or slice syntax (`expr[range:resolution]`). On `InstantVector`, plain and tuple indexing still return a `RangeVector`; only slices return a `Subquery`. mypy rejects non-int slice bounds at call sites, so tests using `Duration` slices carry `# type: ignore[misc]`.
 - [src/promcraft/operator.py](src/promcraft/operator.py) — `Match`, `Group`, `BinaryOprator(Query)`. Note: `BinaryOprator` is the existing (intentionally preserved) spelling — do not rename it.
 - [src/promcraft/aggregation.py](src/promcraft/aggregation.py) — `Grouping`, `AggregationOperator(Query)`.
 - [src/promcraft/__init__.py](src/promcraft/__init__.py) — public API; all user-facing classes are re-exported here.

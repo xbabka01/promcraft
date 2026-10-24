@@ -1,12 +1,16 @@
 """PromQL instant and range vector selectors with label matchers."""
 
 import enum
-from typing import Literal
+from typing import TYPE_CHECKING, Literal, overload
 
 from promcraft.base import Query
 from promcraft.scalar import SCALAR_TYPE, Duration, Float, Scalar
 from promcraft.string import STRING_TYPE, String
 from promcraft.variable import Variable
+
+if TYPE_CHECKING:
+    from promcraft.base import SUBQUERY_SLICE
+    from promcraft.subquery import Subquery
 
 
 class Label:
@@ -116,7 +120,19 @@ class InstantVector(Query):
         labels_str = f",{sep}".join(inner_pad + str(label) for label in self.labels)
         return f"{pad}{self.metric}{{{sep}{labels_str}{sep}{pad}}}{offset}{at}"
 
-    def __getitem__(self, item: SCALAR_TYPE | tuple[SCALAR_TYPE, SCALAR_TYPE]) -> "RangeVector":
+    @overload
+    def __getitem__(self, item: "SUBQUERY_SLICE") -> "Subquery": ...
+
+    @overload
+    def __getitem__(
+        self, item: SCALAR_TYPE | tuple[SCALAR_TYPE, SCALAR_TYPE]
+    ) -> "RangeVector": ...
+
+    def __getitem__(
+        self, item: "SUBQUERY_SLICE | SCALAR_TYPE | tuple[SCALAR_TYPE, SCALAR_TYPE]"
+    ) -> "RangeVector | Subquery":
+        if isinstance(item, slice):
+            return super().__getitem__(item)
         if isinstance(item, tuple):
             range_ = item[0]
             resolution = item[1]

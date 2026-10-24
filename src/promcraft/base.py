@@ -11,6 +11,9 @@ if TYPE_CHECKING:
     from promcraft.scalar import SCALAR_TYPE
     from promcraft.subquery import Subquery
 
+    # ``expr[range:resolution]`` / ``expr[range:]``
+    SUBQUERY_SLICE = slice[SCALAR_TYPE, SCALAR_TYPE | None, None]
+
 
 class Indent(NamedTuple):
     """Whitespace fragments used when pretty-printing a query."""
@@ -73,6 +76,19 @@ class Query(ABC):
 
     def __hash__(self) -> int:
         return id(self)
+
+    def __getitem__(self, item: "SUBQUERY_SLICE") -> "Subquery":
+        # Slice shorthand for ``subquery()``. mypy rejects non-int slice bounds
+        # (e.g. ``Duration``) at the call site; see the README.
+        if not isinstance(item, slice):
+            # Unreachable for type-checked callers; guards plain `expr[5m]` at runtime
+            msg = "Use expr[range:] or expr[range:resolution] to build a subquery"  # type: ignore[unreachable]
+            raise TypeError(msg)
+        if item.start is None or item.step is not None:
+            # Also excluded by SUBQUERY_SLICE; kept for untyped callers
+            msg = "Subquery slices must be [range:] or [range:resolution]"  # type: ignore[unreachable]
+            raise ValueError(msg)
+        return self.subquery(item.start, item.stop)
 
     def subquery(
         self,
