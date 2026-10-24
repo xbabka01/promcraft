@@ -94,6 +94,10 @@ def test_hex_from_value_passthrough() -> None:
         (86400, "1d"),
         (691200, "1w1d"),
         (33019506, "1y2w3d4h5m6s"),
+        (-5, "-5s"),
+        (-90, "-1m30s"),
+        (-1.5, "-1s500ms"),
+        (-86400, "-1d"),
     ],
 )
 def test_duration_from_value(value: float, expected: str) -> None:

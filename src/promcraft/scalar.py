@@ -108,7 +108,8 @@ class Duration(Scalar):
         """Wrap a raw number, passing ``Scalar`` and ``Variable`` through unchanged."""
         if isinstance(value, Scalar | Variable):
             return value
-        ms, x = math.modf(float(value))
+        number = float(value)
+        ms, x = math.modf(abs(number))
         x, sec = divmod(x, 60)
         x, min = divmod(x, 60)
         x, hr = divmod(x, 24)
@@ -123,6 +124,7 @@ class Duration(Scalar):
             m=int(min),
             s=int(sec),
             ms=int(ms * 1000),
+            neg=number < 0,
         )
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
