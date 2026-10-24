@@ -7,6 +7,35 @@ from promcraft.variable import Variable
 
 STRING_TYPE = Union["String", "Variable", str]
 
+_CONTROL_ESCAPES = {
+    "\a": "\\a",
+    "\b": "\\b",
+    "\f": "\\f",
+    "\n": "\\n",
+    "\r": "\\r",
+    "\t": "\\t",
+    "\v": "\\v",
+}
+
+
+def _escape(value: str, quote: str) -> str:
+    r"""Escape ``value`` for a Go-style quoted string delimited by ``quote``.
+
+    Non-ASCII characters are kept verbatim: in Go ``\xNN`` denotes a raw byte,
+    so escaping them would corrupt the UTF-8 encoding.
+    """
+    out = []
+    for ch in value:
+        if ch in ("\\", quote):
+            out.append("\\" + ch)
+        elif ch in _CONTROL_ESCAPES:
+            out.append(_CONTROL_ESCAPES[ch])
+        elif ord(ch) < 0x20 or ch == "\x7f":
+            out.append(f"\\x{ord(ch):02x}")
+        else:
+            out.append(ch)
+    return "".join(out)
+
 
 class String(Query):
     r"""A PromQL string literal with configurable quoting.
@@ -25,6 +54,9 @@ class String(Query):
     """
 
     def __init__(self, value: str, quote: Literal["`", '"', "'"] = '"') -> None:
+        if quote == "`" and "`" in value:
+            msg = "Backtick-quoted strings cannot contain a backtick"
+            raise ValueError(msg)
         self.value = value
         self.quote = quote
 
@@ -41,10 +73,8 @@ class String(Query):
         match self.quote:
             case "`":
                 content = self.value
-            case '"':
-                content = self.value.replace('"', '\\"').encode("unicode_escape").decode("ascii")
-            case "'":
-                content = self.value.replace("'", "\\'").encode("unicode_escape").decode("ascii")
+            case '"' | "'":
+                content = _escape(self.value, self.quote)
             case _:
                 # mypy flags any statement other than a bare raise in this unreachable branch
                 raise ValueError(f"Invalid quote character: {self.quote}")  # noqa: EM102
