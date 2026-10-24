@@ -36,7 +36,7 @@ def test_variable(query: Query, expected: str) -> None:
 
 def test_variable_bare_as_binary_operand() -> None:
     """Variable renders unparenthesized as a binary operator operand."""
-    assert str(add(Variable("threshold"), Float(1.0))) == "$threshold + 1"
+    assert str(add(Variable("threshold"), Float(1.0))) == "$threshold + 1.0"
 
 
 def test_variable_as_aggregation_argument() -> None:

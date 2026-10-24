@@ -39,52 +39,52 @@ _right = InstantVector("right", [])
         # arithmetic
         (
             add(Float(1.0), Float(2.0)),
-            "1 + 2",
+            "1.0 + 2.0",
         ),
         (
             sub(Float(5.0), Float(3.0)),
-            "5 - 3",
+            "5.0 - 3.0",
         ),
         (
             mul(Float(2.0), Float(3.0)),
-            "2 * 3",
+            "2.0 * 3.0",
         ),
         (
             div(Float(6.0), Float(2.0)),
-            "6 / 2",
+            "6.0 / 2.0",
         ),
         (
             mod(Float(7.0), Float(3.0)),
-            "7 % 3",
+            "7.0 % 3.0",
         ),
         (
             pow(Float(2.0), Float(8.0)),
-            "2 ^ 8",
+            "2.0 ^ 8.0",
         ),
         # comparison
         (
             eq(Float(1.0), Float(1.0)),
-            "1 == 1",
+            "1.0 == 1.0",
         ),
         (
             neq(Float(1.0), Float(2.0)),
-            "1 != 2",
+            "1.0 != 2.0",
         ),
         (
             lt(Float(1.0), Float(2.0)),
-            "1 < 2",
+            "1.0 < 2.0",
         ),
         (
             lte(Float(1.0), Float(1.0)),
-            "1 <= 1",
+            "1.0 <= 1.0",
         ),
         (
             gt(Float(2.0), Float(1.0)),
-            "2 > 1",
+            "2.0 > 1.0",
         ),
         (
             gte(Float(2.0), Float(2.0)),
-            "2 >= 2",
+            "2.0 >= 2.0",
         ),
         # logical
         (
@@ -101,7 +101,7 @@ _right = InstantVector("right", [])
         ),
         (
             atan2(Float(1.0), Float(2.0)),
-            "1 atan2 2",
+            "1.0 atan2 2.0",
         ),
         # with match
         (
@@ -125,52 +125,52 @@ _right = InstantVector("right", [])
         # arithmetic
         (
             Float(1.0) + Float(2.0),
-            "1 + 2",
+            "1.0 + 2.0",
         ),
         (
             Float(5.0) - Float(3.0),
-            "5 - 3",
+            "5.0 - 3.0",
         ),
         (
             Float(2.0) * Float(3.0),
-            "2 * 3",
+            "2.0 * 3.0",
         ),
         (
             Float(6.0) / Float(2.0),
-            "6 / 2",
+            "6.0 / 2.0",
         ),
         (
             Float(7.0) % Float(3.0),
-            "7 % 3",
+            "7.0 % 3.0",
         ),
         (
             Float(2.0) ** Float(8.0),
-            "2 ^ 8",
+            "2.0 ^ 8.0",
         ),
         # comparison
         (
             Float(1.0) == Float(1.0),
-            "1 == 1",
+            "1.0 == 1.0",
         ),
         (
             Float(1.0) != Float(2.0),
-            "1 != 2",
+            "1.0 != 2.0",
         ),
         (
             Float(1.0) < Float(2.0),
-            "1 < 2",
+            "1.0 < 2.0",
         ),
         (
             Float(1.0) <= Float(1.0),
-            "1 <= 1",
+            "1.0 <= 1.0",
         ),
         (
             Float(2.0) > Float(1.0),
-            "2 > 1",
+            "2.0 > 1.0",
         ),
         (
             Float(2.0) >= Float(2.0),
-            "2 >= 2",
+            "2.0 >= 2.0",
         ),
         # logical / set (& → and, | → or)
         (
@@ -183,12 +183,12 @@ _right = InstantVector("right", [])
         ),
         (
             div(add(Float(1.0), Float(2.0)), Float(3.0)),
-            "(1 + 2) / 3",
+            "(1.0 + 2.0) / 3.0",
         ),
         # variable (bare, unparenthesized, like Scalar/String/InstantVector)
         (
             add(Variable("threshold"), Float(1.0)),
-            "$threshold + 1",
+            "$threshold + 1.0",
         ),
         (
             add(_left, Variable("offset", braces=True)),

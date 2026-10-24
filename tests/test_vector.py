@@ -40,7 +40,7 @@ def test_label(label: Label, expected: str) -> None:
         (InstantVector("up", [], offset=-90), "up{} offset -1m30s"),
         (InstantVector("up", [], offset=Float(1.5)), "up{} offset 1.5"),
         (InstantVector("up", [], at=0), "up{} @ 0"),
-        (InstantVector("up", [], at=Float(1609746000.0)), "up{} @ 1609746000"),
+        (InstantVector("up", [], at=Float(1609746000.0)), "up{} @ 1609746000.0"),
         (InstantVector("up", [], at="start()"), "up{} @ start()"),
         (InstantVector("up", [], at="end()"), "up{} @ end()"),
         (

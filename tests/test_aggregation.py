@@ -71,7 +71,7 @@ _vec = InstantVector("http_requests_total", [])
         ),
         (
             bottomk(Float(3.0), _vec),
-            "bottomk(3, http_requests_total{})",
+            "bottomk(3.0, http_requests_total{})",
         ),
         (
             quantile(Float(0.9), _vec),
@@ -79,7 +79,7 @@ _vec = InstantVector("http_requests_total", [])
         ),
         (
             limitk(Float(10.0), _vec),
-            "limitk(10, http_requests_total{})",
+            "limitk(10.0, http_requests_total{})",
         ),
         (
             limit_ratio(Float(0.1), _vec),
@@ -115,7 +115,7 @@ _vec = InstantVector("http_requests_total", [])
         # parameter + grouping
         (
             topk(Float(5.0), _vec).by(["job"]),
-            "topk(5, http_requests_total{}) by (job)",
+            "topk(5.0, http_requests_total{}) by (job)",
         ),
         (
             quantile(Float(0.9), _vec).without(["env"]),
@@ -127,7 +127,7 @@ _vec = InstantVector("http_requests_total", [])
         ),
         (
             topk(Float(5.0), _vec),
-            "topk(5, http_requests_total{})",
+            "topk(5.0, http_requests_total{})",
         ),
         (
             avg(_vec).without(["env"]),

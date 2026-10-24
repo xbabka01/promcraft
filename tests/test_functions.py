@@ -166,7 +166,7 @@ def test_no_args(expr: Query, expected: str) -> None:
 
 
 def test_vector() -> None:
-    assert str(vector(Float(1.0))) == "vector(1)"
+    assert str(vector(Float(1.0))) == "vector(1.0)"
 
 
 @pytest.mark.parametrize(
@@ -183,9 +183,9 @@ def test_round(expr: Query, expected: str) -> None:
 @pytest.mark.parametrize(
     ("expr", "expected"),
     [
-        (clamp(_vec, Float(0.0), Float(1.0)), "clamp(http_requests_total{}, 0, 1)"),
-        (clamp_min(_vec, Float(0.0)), "clamp_min(http_requests_total{}, 0)"),
-        (clamp_max(_vec, Float(1.0)), "clamp_max(http_requests_total{}, 1)"),
+        (clamp(_vec, Float(0.0), Float(1.0)), "clamp(http_requests_total{}, 0.0, 1.0)"),
+        (clamp_min(_vec, Float(0.0)), "clamp_min(http_requests_total{}, 0.0)"),
+        (clamp_max(_vec, Float(1.0)), "clamp_max(http_requests_total{}, 1.0)"),
     ],
 )
 def test_clamp(expr: Query, expected: str) -> None:
@@ -205,7 +205,7 @@ def test_clamp(expr: Query, expected: str) -> None:
         ),
         (
             histogram_fraction(Float(0.0), Float(1.0), _vec),
-            "histogram_fraction(0, 1, http_requests_total{})",
+            "histogram_fraction(0.0, 1.0, http_requests_total{})",
         ),
     ],
 )
@@ -218,7 +218,7 @@ def test_scalar_then_query(expr: Query, expected: str) -> None:
     [
         (
             predict_linear(_rvec, Float(3600.0)),
-            "predict_linear(http_requests_total{}[5m], 3600)",
+            "predict_linear(http_requests_total{}[5m], 3600.0)",
         ),
         (
             double_exponential_smoothing(_rvec, Float(0.1), Float(0.5)),

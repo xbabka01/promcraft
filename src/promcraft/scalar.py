@@ -25,25 +25,26 @@ class Scalar(Query, metaclass=ABCMeta):
 
 
 class Float(Scalar):
-    """A floating-point scalar literal (e.g. ``3.14``, ``-2.5e9``, ``0``).
+    """A numeric scalar literal (e.g. ``3.14``, ``-2.5e9``, ``5``).
 
-    Integral values are rendered without a trailing ``.0`` (``Float(5)`` → ``5``).
+    The value is rendered as given: an ``int`` stays an integer (``Float(5)`` →
+    ``5``) and a ``float`` keeps its decimal point (``Float(5.0)`` → ``5.0``).
     """
 
     def __init__(self, value: float) -> None:
-        self.value = float(value)
+        self.value = value
 
     @classmethod
     def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
         """Wrap a raw number, passing ``Scalar`` and ``Variable`` through unchanged."""
         if isinstance(value, Scalar | Variable):
             return value
-        return cls(float(value))
+        return cls(value)
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)
-        return fmt.pad + repr(self.value).removesuffix(".0")
+        return fmt.pad + str(self.value)
 
 
 class Hex(Scalar):

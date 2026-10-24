@@ -8,9 +8,10 @@ from promcraft.base import Query
     ("query", "expected"),
     [
         (Float(3.14), "3.14"),
-        (Float(0.0), "0"),
+        (Float(0.0), "0.0"),
         (Float(-2.5), "-2.5"),
         (Float(5), "5"),
+        (Float(5.0), "5.0"),
         (Float(1e20), "1e+20"),
         (Float(1.5e-7), "1.5e-07"),
         (Float(float("inf")), "inf"),
@@ -53,6 +54,7 @@ def test_duration(query: Query, expected: str) -> None:
     ("value", "expected"),
     [
         (3, "3"),
+        (3.0, "3.0"),
         (3.14, "3.14"),
         (-2.5, "-2.5"),
     ],
