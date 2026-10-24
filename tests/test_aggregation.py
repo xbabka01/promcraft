@@ -2,7 +2,9 @@ import pytest
 
 from promcraft import (
     Float,
+    Grouping,
     InstantVector,
+    Query,
     String,
     Variable,
     avg,
@@ -20,8 +22,6 @@ from promcraft import (
     sum_,
     topk,
 )
-from promcraft.aggregation import Grouping
-from promcraft.base import Query
 
 _vec = InstantVector("http_requests_total", [])
 

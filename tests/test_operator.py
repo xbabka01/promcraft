@@ -3,10 +3,13 @@ from collections.abc import Callable
 import pytest
 
 from promcraft import (
+    BinaryOprator,
     Duration,
     Float,
+    Group,
     Hex,
     InstantVector,
+    Match,
     Negation,
     Query,
     Variable,
@@ -28,7 +31,6 @@ from promcraft import (
     sub,
     unless,
 )
-from promcraft.operator import BinaryOprator, Group, Match
 
 _left = InstantVector("left", [])
 _right = InstantVector("right", [])

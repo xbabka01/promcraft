@@ -6,6 +6,7 @@ from promcraft import (
     Hex,
     InstantVector,
     Label,
+    Query,
     RangeVector,
     String,
     Variable,
@@ -17,7 +18,6 @@ from promcraft import (
     sum_,
     topk,
 )
-from promcraft.base import Query
 
 _left = InstantVector("left", [])
 _right = InstantVector("right", [])

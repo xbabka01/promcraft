@@ -3,6 +3,7 @@ import pytest
 from promcraft import (
     Duration,
     Float,
+    Function,
     InstantVector,
     Label,
     add,
@@ -10,7 +11,6 @@ from promcraft import (
     sum_,
     topk,
 )
-from promcraft.functions import Function
 
 
 def test_aggregation_pretty_matches_target_example() -> None:

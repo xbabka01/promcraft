@@ -1,6 +1,8 @@
 """Build PromQL query strings programmatically."""
 
-from promcraft.aggregation import (
+from promcraft._aggregation import (
+    Aggregation,
+    Grouping,
     avg,
     bottomk,
     count,
@@ -16,37 +18,9 @@ from promcraft.aggregation import (
     sum_,
     topk,
 )
-from promcraft.base import Query
-from promcraft.operator import (
-    Negation,
-    add,
-    and_,
-    atan2,
-    div,
-    eq,
-    gt,
-    gte,
-    lt,
-    lte,
-    mod,
-    mul,
-    neq,
-    or_,
-    pow,
-    sub,
-    unless,
-)
-from promcraft.scalar import Duration, DurationParams, Float, Hex, Scalar
-from promcraft.string import String
-from promcraft.subquery import Subquery
-from promcraft.variable import Variable
-from promcraft.vector import InstantVector, Label, RangeVector
-
-# isort: split
-# promcraft.functions must be imported AFTER promcraft.scalar and promcraft.vector so that
-# our 'scalar' and 'vector' function names overwrite the submodule bindings that Python
-# injects automatically when a submodule is imported.
-from promcraft.functions import (
+from promcraft._base import Query
+from promcraft._functions import (
+    Function,
     abs,
     absent,
     absent_over_time,
@@ -125,14 +99,47 @@ from promcraft.functions import (
     vector,
     year,
 )
+from promcraft._operator import (
+    BinaryOprator,
+    Group,
+    Match,
+    Negation,
+    add,
+    and_,
+    atan2,
+    div,
+    eq,
+    gt,
+    gte,
+    lt,
+    lte,
+    mod,
+    mul,
+    neq,
+    or_,
+    pow,
+    sub,
+    unless,
+)
+from promcraft._scalar import Duration, DurationParams, Float, Hex, Scalar
+from promcraft._string import String
+from promcraft._subquery import Subquery
+from promcraft._variable import Variable
+from promcraft._vector import InstantVector, Label, RangeVector
 
 __all__ = [
+    "Aggregation",
+    "BinaryOprator",
     "Duration",
     "DurationParams",
     "Float",
+    "Function",
+    "Group",
+    "Grouping",
     "Hex",
     "InstantVector",
     "Label",
+    "Match",
     "Negation",
     "Query",
     "RangeVector",

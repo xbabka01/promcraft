@@ -1,7 +1,6 @@
 import pytest
 
-from promcraft import String
-from promcraft.base import Query
+from promcraft import Query, String
 
 
 @pytest.mark.parametrize(

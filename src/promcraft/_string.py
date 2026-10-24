@@ -2,8 +2,8 @@
 
 from typing import Literal, Union
 
-from promcraft.base import Query
-from promcraft.variable import Variable
+from promcraft._base import Query
+from promcraft._variable import Variable
 
 STRING_TYPE = Union["String", "Variable", str]
 

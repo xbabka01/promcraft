@@ -1,7 +1,6 @@
 import pytest
 
-from promcraft import Duration, Float, InstantVector, Label, RangeVector, String
-from promcraft.base import Query
+from promcraft import Duration, Float, InstantVector, Label, Query, RangeVector, String
 
 
 @pytest.mark.parametrize(

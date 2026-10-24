@@ -7,9 +7,9 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from typing import Literal
 
-    from promcraft.operator import OPERAND_TYPE, BinaryOprator, Negation
-    from promcraft.scalar import SCALAR_TYPE
-    from promcraft.subquery import Subquery
+    from promcraft._operator import OPERAND_TYPE, BinaryOprator, Negation
+    from promcraft._scalar import SCALAR_TYPE
+    from promcraft._subquery import Subquery
 
     # ``expr[range:resolution]`` / ``expr[range:]``
     SUBQUERY_SLICE = slice[SCALAR_TYPE, SCALAR_TYPE | None, None]
@@ -101,9 +101,9 @@ class Query(ABC):
     ) -> "Subquery":
         """Evaluate this expression as a subquery: ``<expr>[range:resolution]``.
 
-        See :class:`~promcraft.subquery.Subquery`.
+        See :class:`~promcraft._subquery.Subquery`.
         """
-        from promcraft.subquery import Subquery
+        from promcraft._subquery import Subquery
 
         return Subquery(self, range, resolution, offset=offset, at=at)
 
@@ -119,67 +119,67 @@ class Query(ABC):
         return helper(other, self) if reflected else helper(self, other)
 
     def __neg__(self) -> "Negation":
-        from promcraft.operator import Negation
+        from promcraft._operator import Negation
 
         return Negation(self)
 
     def __add__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
-        from promcraft.operator import add
+        from promcraft._operator import add
 
         return self._binary(add, other)
 
     def __radd__(self, other: float) -> "BinaryOprator":
-        from promcraft.operator import add
+        from promcraft._operator import add
 
         return self._binary(add, other, reflected=True)
 
     def __sub__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
-        from promcraft.operator import sub
+        from promcraft._operator import sub
 
         return self._binary(sub, other)
 
     def __rsub__(self, other: float) -> "BinaryOprator":
-        from promcraft.operator import sub
+        from promcraft._operator import sub
 
         return self._binary(sub, other, reflected=True)
 
     def __mul__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
-        from promcraft.operator import mul
+        from promcraft._operator import mul
 
         return self._binary(mul, other)
 
     def __rmul__(self, other: float) -> "BinaryOprator":
-        from promcraft.operator import mul
+        from promcraft._operator import mul
 
         return self._binary(mul, other, reflected=True)
 
     def __truediv__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
-        from promcraft.operator import div
+        from promcraft._operator import div
 
         return self._binary(div, other)
 
     def __rtruediv__(self, other: float) -> "BinaryOprator":
-        from promcraft.operator import div
+        from promcraft._operator import div
 
         return self._binary(div, other, reflected=True)
 
     def __mod__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
-        from promcraft.operator import mod
+        from promcraft._operator import mod
 
         return self._binary(mod, other)
 
     def __rmod__(self, other: float) -> "BinaryOprator":
-        from promcraft.operator import mod
+        from promcraft._operator import mod
 
         return self._binary(mod, other, reflected=True)
 
     def __pow__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
-        from promcraft.operator import pow
+        from promcraft._operator import pow
 
         return self._binary(pow, other)
 
     def __rpow__(self, other: float) -> "BinaryOprator":
-        from promcraft.operator import pow
+        from promcraft._operator import pow
 
         return self._binary(pow, other, reflected=True)
 
@@ -199,41 +199,41 @@ class Query(ABC):
         return helper(self, other)
 
     def __eq__(self, other: object) -> "BinaryOprator":  # type: ignore[override]
-        from promcraft.operator import eq
+        from promcraft._operator import eq
 
         return self._comparison(eq, other)
 
     def __ne__(self, other: object) -> "BinaryOprator":  # type: ignore[override]
-        from promcraft.operator import neq
+        from promcraft._operator import neq
 
         return self._comparison(neq, other)
 
     def __lt__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
-        from promcraft.operator import lt
+        from promcraft._operator import lt
 
         return self._binary(lt, other)
 
     def __le__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
-        from promcraft.operator import lte
+        from promcraft._operator import lte
 
         return self._binary(lte, other)
 
     def __gt__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
-        from promcraft.operator import gt
+        from promcraft._operator import gt
 
         return self._binary(gt, other)
 
     def __ge__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
-        from promcraft.operator import gte
+        from promcraft._operator import gte
 
         return self._binary(gte, other)
 
     def __and__(self, other: "Query") -> "BinaryOprator":
-        from promcraft.operator import and_
+        from promcraft._operator import and_
 
         return self._binary(and_, other)
 
     def __or__(self, other: "Query") -> "BinaryOprator":
-        from promcraft.operator import or_
+        from promcraft._operator import or_
 
         return self._binary(or_, other)

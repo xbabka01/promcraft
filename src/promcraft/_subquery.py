@@ -2,11 +2,11 @@
 
 from typing import Literal
 
-from promcraft.base import Query
-from promcraft.operator import BinaryOprator, Negation
-from promcraft.scalar import SCALAR_TYPE, Duration, Float, Scalar
-from promcraft.variable import Variable
-from promcraft.vector import RangeVector
+from promcraft._base import Query
+from promcraft._operator import BinaryOprator, Negation
+from promcraft._scalar import SCALAR_TYPE, Duration, Float, Scalar
+from promcraft._variable import Variable
+from promcraft._vector import RangeVector
 
 
 class Subquery(Query):
@@ -19,7 +19,7 @@ class Subquery(Query):
     and negations are parenthesised.  Like selectors, subqueries accept ``offset``
     and ``@`` modifiers.
 
-    Usually built with :meth:`Query.subquery <promcraft.base.Query.subquery>`.
+    Usually built with :meth:`Query.subquery <promcraft._base.Query.subquery>`.
 
     Example::
 

@@ -1,7 +1,6 @@
 import pytest
 
-from promcraft import Duration, Float, Hex
-from promcraft.base import Query
+from promcraft import Duration, Float, Hex, Query
 
 
 @pytest.mark.parametrize(
