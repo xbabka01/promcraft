@@ -182,15 +182,30 @@ class Query(ABC):
 
         return self._binary(pow, other, reflected=True)
 
+    def _comparison(
+        self,
+        helper: "Callable[[OPERAND_TYPE, OPERAND_TYPE], BinaryOprator]",
+        other: object,
+    ) -> "BinaryOprator":
+        # Returning NotImplemented here would make Python fall back to an
+        # identity check, so ``q == "foo"`` would silently be False.
+        if not isinstance(other, Query | int | float):
+            msg = (
+                f"Cannot compare {type(self).__name__} with {type(other).__name__}; "
+                "use `is` to check identity"
+            )
+            raise TypeError(msg)
+        return helper(self, other)
+
     def __eq__(self, other: object) -> "BinaryOprator":  # type: ignore[override]
         from promcraft.operator import eq
 
-        return self._binary(eq, other)
+        return self._comparison(eq, other)
 
     def __ne__(self, other: object) -> "BinaryOprator":  # type: ignore[override]
         from promcraft.operator import neq
 
-        return self._binary(neq, other)
+        return self._comparison(neq, other)
 
     def __lt__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
         from promcraft.operator import lt

@@ -207,13 +207,19 @@ def test_query_hashable() -> None:
     assert len({a, b}) == 2
 
 
-def test_eq_non_operand_falls_back() -> None:
-    """__eq__ returns NotImplemented for unsupported objects, so Python falls back to identity."""
-    assert Float(1.0).__eq__("x") is NotImplemented
-    eq_result: object = Float(1.0) == "x"
-    ne_result: object = Float(1.0) != None  # noqa: E711
-    assert eq_result is False
-    assert ne_result is True
+@pytest.mark.parametrize("other", ["x", None, [1], object()])
+def test_eq_non_operand_raises(other: object) -> None:
+    """Comparing with a non-operand raises instead of silently falling back to identity."""
+    with pytest.raises(TypeError, match="Cannot compare Float with"):
+        _ = Float(1.0) == other
+    with pytest.raises(TypeError, match="use `is` to check identity"):
+        _ = Float(1.0) != other
+
+
+def test_eq_non_operand_reflected_raises() -> None:
+    """``"x" == q`` falls back to ``q.__eq__("x")``, which raises too."""
+    with pytest.raises(TypeError, match="Cannot compare Float with str"):
+        _ = "x" == Float(1.0)  # noqa: SIM300
 
 
 def test_arithmetic_non_operand_raises() -> None:
