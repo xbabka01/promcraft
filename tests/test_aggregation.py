@@ -67,7 +67,7 @@ _vec = InstantVector("http_requests_total", [])
         ),
         (
             topk(5, _vec),
-            "topk(5.0, http_requests_total{})",
+            "topk(5, http_requests_total{})",
         ),
         (
             bottomk(Float(3.0), _vec),
@@ -132,6 +132,15 @@ _vec = InstantVector("http_requests_total", [])
         (
             avg(_vec).without(["env"]),
             "avg(http_requests_total{}) without (env)",
+        ),
+        # empty grouping labels
+        (
+            sum_(_vec).by([]),
+            "sum(http_requests_total{}) by ()",
+        ),
+        (
+            sum_(_vec).without([]),
+            "sum(http_requests_total{}) without ()",
         ),
     ],
 )

@@ -1,5 +1,6 @@
 """PromQL binary operators and vector matching modifiers."""
 
+import builtins
 import enum
 from typing import Literal
 
@@ -107,7 +108,10 @@ class BinaryOprator(Query):
     Example::
 
         add(http_requests_total, Float(1)).on(["env"])
-        # → 'http_requests_total{} + on(env)  1.0'
+        # → 'http_requests_total{} + on(env) 1'
+
+        gt(errors, Float(0)).bool()
+        # → 'errors{} > bool 0'
 
     """
 
@@ -148,12 +152,18 @@ class BinaryOprator(Query):
         right: OPERAND_TYPE,
         match: Match | None = None,
         group: Group | None = None,
+        *,
+        return_bool: builtins.bool = False,
     ) -> None:
+        if return_bool and op not in _COMPARISON_OPERATORS:
+            msg = f"The bool modifier is only valid for comparison operators, not {op}"
+            raise ValueError(msg)
         self.op = op
         self.left = _as_operand(left)
         self.right = _as_operand(right)
         self.match = match
         self.group = group
+        self.return_bool = return_bool
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         """Render this expression as a PromQL string."""
@@ -161,57 +171,98 @@ class BinaryOprator(Query):
 
         def render_operand(operand: Query) -> str:
             # Function calls and aggregations are self-delimiting; only nested
-            # binary operations need parentheses to preserve evaluation order.
-            if not isinstance(operand, BinaryOprator):
+            # binary operations and negations need parentheses to preserve
+            # evaluation order (``-a ^ b`` is ``-(a ^ b)`` in PromQL).
+            if not isinstance(operand, BinaryOprator | Negation):
                 return operand.to_string(indent=indent, _indent_level=_indent_level)
             body = operand.to_string(indent=indent, _indent_level=_indent_level + 1)
             return f"{pad}({space}{body}{space}{pad})"
 
+        bool_str = " bool" if self.return_bool else ""
         match_str = f" {self.match}" if self.match else ""
         group_str = f" {self.group}" if self.group else ""
         left_str = render_operand(self.left)
         right_str = render_operand(self.right)
-        return f"{left_str}{sep}{pad}{self.op}{match_str}{group_str}{sep}{right_str}"
+        modifiers = f"{bool_str}{match_str}{group_str}"
+        return f"{left_str}{sep}{pad}{self.op}{modifiers}{sep}{right_str}"
+
+    def _replace(
+        self,
+        *,
+        match: Match | None = None,
+        group: Group | None = None,
+        return_bool: builtins.bool | None = None,
+    ) -> "BinaryOprator":
+        """Return a copy of this operation with the given modifiers replaced."""
+        return BinaryOprator(
+            op=self.op,
+            left=self.left,
+            right=self.right,
+            match=match if match is not None else self.match,
+            group=group if group is not None else self.group,
+            return_bool=return_bool if return_bool is not None else self.return_bool,
+        )
+
+    def bool(self) -> "BinaryOprator":
+        """Return a copy of this comparison with the ``bool`` modifier.
+
+        Instead of filtering, the comparison then returns ``0`` or ``1`` for each
+        element.  Required when both operands are scalars.
+        """
+        return self._replace(return_bool=True)
 
     def on(self, labels: list[str | Variable]) -> "BinaryOprator":
         """Return a copy of this operation with an ``on(labels)`` match clause."""
-        return BinaryOprator(
-            op=self.op,
-            left=self.left,
-            right=self.right,
-            match=Match.on(labels),
-            group=self.group,
-        )
+        return self._replace(match=Match.on(labels))
 
     def ignoring(self, labels: list[str | Variable]) -> "BinaryOprator":
         """Return a copy of this operation with an ``ignoring(labels)`` match clause."""
-        return BinaryOprator(
-            op=self.op,
-            left=self.left,
-            right=self.right,
-            match=Match.ignoring(labels),
-            group=self.group,
-        )
+        return self._replace(match=Match.ignoring(labels))
 
     def group_left(self, labels: list[str | Variable]) -> "BinaryOprator":
         """Return a copy of this operation with a ``group_left(labels)`` modifier."""
-        return BinaryOprator(
-            op=self.op,
-            left=self.left,
-            right=self.right,
-            match=self.match,
-            group=Group.left(labels),
-        )
+        return self._replace(group=Group.left(labels))
 
     def group_right(self, labels: list[str | Variable]) -> "BinaryOprator":
         """Return a copy of this operation with a ``group_right(labels)`` modifier."""
-        return BinaryOprator(
-            op=self.op,
-            left=self.left,
-            right=self.right,
-            match=self.match,
-            group=Group.right(labels),
-        )
+        return self._replace(group=Group.right(labels))
+
+
+_COMPARISON_OPERATORS = frozenset(
+    {
+        BinaryOprator.Operator.EQ,
+        BinaryOprator.Operator.NEQ,
+        BinaryOprator.Operator.LT,
+        BinaryOprator.Operator.LTE,
+        BinaryOprator.Operator.GT,
+        BinaryOprator.Operator.GTE,
+    }
+)
+
+
+class Negation(Query):
+    """Unary minus applied to a PromQL expression (``-expr``).
+
+    Binary-operation operands are parenthesised so the sign applies to the
+    whole expression.
+
+    Example::
+
+        -rate(errors_total[5m])  # → '-rate(errors_total{}[5m])'
+        -(a + b)  # → '-(a{} + b{})'
+    """
+
+    def __init__(self, operand: OPERAND_TYPE) -> None:
+        self.operand = _as_operand(operand)
+
+    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        """Render this expression as a PromQL string."""
+        _sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
+        if isinstance(self.operand, BinaryOprator | Negation):
+            body = self.operand.to_string(indent=indent, _indent_level=_indent_level + 1)
+            return f"{pad}-({space}{body}{space}{pad})"
+        body = self.operand.to_string(indent=indent, _indent_level=_indent_level)
+        return f"{pad}-{body.removeprefix(pad)}"
 
 
 def add(

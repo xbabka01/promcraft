@@ -85,8 +85,10 @@ from promcraft import Float
 Float(3.14)  # "3.14"
 Float(0.0)  # "0.0"
 Float(-2.5)  # "-2.5"
+Float(5)  # "5" -- an int stays an int
 
-Float.from_value(3)  # Float(3.0) -- "3.0"
+Float.from_value(3)  # Float(3) -- "3"
+Float.from_value(3.0)  # Float(3.0) -- "3.0"
 Float.from_value(Float(3.14))  # passthrough, still "3.14"
 ```
 
@@ -358,8 +360,8 @@ Python's own operators also work directly on any `Query` (`+ - * / % **`,
 
 ```python
 requests + errors  # same as add(requests, errors)
-errors / requests * 100  # "(errors{} / requests{}) * 100.0"
-1 - errors / requests  # "1.0 - (errors{} / requests{})"
+errors / requests * 100  # "(errors{} / requests{}) * 100"
+1 - errors / requests  # "1 - (errors{} / requests{})"
 ```
 
 Because comparisons build PromQL expressions, `Query` objects have no truth value:
@@ -374,6 +376,24 @@ Nested binary expressions are automatically parenthesized to preserve evaluation
 inner = add(Float(1.0), Float(2.0))
 outer = mul(inner, Float(3.0))
 str(outer)  # "(1.0 + 2.0) * 3.0"
+```
+
+#### `bool` modifier
+
+Comparisons filter by default. `.bool()` makes them return `0`/`1` per element instead,
+which PromQL requires when both sides are scalars. It is only valid on comparison operators:
+
+```python
+(v1 > 0).bool()  # "requests{} > bool 0"
+(Float(1) > Float(2)).bool()  # "1 > bool 2"
+gt(v1, v2).bool().on(["job"])  # "requests{} > bool on(job) errors{}"
+```
+
+#### Unary minus
+
+```python
+-rate(v1[Duration(m=5)])  # "-rate(requests{}[5m])"
+-(v1 + v2)  # "-(requests{} + errors{})"
 ```
 
 #### Label matching
@@ -443,13 +463,13 @@ all labels, omit `.by()`/`.without()` entirely rather than passing an empty list
 ```python
 from promcraft import topk, bottomk, quantile, limitk, limit_ratio
 
-topk(5, v)  # "topk(5.0, http_requests_total{})"
-bottomk(3, v)  # "bottomk(3.0, http_requests_total{})"
+topk(5, v)  # "topk(5, http_requests_total{})"
+bottomk(3, v)  # "bottomk(3, http_requests_total{})"
 quantile(0.95, v)  # "quantile(0.95, http_requests_total{})"
-limitk(10, v)  # "limitk(10.0, http_requests_total{})"
+limitk(10, v)  # "limitk(10, http_requests_total{})"
 limit_ratio(0.1, v)  # "limit_ratio(0.1, http_requests_total{})"
 topk(5, v).by(["job"])
-# "topk(5.0, http_requests_total{}) by (job)"
+# "topk(5, http_requests_total{}) by (job)"
 ```
 
 **String-parameter aggregation** — `count_values` (label name, accepts a raw `str` or a `String`):
@@ -672,8 +692,8 @@ total_rate = rate(RangeVector("http_requests_total", [job_label], Duration(m=5))
 
 ratio = div(error_rate, total_rate).on(["job"])
 str(ratio)
-# '(rate(http_requests_total{ job = "api", status =~ "5.." }[5m]))
-#   / on(job) (rate(http_requests_total{ job = "api" }[5m]))'
+# 'rate(http_requests_total{ job = "api", status =~ "5.." }[5m])
+#   / on(job) rate(http_requests_total{ job = "api" }[5m])'
 ```
 
 ### Pretty printing

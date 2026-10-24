@@ -3,6 +3,7 @@
 from typing import Literal
 
 from promcraft.base import Query
+from promcraft.operator import OPERAND_TYPE, _as_operand
 from promcraft.scalar import SCALAR_TYPE, Float
 from promcraft.string import STRING_TYPE, String
 from promcraft.variable import Variable
@@ -24,10 +25,6 @@ class Grouping:
         self.type = type
         self.labels = labels
 
-        if not labels:
-            msg = "labels cannot be empty"
-            raise ValueError(msg)
-
     @classmethod
     def by(cls, labels: list[str | Variable]) -> "Grouping":
         """Return a ``by(labels)`` grouping clause."""
@@ -45,12 +42,12 @@ class Aggregation(Query):
     def __init__(
         self,
         operator: str,
-        params: list[Query],
+        params: list[OPERAND_TYPE],
         *,
         grouping: Grouping | None = None,
     ) -> None:
         self.operator = operator
-        self.params = params
+        self.params = [_as_operand(param) for param in params]
         self.grouping = grouping
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
@@ -72,7 +69,7 @@ class Aggregation(Query):
         """Return a copy of this aggregation with a ``by(labels)`` grouping clause."""
         return self.__class__(
             operator=self.operator,
-            params=self.params,
+            params=list(self.params),
             grouping=Grouping.by(labels),
         )
 
@@ -80,7 +77,7 @@ class Aggregation(Query):
         """Return a copy of this aggregation with a ``without(labels)`` grouping clause."""
         return self.__class__(
             operator=self.operator,
-            params=self.params,
+            params=list(self.params),
             grouping=Grouping.without(labels),
         )
 

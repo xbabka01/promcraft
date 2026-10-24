@@ -84,6 +84,7 @@ from promcraft import (
     vector,
     year,
 )
+from promcraft.functions import Function
 
 _vec = InstantVector("http_requests_total", [])
 _rvec = RangeVector("http_requests_total", [], Duration(m=5))
@@ -317,3 +318,8 @@ def test_info(expr: Query, expected: str) -> None:
 )
 def test_histogram_functions(expr: Query, expected: str) -> None:
     assert str(expr) == expected
+
+
+def test_function_wraps_numeric_args() -> None:
+    assert str(Function("vector", [1])) == "vector(1)"
+    assert str(Function("clamp", [_vec, 0, 1.5])) == "clamp(http_requests_total{}, 0, 1.5)"

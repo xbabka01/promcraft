@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, NamedTuple
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from promcraft.operator import OPERAND_TYPE, BinaryOprator
+    from promcraft.operator import OPERAND_TYPE, BinaryOprator, Negation
 
 
 class Indent(NamedTuple):
@@ -81,6 +81,11 @@ class Query(ABC):
         if not isinstance(other, Query | int | float):
             return NotImplemented  # type: ignore[no-any-return]  # lets Python raise TypeError
         return helper(other, self) if reflected else helper(self, other)
+
+    def __neg__(self) -> "Negation":
+        from promcraft.operator import Negation
+
+        return Negation(self)
 
     def __add__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
         from promcraft.operator import add
