@@ -690,8 +690,8 @@ total_rate = rate(RangeVector("http_requests_total", [job_label], Duration(m=5))
 
 ratio = div(error_rate, total_rate).on(["job"])
 str(ratio)
-# '(rate(http_requests_total{ job = "api", status =~ "5.." }[5m]))
-#   / on(job) (rate(http_requests_total{ job = "api" }[5m]))'
+# 'rate(http_requests_total{ job = "api", status =~ "5.." }[5m])
+#   / on(job) rate(http_requests_total{ job = "api" }[5m])'
 ```
 
 ### Pretty printing
