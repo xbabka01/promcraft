@@ -434,7 +434,7 @@ which PromQL requires when both sides are scalars. It is only valid on compariso
 ```python
 (v1 > 0).bool()  # "requests{} > bool 0"
 (Float(1) > Float(2)).bool()  # "1 > bool 2"
-gt(v1, v2).bool().on(["job"])  # "requests{} > bool on(job) errors{}"
+gt(v1, v2).bool().on(["job"])  # "requests{} > bool on (job) errors{}"
 ```
 
 #### Unary minus
@@ -461,11 +461,11 @@ errors = InstantVector("http_errors_total", [])
 
 # Match on specific labels
 expr = div(errors, requests).on(["job", "env"])
-# 'http_errors_total{} / on(job, env) http_requests_total{}'
+# 'http_errors_total{} / on (job, env) http_requests_total{}'
 
 # Ignore specific labels
 expr = div(errors, requests).ignoring(["instance"])
-# 'http_errors_total{} / ignoring(instance) http_requests_total{}'
+# 'http_errors_total{} / ignoring (instance) http_requests_total{}'
 ```
 
 #### Grouping
@@ -475,7 +475,7 @@ Use `.group_left()` or `.group_right()` for many-to-one or one-to-many matching:
 ```python
 # group_left: result has labels from the left side
 expr = mul(requests, errors).on(["job"]).group_left(["env"])
-# '... on(job) group_left(env) ...'
+# '... on (job) group_left (env) ...'
 
 # group_right: result has labels from the right side
 expr = mul(requests, errors).group_right([])
@@ -748,7 +748,7 @@ total_rate = rate(RangeVector("http_requests_total", [job_label], Duration(m=5))
 ratio = div(error_rate, total_rate).on(["job"])
 str(ratio)
 # 'rate(http_requests_total{ job = "api", status =~ "5.." }[5m])
-#   / on(job) rate(http_requests_total{ job = "api" }[5m])'
+#   / on (job) rate(http_requests_total{ job = "api" }[5m])'
 ```
 
 ### Pretty printing

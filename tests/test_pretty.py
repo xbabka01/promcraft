@@ -99,7 +99,7 @@ def test_binary_operator_pretty_with_match_clause() -> None:
     right = InstantVector("right", [])
     expr = add(left, right).on(["job"])
 
-    assert expr.to_string(indent=4) == "left{}\n+ on(job)\nright{}"
+    assert expr.to_string(indent=4) == "left{}\n+ on (job)\nright{}"
 
 
 def test_binary_operator_pretty_with_group_left() -> None:
@@ -107,7 +107,7 @@ def test_binary_operator_pretty_with_group_left() -> None:
     right = InstantVector("right", [])
     expr = add(left, right).group_left(["region"])
 
-    assert expr.to_string(indent=4) == "left{}\n+ group_left(region)\nright{}"
+    assert expr.to_string(indent=4) == "left{}\n+ group_left (region)\nright{}"
 
 
 def test_aggregation_pretty_grouping_three_or_more_labels_breaks() -> None:

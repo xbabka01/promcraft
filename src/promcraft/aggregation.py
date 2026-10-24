@@ -17,8 +17,8 @@ class Grouping:
 
     Example::
 
-        Grouping.by(["job", "env"])  # → 'by(job, env)'
-        Grouping.without(["instance"])  # → 'without(instance)'
+        Grouping.by(["job", "env"])  # → 'by (job, env)'
+        Grouping.without(["instance"])  # → 'without (instance)'
     """
 
     def __init__(self, type: Literal["by", "without"], labels: list[str | Variable]) -> None:
@@ -34,6 +34,10 @@ class Grouping:
     def without(cls, labels: list[str | Variable]) -> "Grouping":
         """Return a ``without(labels)`` grouping clause."""
         return cls("without", labels)
+
+    def __str__(self) -> str:
+        labels_str = ", ".join(str(label) for label in self.labels)
+        return f"{self.type} ({labels_str})"
 
 
 class Aggregation(Query):
@@ -60,8 +64,7 @@ class Aggregation(Query):
         result = f"{pad}{self.operator}({space}{params_str}{space}{pad})"
 
         if self.grouping is not None:
-            labels_str = ", ".join(str(label) for label in self.grouping.labels)
-            result += f" {self.grouping.type} ({labels_str})"
+            result += f" {self.grouping}"
 
         return result
 

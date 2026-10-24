@@ -28,7 +28,7 @@ from promcraft import (
     sub,
     unless,
 )
-from promcraft.operator import BinaryOprator
+from promcraft.operator import BinaryOprator, Group, Match
 
 _left = InstantVector("left", [])
 _right = InstantVector("right", [])
@@ -107,21 +107,21 @@ _right = InstantVector("right", [])
         # with match
         (
             add(_left, _right).on(["job"]),
-            "left{} + on(job) right{}",
+            "left{} + on (job) right{}",
         ),
         (
             add(_left, _right).ignoring(["env"]),
-            "left{} + ignoring(env) right{}",
+            "left{} + ignoring (env) right{}",
         ),
         # with group
         (
             add(_left, _right).group_left([]),
-            "left{} + group_left() right{}",
+            "left{} + group_left () right{}",
         ),
         # with match and group
         (
             mul(_left, _right).ignoring(["env"]).group_right(["env"]),
-            "left{} * ignoring(env) group_right(env) right{}",
+            "left{} * ignoring (env) group_right (env) right{}",
         ),
         # arithmetic
         (
@@ -260,12 +260,12 @@ def test_query_has_no_truth_value() -> None:
         (gt(_left, _right).bool(), "left{} > bool right{}"),
         ((Float(1) > Float(2)).bool(), "1 > bool 2"),
         ((_left == 0).bool(), "left{} == bool 0"),
-        (lte(_left, _right).bool().on(["job"]), "left{} <= bool on(job) right{}"),
+        (lte(_left, _right).bool().on(["job"]), "left{} <= bool on (job) right{}"),
         (
             neq(_left, _right).on(["job"]).bool().group_left(["env"]),
-            "left{} != bool on(job) group_left(env) right{}",
+            "left{} != bool on (job) group_left (env) right{}",
         ),
-        (gte(_left, _right).ignoring(["env"]).bool(), "left{} >= bool ignoring(env) right{}"),
+        (gte(_left, _right).ignoring(["env"]).bool(), "left{} >= bool ignoring (env) right{}"),
     ],
 )
 def test_bool_modifier(expr: Query, expected: str) -> None:
@@ -317,3 +317,16 @@ def test_negative_pow_base(expr: Query, expected: str) -> None:
 
 def test_negative_pow_base_pretty() -> None:
     assert pow(-2, 2).to_string(indent=4) == "(\n    -2\n)\n^\n2"
+
+
+@pytest.mark.parametrize(
+    ("clause", "expected"),
+    [
+        (Match.on(["job", "env"]), "on (job, env)"),
+        (Match.ignoring(["instance"]), "ignoring (instance)"),
+        (Group.left(["region"]), "group_left (region)"),
+        (Group.right([]), "group_right ()"),
+    ],
+)
+def test_matching_clause_str(clause: Match | Group, expected: str) -> None:
+    assert str(clause) == expected
