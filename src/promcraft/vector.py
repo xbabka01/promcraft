@@ -104,7 +104,7 @@ class InstantVector(Query):
         at: SCALAR_TYPE | Literal["start()", "end()"] | None = None,
     ) -> None:
         self.metric = metric
-        self.labels = labels
+        self.labels = list(labels)
         self.offset = Duration.from_value(offset) if offset is not None else None
         self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar, Variable)) else at
 
@@ -180,7 +180,7 @@ class RangeVector(Query):
         at: SCALAR_TYPE | Literal["start()", "end()"] | None = None,
     ) -> None:
         self.metric = metric
-        self.labels = labels
+        self.labels = list(labels)
         self.range = Duration.from_value(range)
         self.resolution = Duration.from_value(resolution) if resolution is not None else None
         self.offset = Duration.from_value(offset) if offset is not None else None

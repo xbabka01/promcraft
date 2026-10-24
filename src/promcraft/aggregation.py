@@ -23,7 +23,7 @@ class Grouping:
 
     def __init__(self, type: Literal["by", "without"], labels: list[str | Variable]) -> None:
         self.type = type
-        self.labels = labels
+        self.labels = list(labels)
 
     @classmethod
     def by(cls, labels: list[str | Variable]) -> "Grouping":

@@ -330,3 +330,15 @@ def test_negative_pow_base_pretty() -> None:
 )
 def test_matching_clause_str(clause: Match | Group, expected: str) -> None:
     assert str(clause) == expected
+
+
+def test_chained_copies_do_not_share_labels() -> None:
+    """Chained copies own their label lists, independent of the caller and of each other."""
+    labels: list[str | Variable] = ["job"]
+    base = (_left + _right).on(labels).group_left(["env"])
+    copy = base.ignoring(["x"])
+    labels.append("instance")
+    assert base.group is not None
+    base.group.labels.append("region")
+    assert str(base) == "left{} + on (job) group_left (env, region) right{}"
+    assert str(copy) == "left{} + ignoring (x) group_left (env) right{}"
