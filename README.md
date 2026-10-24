@@ -326,6 +326,22 @@ Subquery(requests + requests, Duration(h=1), at="end()")
 # "(http_requests_total{} + http_requests_total{})[1h:] @ end()"
 ```
 
+Slice syntax is a shorthand for `.subquery(range, resolution)`:
+
+```python
+per_second[Duration(h=1) : Duration(m=1)]  # "rate(http_requests_total{}[5m])[1h:1m]"
+per_second[3600:]  # "rate(http_requests_total{}[5m])[1h:]"
+requests[Duration(h=1) :]  # "http_requests_total{}[1h:]"
+```
+
+On an `InstantVector`, a slice builds a `Subquery`, while plain and tuple indexing still
+build a `RangeVector`. Slices take no `offset`/`@`; use `.subquery()` for those.
+
+> **mypy users:** mypy rejects non-integer slice bounds (`Slice index must be an integer,
+> SupportsIndex or None`), so slices with `Duration` or `Variable` bounds need
+> `# type: ignore[misc]`. Integer bounds (`[3600:60]`) and pyright work as-is. Prefer
+> `.subquery()` in mypy-checked code.
+
 PromQL only allows `offset` and `@` on selectors and subqueries. To shift a function or
 aggregation, wrap it in a subquery or put the modifier on the selector inside it.
 

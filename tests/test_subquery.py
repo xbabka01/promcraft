@@ -105,3 +105,45 @@ def test_subquery_pretty_binary_operand() -> None:
     assert expr.to_string(indent=2) == (
         "(\n  http_requests_total{}\n  +\n  http_requests_total{}\n)[1h:]"
     )
+
+
+# Slice shorthand. mypy rejects non-int slice bounds at the call site, hence the
+# ignores; warn_unused_ignores flags them if mypy ever relaxes this check.
+@pytest.mark.parametrize(
+    ("query", "expected"),
+    [
+        (_rate[_h:_m], "rate(http_requests_total{}[5m])[1h:1m]"),  # type: ignore[misc]
+        (_rate[_h:], "rate(http_requests_total{}[5m])[1h:]"),  # type: ignore[misc]
+        (_rate[3600:60], "rate(http_requests_total{}[5m])[1h:1m]"),
+        (
+            sum_(_vec).by(["job"])[_h:_m],  # type: ignore[misc]
+            "sum(http_requests_total{}) by (job)[1h:1m]",
+        ),
+        (
+            (_vec + _vec)[_h:],  # type: ignore[misc]
+            "(http_requests_total{} + http_requests_total{})[1h:]",
+        ),
+        (Variable("q")[Variable("__range") :], "$q[$__range:]"),  # type: ignore[misc]
+        ((-_vec)[3600:], "(-http_requests_total{})[1h:]"),
+        (_vec[_h:_m], "http_requests_total{}[1h:1m]"),  # type: ignore[misc]
+        (_vec[_h:], "http_requests_total{}[1h:]"),  # type: ignore[misc]
+        (max_over_time(_rate[3600:]), "max_over_time(rate(http_requests_total{}[5m])[1h:])"),
+    ],
+)
+def test_subquery_slice(query: Query, expected: str) -> None:
+    assert str(query) == expected
+
+
+def test_instant_vector_slice_returns_subquery() -> None:
+    assert isinstance(_vec[3600:60], Subquery)
+
+
+def test_subquery_slice_plain_index_raises() -> None:
+    with pytest.raises(TypeError, match=r"expr\[range:\]"):
+        _rate[_h]  # type: ignore[index]
+
+
+@pytest.mark.parametrize("item", [slice(None, 60), slice(3600, 60, 60)])
+def test_subquery_invalid_slice_raises(item: slice) -> None:
+    with pytest.raises(ValueError, match="Subquery slices"):
+        _rate[item]
