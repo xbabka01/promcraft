@@ -28,7 +28,7 @@ _right = InstantVector("right", [])
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         # arithmetic
         (

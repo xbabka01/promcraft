@@ -1,3 +1,5 @@
+"""PromQL string literals."""
+
 from typing import Literal, Union
 
 from promcraft.base import Query
@@ -7,11 +9,11 @@ STRING_TYPE = Union["String", "Variable", str]
 
 
 class String(Query):
-    """A PromQL string literal with configurable quoting.
+    r"""A PromQL string literal with configurable quoting.
 
     Supports single-quote (``'``), double-quote (``"``), and backtick
     (`` ` ``) delimiters.  Double- and single-quoted strings process
-    Go-style escape sequences (``\\n``, ``\\t``, ``\\\\``, etc.).
+    Go-style escape sequences (``\n``, ``\t``, ``\\``, etc.).
     Backtick strings are raw — no escape processing is performed and
     newlines are preserved as-is.
 
@@ -19,7 +21,7 @@ class String(Query):
 
         String("prod")  # → '"prod"'
         String("us-east", "'")  # → "'us-east'"
-        String("line\\nnew", "`")  # → '`line\\nnew`'
+        String("line\nnew", "`")  # → '`line\nnew`'
     """
 
     def __init__(self, value: str, quote: Literal["`", '"', "'"] = '"') -> None:
@@ -28,11 +30,13 @@ class String(Query):
 
     @classmethod
     def from_value(cls, value: STRING_TYPE) -> "String | Variable":
+        """Wrap a raw ``str``, passing ``String`` and ``Variable`` through unchanged."""
         if isinstance(value, String | Variable):
             return value
         return cls(value)
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+        """Render this expression as a PromQL string."""
         content: str
         match self.quote:
             case "`":
@@ -42,6 +46,7 @@ class String(Query):
             case "'":
                 content = self.value.replace("'", "\\'").encode("unicode_escape").decode("ascii")
             case _:
-                raise ValueError(f"Invalid quote character: {self.quote}")
+                # mypy flags any statement other than a bare raise in this unreachable branch
+                raise ValueError(f"Invalid quote character: {self.quote}")  # noqa: EM102
         fmt = self.get_indent(indent, _indent_level)
         return f"{fmt.pad}{self.quote}{content}{self.quote}"

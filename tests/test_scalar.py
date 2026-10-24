@@ -5,7 +5,7 @@ from promcraft.base import Query
 
 
 @pytest.mark.parametrize(
-    "query, expected",
+    ("query", "expected"),
     [
         (Float(3.14), "3.14"),
         (Float(0.0), "0.0"),
@@ -17,7 +17,7 @@ def test_float(query: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "query, expected",
+    ("query", "expected"),
     [
         (Hex(255), "0xff"),
         (Hex(0), "0x0"),
@@ -29,7 +29,7 @@ def test_hex(query: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "query, expected",
+    ("query", "expected"),
     [
         (Duration(), "0s"),
         (Duration(s=5), "5s"),
@@ -46,7 +46,7 @@ def test_duration(query: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "value, expected",
+    ("value", "expected"),
     [
         (3, "3.0"),
         (3.14, "3.14"),
@@ -67,7 +67,7 @@ def test_float_from_value_passthrough() -> None:
 
 
 @pytest.mark.parametrize(
-    "value, expected",
+    ("value", "expected"),
     [
         (255, "0xff"),
         (0, "0x0"),
@@ -84,7 +84,7 @@ def test_hex_from_value_passthrough() -> None:
 
 
 @pytest.mark.parametrize(
-    "value, expected",
+    ("value", "expected"),
     [
         (0, "0s"),
         (90, "1m30s"),

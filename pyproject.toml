@@ -12,9 +12,9 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pytest (>=9.0.2,<10.0.0)",
-    "pytest-cov (>=7.0.0,<8.0.0)",
-    "pytest-mypy (>=1.0.1,<2.0.0)",
+    "pytest (>=9.1.1,<10.0.0)",
+    "pytest-cov (>=7.1.0,<8.0.0)",
+    "pytest-mypy (>=1.1.0,<2.0.0)",
     "pytest-ruff (>=0.5,<0.6)",
     "pre-commit (>=4.5.1,<5.0.0)"
 ]
@@ -41,8 +41,84 @@ line-length = 99
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "T20", "SIM", "Q"]
-ignore = ["PLR0913", "PLC0415", "PLR2004"]
+select = [
+    "AIR",   # Airflow
+    "ERA",   # eradicate
+    "FAST",  # FastAPI
+    "YTT",   # flake8-2020
+    "ANN",   # flake8-annotations
+    "ASYNC", # flake8-async
+    "S",     # flake8-bandit
+    "BLE",   # flake8-blind-except
+    "FBT",   # flake8-boolean-trap
+    "B",     # flake8-bugbear
+    "A",     # flake8-builtins
+    "COM",   # flake8-commas
+    "C4",    # flake8-comprehensions
+    "DTZ",   # flake8-datetimez
+    "T10",   # flake8-debugger
+    "DJ",    # flake8-django
+    "EM",    # flake8-errmsg
+    "EXE",   # flake8-executable
+    "FIX",   # flake8-fixme
+    "FA",    # flake8-future-annotations
+    "INT",   # flake8-gettext
+    "ISC",   # flake8-implicit-str-concat
+    "ICN",   # flake8-import-conventions
+    "LOG",   # flake8-logging
+    "G",     # flake8-logging-format
+    "INP",   # flake8-no-pep420
+    "PIE",   # flake8-pie
+    "T20",   # flake8-print
+    "PYI",   # flake8-pyi
+    "PT",    # flake8-pytest-style
+    "Q",     # flake8-quotes
+    "RSE",   # flake8-raise
+    "RET",   # flake8-return
+    "SLF",   # flake8-self
+    "SIM",   # flake8-simplify
+    "SLOT",  # flake8-slots
+    "TID",   # flake8-tidy-imports
+    "TD",    # flake8-todos
+    "TC",    # flake8-type-checking
+    "ARG",   # flake8-unused-arguments
+    "PTH",   # flake8-use-pathlib
+    "FLY",   # flynt
+    "I",     # isort
+    "C90",   # mccabe
+    "NPY",   # NumPy-specific rules
+    "PD",    # pandas-vet
+    "N",     # pep8-naming
+    "PERF",  # Perflint
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "D",     # pydocstyle
+    "F",     # Pyflakes
+    "PGH",   # pygrep-hooks
+    "PL",    # Pylint
+    "UP",    # pyupgrade
+    "FURB",  # refurb
+    "RUF",   # Ruff-specific rules
+    "TRY",   # tryceratops
+]
+ignore = [
+    "PLR0913",
+    "PLC0415",
+    "PLR2004",
+    "D203",   # conflicts with D211
+    "D213",   # conflicts with D212
+    "COM812", # conflicts with ruff format
+    "D105",   # magic methods are self-explanatory
+    "D107",   # __init__ is documented in the class docstring
+    "TRY003", # custom exception classes for one-off messages are overkill
+]
+
+[tool.ruff.lint.flake8-builtins]
+# Public API mirrors PromQL names, which intentionally shadow these builtins
+ignorelist = ["abs", "max", "min", "pow", "range", "round", "type"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "D", "PLR2004"]
 
 [tool.ruff.format]
 docstring-code-format = true

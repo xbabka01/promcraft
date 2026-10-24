@@ -90,7 +90,7 @@ _rvec = RangeVector("http_requests_total", [], Duration(m=5))
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         (abs(_vec), "abs(http_requests_total{})"),
         (ceil(_vec), "ceil(http_requests_total{})"),
@@ -127,7 +127,7 @@ def test_single_instant_vector(expr: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         (rate(_rvec), "rate(http_requests_total{}[5m])"),
         (irate(_rvec), "irate(http_requests_total{}[5m])"),
@@ -154,7 +154,7 @@ def test_single_range_vector(expr: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         (pi(), "pi()"),
         (time(), "time()"),
@@ -169,7 +169,7 @@ def test_vector() -> None:
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         (round(_vec), "round(http_requests_total{})"),
         (round(_vec, Float(0.5)), "round(http_requests_total{}, 0.5)"),
@@ -180,7 +180,7 @@ def test_round(expr: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         (clamp(_vec, Float(0.0), Float(1.0)), "clamp(http_requests_total{}, 0.0, 1.0)"),
         (clamp_min(_vec, Float(0.0)), "clamp_min(http_requests_total{}, 0.0)"),
@@ -192,7 +192,7 @@ def test_clamp(expr: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         (
             quantile_over_time(Float(0.9), _rvec),
@@ -213,7 +213,7 @@ def test_scalar_then_query(expr: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         (
             predict_linear(_rvec, Float(3600.0)),
@@ -230,7 +230,7 @@ def test_range_vector_with_scalars(expr: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         (day_of_month(), "day_of_month()"),
         (day_of_month(_vec), "day_of_month(http_requests_total{})"),
@@ -251,7 +251,7 @@ def test_datetime_functions(expr: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         (
             label_join(
@@ -292,7 +292,7 @@ def test_label_manipulation(expr: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         (info(_vec), "info(http_requests_total{})"),
         (
@@ -306,7 +306,7 @@ def test_info(expr: Query, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "expr, expected",
+    ("expr", "expected"),
     [
         (histogram_count(_vec), "histogram_count(http_requests_total{})"),
         (histogram_sum(_vec), "histogram_sum(http_requests_total{})"),

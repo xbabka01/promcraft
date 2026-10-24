@@ -26,17 +26,27 @@ query = InstantVector("up", [])
 str(query)  # "up{}"
 
 # With label filters
-query = InstantVector("http_requests_total", [
-    Label.eq("job", "api-server"),
-    Label.eq("env", "production"),
-])
+query = InstantVector(
+    "http_requests_total",
+    [
+        Label.eq("job", "api-server"),
+        Label.eq("env", "production"),
+    ],
+)
 str(query)  # 'http_requests_total{ job = "api-server", env = "production" }'
 
 # Range vector with rate()
 from promcraft import rate
-query = rate(RangeVector("http_requests_total", [
-    Label.eq("job", "api-server"),
-], Duration(m=5)))
+
+query = rate(
+    RangeVector(
+        "http_requests_total",
+        [
+            Label.eq("job", "api-server"),
+        ],
+        Duration(m=5),
+    )
+)
 str(query)  # 'rate(http_requests_total{ job = "api-server" }[5m])'
 
 # Binary operation
@@ -56,8 +66,8 @@ parameters, `offset`, `at`), you can pass a plain `float`/`int` instead, convert
 both styles compose freely:
 
 ```python
-Label.eq("job", "api-server")        # same as Label.eq("job", String("api-server"))
-topk(5, v)                           # same as topk(Float(5), v)
+Label.eq("job", "api-server")  # same as Label.eq("job", String("api-server"))
+topk(5, v)  # same as topk(Float(5), v)
 ```
 
 ## API Reference
@@ -71,11 +81,11 @@ Wraps a Python float for use in queries.
 ```python
 from promcraft import Float
 
-Float(3.14)   # "3.14"
-Float(0.0)    # "0.0"
-Float(-2.5)   # "-2.5"
+Float(3.14)  # "3.14"
+Float(0.0)  # "0.0"
+Float(-2.5)  # "-2.5"
 
-Float.from_value(3)      # Float(3.0) -- "3.0"
+Float.from_value(3)  # Float(3.0) -- "3.0"
 Float.from_value(Float(3.14))  # passthrough, still "3.14"
 ```
 
@@ -87,8 +97,8 @@ Represents a hexadecimal integer literal.
 from promcraft import Hex
 
 Hex(255)  # "0xff"
-Hex(0)    # "0x0"
-Hex(16)   # "0x10"
+Hex(0)  # "0x0"
+Hex(16)  # "0x10"
 ```
 
 #### `Duration`
@@ -98,13 +108,13 @@ Represents a Prometheus duration literal. All parameters are keyword-only.
 ```python
 from promcraft import Duration
 
-Duration()                              # "0s"  (default when no units given)
-Duration(s=5)                           # "5s"
-Duration(m=1, s=30)                     # "1m30s"
-Duration(h=1, m=30)                     # "1h30m"
-Duration(ms=500)                        # "500ms"
+Duration()  # "0s"  (default when no units given)
+Duration(s=5)  # "5s"
+Duration(m=1, s=30)  # "1m30s"
+Duration(h=1, m=30)  # "1h30m"
+Duration(ms=500)  # "500ms"
 Duration(y=1, w=2, d=3, h=4, m=5, s=6, ms=7)  # "1y2w3d4h5m6s7ms"
-Duration(m=5, neg=True)                 # "-5m"
+Duration(m=5, neg=True)  # "-5m"
 ```
 
 | Parameter | Unit        |
@@ -131,12 +141,12 @@ Represents a PromQL string literal with configurable quoting.
 ```python
 from promcraft import String
 
-String("hello")          # '"hello"'   (double-quote default)
-String("hello", '"')     # '"hello"'
-String("hello", "'")     # "'hello'"
-String("hello", "`")     # "`hello`"
+String("hello")  # '"hello"'   (double-quote default)
+String("hello", '"')  # '"hello"'
+String("hello", "'")  # "'hello'"
+String("hello", "`")  # "`hello`"
 
-String.from_value("hello")       # same as String("hello")
+String.from_value("hello")  # same as String("hello")
 String.from_value(String("hello", "'"))  # passthrough, still "'hello'"
 ```
 
@@ -151,7 +161,7 @@ Represents a [Grafana dashboard template variable](https://grafana.com/docs/graf
 ```python
 from promcraft import Variable
 
-Variable("job")               # "$job"
+Variable("job")  # "$job"
 Variable("job", braces=True)  # "${job}"
 ```
 
@@ -186,10 +196,10 @@ Represents a label matcher used inside vector selectors. Use the factory methods
 ```python
 from promcraft import Label, String
 
-Label.eq("job", "prometheus")    # 'job = "prometheus"'
-Label.neq("env", "prod")         # 'env != "prod"'
-Label.re("name", "prom.*")       # 'name =~ "prom.*"'
-Label.nre("name", String("test.*"))      # 'name !~ "test.*"'
+Label.eq("job", "prometheus")  # 'job = "prometheus"'
+Label.neq("env", "prod")  # 'env != "prod"'
+Label.re("name", "prom.*")  # 'name =~ "prom.*"'
+Label.nre("name", String("test.*"))  # 'name !~ "test.*"'
 ```
 
 | Method        | Operator | Meaning              |
@@ -217,10 +227,13 @@ InstantVector("up", [])
 # "up{}"
 
 # With labels
-InstantVector("http_requests_total", [
-    Label.eq("job", "api"),
-    Label.re("status", "5.."),
-])
+InstantVector(
+    "http_requests_total",
+    [
+        Label.eq("job", "api"),
+        Label.re("status", "5.."),
+    ],
+)
 # 'http_requests_total{ job = "api", status =~ "5.." }'
 
 # With offset
@@ -279,8 +292,8 @@ RangeVector(
 `InstantVector` also supports subscript syntax as a shortcut for building a `RangeVector` that reuses its metric, labels, offset and `@` modifier:
 
 ```python
-InstantVector("up", [])[Duration(m=5)]                       # equivalent to RangeVector("up", [], Duration(m=5))
-InstantVector("up", [])[Duration(m=5), Duration(s=30)]        # range + resolution
+InstantVector("up", [])[Duration(m=5)]  # equivalent to RangeVector("up", [], Duration(m=5))
+InstantVector("up", [])[Duration(m=5), Duration(s=30)]  # range + resolution
 ```
 
 ---
@@ -291,19 +304,33 @@ Combine two query expressions with an arithmetic, comparison, logical/set, or tr
 
 ```python
 from promcraft import (
-    add, sub, mul, div, mod, pow,
-    eq, neq, lt, lte, gt, gte,
-    and_, or_, unless, atan2,
-    Float, InstantVector,
+    add,
+    sub,
+    mul,
+    div,
+    mod,
+    pow,
+    eq,
+    neq,
+    lt,
+    lte,
+    gt,
+    gte,
+    and_,
+    or_,
+    unless,
+    atan2,
+    Float,
+    InstantVector,
 )
 
 v1 = InstantVector("requests", [])
 v2 = InstantVector("errors", [])
 
 add(Float(1.0), Float(2.0))  # "1.0 + 2.0"
-div(v2, v1)                  # "errors{} / requests{}"
-gt(v1, Float(0.0))           # "requests{} > 0.0"
-and_(v1, v2)                 # "requests{} and errors{}"
+div(v2, v1)  # "errors{} / requests{}"
+gt(v1, Float(0.0))  # "requests{} > 0.0"
+and_(v1, v2)  # "requests{} and errors{}"
 ```
 
 | Helper   | Symbol   | Category       |
@@ -347,7 +374,7 @@ Use `.on()` or `.ignoring()` to control which labels are used for matching when 
 
 ```python
 requests = InstantVector("http_requests_total", [])
-errors   = InstantVector("http_errors_total", [])
+errors = InstantVector("http_errors_total", [])
 
 # Match on specific labels
 expr = div(errors, requests).on(["job", "env"])
@@ -392,8 +419,8 @@ from promcraft import sum_, avg, min_, max_, count, group, stddev, stdvar, Insta
 
 v = InstantVector("http_requests_total", [])
 
-sum_(v)                    # "sum(http_requests_total{})"
-avg(v).by(["job"])         # "avg(http_requests_total{}) by (job)"
+sum_(v)  # "sum(http_requests_total{})"
+avg(v).by(["job"])  # "avg(http_requests_total{}) by (job)"
 stddev(v).without(["env"])
 # "stddev(http_requests_total{}) without (env)"
 ```
@@ -408,11 +435,11 @@ all labels, omit `.by()`/`.without()` entirely rather than passing an empty list
 ```python
 from promcraft import topk, bottomk, quantile, limitk, limit_ratio
 
-topk(5, v)                            # "topk(5.0, http_requests_total{})"
-bottomk(3, v)                         # "bottomk(3.0, http_requests_total{})"
-quantile(0.95, v)                     # "quantile(0.95, http_requests_total{})"
-limitk(10, v)                         # "limitk(10.0, http_requests_total{})"
-limit_ratio(0.1, v)                   # "limit_ratio(0.1, http_requests_total{})"
+topk(5, v)  # "topk(5.0, http_requests_total{})"
+bottomk(3, v)  # "bottomk(3.0, http_requests_total{})"
+quantile(0.95, v)  # "quantile(0.95, http_requests_total{})"
+limitk(10, v)  # "limitk(10.0, http_requests_total{})"
+limit_ratio(0.1, v)  # "limit_ratio(0.1, http_requests_total{})"
 topk(5, v).by(["job"])
 # "topk(5.0, http_requests_total{}) by (job)"
 ```
@@ -439,25 +466,32 @@ from promcraft import RangeVector, Duration, rate, irate, increase, delta, deriv
 
 rv = RangeVector("http_requests_total", [], Duration(m=5))
 
-rate(rv)      # "rate(http_requests_total{}[5m])"
-irate(rv)     # "irate(http_requests_total{}[5m])"
+rate(rv)  # "rate(http_requests_total{}[5m])"
+irate(rv)  # "irate(http_requests_total{}[5m])"
 increase(rv)  # "increase(http_requests_total{}[5m])"
-delta(rv)     # "delta(http_requests_total{}[5m])"
-deriv(rv)     # "deriv(http_requests_total{}[5m])"
-resets(rv)    # "resets(http_requests_total{}[5m])"
+delta(rv)  # "delta(http_requests_total{}[5m])"
+deriv(rv)  # "deriv(http_requests_total{}[5m])"
+resets(rv)  # "resets(http_requests_total{}[5m])"
 ```
 
 #### `*_over_time` aggregations
 
 ```python
 from promcraft import (
-    avg_over_time, min_over_time, max_over_time, sum_over_time,
-    count_over_time, stddev_over_time, last_over_time,
-    present_over_time, absent_over_time, quantile_over_time,
+    avg_over_time,
+    min_over_time,
+    max_over_time,
+    sum_over_time,
+    count_over_time,
+    stddev_over_time,
+    last_over_time,
+    present_over_time,
+    absent_over_time,
+    quantile_over_time,
 )
 
-avg_over_time(rv)                # "avg_over_time(http_requests_total{}[5m])"
-quantile_over_time(0.95, rv)     # "quantile_over_time(0.95, http_requests_total{}[5m])"
+avg_over_time(rv)  # "avg_over_time(http_requests_total{}[5m])"
+quantile_over_time(0.95, rv)  # "quantile_over_time(0.95, http_requests_total{}[5m])"
 ```
 
 #### Math & rounding
@@ -467,14 +501,14 @@ from promcraft import InstantVector, abs, ceil, floor, sqrt, round, clamp, clamp
 
 v = InstantVector("cpu_usage", [])
 
-abs(v)                     # "abs(cpu_usage{})"
-ceil(v)                    # "ceil(cpu_usage{})"
-sqrt(v)                    # "sqrt(cpu_usage{})"
-round(v)                   # "round(cpu_usage{})"
-round(v, 0.5)               # "round(cpu_usage{}, 0.5)"
-clamp(v, 0.0, 1.0)          # "clamp(cpu_usage{}, 0.0, 1.0)"
-clamp_min(v, 0.0)           # "clamp_min(cpu_usage{}, 0.0)"
-clamp_max(v, 1.0)           # "clamp_max(cpu_usage{}, 1.0)"
+abs(v)  # "abs(cpu_usage{})"
+ceil(v)  # "ceil(cpu_usage{})"
+sqrt(v)  # "sqrt(cpu_usage{})"
+round(v)  # "round(cpu_usage{})"
+round(v, 0.5)  # "round(cpu_usage{}, 0.5)"
+clamp(v, 0.0, 1.0)  # "clamp(cpu_usage{}, 0.0, 1.0)"
+clamp_min(v, 0.0)  # "clamp_min(cpu_usage{}, 0.0)"
+clamp_max(v, 1.0)  # "clamp_max(cpu_usage{}, 1.0)"
 ```
 
 #### Exponential & logarithm
@@ -482,9 +516,9 @@ clamp_max(v, 1.0)           # "clamp_max(cpu_usage{}, 1.0)"
 ```python
 from promcraft import exp, ln, log2, log10
 
-exp(v)    # "exp(cpu_usage{})"
-ln(v)     # "ln(cpu_usage{})"
-log2(v)   # "log2(cpu_usage{})"
+exp(v)  # "exp(cpu_usage{})"
+ln(v)  # "ln(cpu_usage{})"
+log2(v)  # "log2(cpu_usage{})"
 log10(v)  # "log10(cpu_usage{})"
 ```
 
@@ -496,7 +530,7 @@ from promcraft import sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, deg, ra
 sin(v)  # "sin(cpu_usage{})"
 deg(v)  # "deg(cpu_usage{})"
 rad(v)  # "rad(cpu_usage{})"
-pi()    # "pi()"
+pi()  # "pi()"
 sgn(v)  # "sgn(cpu_usage{})"
 ```
 
@@ -507,9 +541,9 @@ All accept an optional instant vector; when omitted they default to `vector(time
 ```python
 from promcraft import hour, minute, day_of_week, day_of_month, month, year, time
 
-hour()      # "hour()"
-hour(v)     # "hour(cpu_usage{})"
-time()      # "time()"
+hour()  # "hour()"
+hour(v)  # "hour(cpu_usage{})"
+time()  # "time()"
 ```
 
 #### Sorting
@@ -517,9 +551,9 @@ time()      # "time()"
 ```python
 from promcraft import sort, sort_desc, sort_by_label, sort_by_label_desc
 
-sort(v)                             # "sort(cpu_usage{})"
-sort_desc(v)                        # "sort_desc(cpu_usage{})"
-sort_by_label(v, "job")             # 'sort_by_label(cpu_usage{}, "job")'
+sort(v)  # "sort(cpu_usage{})"
+sort_desc(v)  # "sort_desc(cpu_usage{})"
+sort_by_label(v, "job")  # 'sort_by_label(cpu_usage{}, "job")'
 sort_by_label_desc(v, "job", "env")
 # 'sort_by_label_desc(cpu_usage{}, "job", "env")'
 ```
@@ -541,7 +575,7 @@ label_replace(v, "job", "${1}", "job", "(.+)")
 ```python
 from promcraft import scalar, vector
 
-scalar(v)    # "scalar(cpu_usage{})"
+scalar(v)  # "scalar(cpu_usage{})"
 vector(1.0)  # "vector(1.0)"
 ```
 
@@ -549,14 +583,18 @@ vector(1.0)  # "vector(1.0)"
 
 ```python
 from promcraft import (
-    histogram_quantile, histogram_fraction,
-    histogram_count, histogram_sum, histogram_avg,
-    histogram_stddev, histogram_stdvar,
+    histogram_quantile,
+    histogram_fraction,
+    histogram_count,
+    histogram_sum,
+    histogram_avg,
+    histogram_stddev,
+    histogram_stdvar,
 )
 
-histogram_quantile(0.95, v)         # "histogram_quantile(0.95, cpu_usage{})"
-histogram_fraction(0.0, 1.0, v)     # "histogram_fraction(0.0, 1.0, cpu_usage{})"
-histogram_count(v)                  # "histogram_count(cpu_usage{})"
+histogram_quantile(0.95, v)  # "histogram_quantile(0.95, cpu_usage{})"
+histogram_fraction(0.0, 1.0, v)  # "histogram_fraction(0.0, 1.0, cpu_usage{})"
+histogram_count(v)  # "histogram_count(cpu_usage{})"
 ```
 
 #### Prediction & smoothing
@@ -576,7 +614,7 @@ double_exponential_smoothing(rv, 0.1, 0.5)
 ```python
 from promcraft import absent, absent_over_time
 
-absent(v)             # "absent(cpu_usage{})"
+absent(v)  # "absent(cpu_usage{})"
 absent_over_time(rv)  # "absent_over_time(http_requests_total{}[5m])"
 ```
 
@@ -600,17 +638,27 @@ Every `Query` implements `to_string()` (which `__str__` delegates to), so you ca
 
 ```python
 from promcraft import (
-    InstantVector, RangeVector,
-    Label, Duration, rate, div,
+    InstantVector,
+    RangeVector,
+    Label,
+    Duration,
+    rate,
+    div,
 )
 
 job_label = Label.eq("job", "api")
 
 # rate of 5xx errors divided by rate of total requests
-error_rate = rate(RangeVector("http_requests_total", [
-    job_label,
-    Label.re("status", "5.."),
-], Duration(m=5)))
+error_rate = rate(
+    RangeVector(
+        "http_requests_total",
+        [
+            job_label,
+            Label.re("status", "5.."),
+        ],
+        Duration(m=5),
+    )
+)
 
 total_rate = rate(RangeVector("http_requests_total", [job_label], Duration(m=5)))
 

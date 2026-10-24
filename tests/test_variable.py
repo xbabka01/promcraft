@@ -24,7 +24,7 @@ _right = InstantVector("right", [])
 
 
 @pytest.mark.parametrize(
-    "query, expected",
+    ("query", "expected"),
     [
         (Variable("job"), "$job"),
         (Variable("job", braces=True), "${job}"),
