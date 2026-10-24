@@ -38,7 +38,8 @@ class Query(ABC):
                 "",
             )
 
-        if isinstance(indent_size, int):
+        # bool is an int subclass, so ``indent=True`` would mean one space
+        if isinstance(indent_size, int) and not isinstance(indent_size, bool):
             return Indent(
                 "\n",
                 "\n",

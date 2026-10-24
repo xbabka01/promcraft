@@ -104,6 +104,9 @@ Hex(0)  # "0x0"
 Hex(16)  # "0x10"
 ```
 
+`Hex.from_value()` accepts whole floats (`3.0` → `0x3`) but raises `ValueError` for a
+fractional value such as `3.7` instead of truncating it.
+
 #### `Duration`
 
 Represents a Prometheus duration literal. All parameters are keyword-only.
@@ -119,6 +122,9 @@ Duration(ms=500)  # "500ms"
 Duration(y=1, w=2, d=3, h=4, m=5, s=6, ms=7)  # "1y2w3d4h5m6s7ms"
 Duration(m=5, neg=True)  # "-5m"
 ```
+
+Fields must be non-negative; use `neg=True` for a negative duration (`Duration(m=-5)` raises
+`ValueError`).
 
 | Parameter | Unit        |
 |-----------|-------------|
@@ -755,7 +761,7 @@ str(ratio)
 
 Every `to_string()` accepts an optional `indent` argument to render multi-line, indented
 output instead of the single-line compact form. Pass an `int` (spaces per level) or a
-whitespace string (e.g. `"\t"`):
+whitespace string (e.g. `"\t"`). A `bool` is rejected rather than treated as `1`/`0`:
 
 ```python
 from promcraft import InstantVector, Duration, sum_

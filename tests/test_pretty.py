@@ -1,3 +1,5 @@
+import pytest
+
 from promcraft import (
     Duration,
     Float,
@@ -234,3 +236,9 @@ def test_negation_pretty_binary_operand() -> None:
     expr = sum_(-(vec + vec))
 
     assert expr.to_string(indent=2) == ("sum(\n  -(\n    metric{}\n    +\n    metric{}\n  )\n)")
+
+
+@pytest.mark.parametrize("indent", [True, False])
+def test_bool_indent_rejected(*, indent: bool) -> None:
+    with pytest.raises(ValueError, match="Invalid indent_size"):
+        InstantVector("up", []).to_string(indent=indent)

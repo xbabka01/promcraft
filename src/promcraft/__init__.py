@@ -36,7 +36,7 @@ from promcraft.operator import (
     sub,
     unless,
 )
-from promcraft.scalar import Duration, Float, Hex, Scalar
+from promcraft.scalar import Duration, DurationParams, Float, Hex, Scalar
 from promcraft.string import String
 from promcraft.subquery import Subquery
 from promcraft.variable import Variable
@@ -127,6 +127,7 @@ from promcraft.functions import (
 
 __all__ = [
     "Duration",
+    "DurationParams",
     "Float",
     "Hex",
     "InstantVector",
