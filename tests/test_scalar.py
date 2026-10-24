@@ -97,6 +97,11 @@ def test_duration_rejects_negative_fields(field: str) -> None:
         Duration(**{field: -1})  # type: ignore[arg-type]
 
 
+def test_duration_rejects_unknown_arguments() -> None:
+    with pytest.raises(TypeError, match="Unexpected Duration arguments: min, sec"):
+        Duration(min=5, sec=1)  # type: ignore[call-arg]
+
+
 def test_hex_from_value_passthrough() -> None:
     original = Hex(16)
     assert Hex.from_value(original) is original

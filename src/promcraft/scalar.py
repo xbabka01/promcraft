@@ -1,7 +1,7 @@
 """PromQL scalar literals: floats, hex integers and durations."""
 
 from abc import ABCMeta, abstractmethod
-from typing import Union
+from typing import TypedDict, Union, Unpack
 
 from promcraft.base import Query
 from promcraft.variable import Variable
@@ -70,6 +70,19 @@ class Hex(Scalar):
         return fmt.pad + hex(self.value)
 
 
+class DurationParams(TypedDict, total=False):
+    """Keyword arguments accepted by :class:`Duration`; every field defaults to ``0``/``False``."""
+
+    y: int
+    w: int
+    d: int
+    h: int
+    m: int
+    s: int
+    ms: int
+    neg: bool
+
+
 class Duration(Scalar):
     """A PromQL duration scalar composed of time-unit components.
 
@@ -88,32 +101,28 @@ class Duration(Scalar):
         Duration()  # → "0s"
     """
 
-    def __init__(
-        self,
-        *,
-        y: int = 0,
-        w: int = 0,
-        d: int = 0,
-        h: int = 0,
-        m: int = 0,
-        s: int = 0,
-        ms: int = 0,
-        neg: bool = False,
-    ) -> None:
-        fields = {"y": y, "w": w, "d": d, "h": h, "m": m, "s": s, "ms": ms}
-        negative = [name for name, value in fields.items() if value < 0]
+    def __init__(self, **kwargs: Unpack[DurationParams]) -> None:
+        # ``**kwargs`` would otherwise swallow typos such as ``Duration(min=5)`` at runtime
+        unknown = sorted(kwargs.keys() - DurationParams.__annotations__.keys())
+        if unknown:
+            msg = f"Unexpected Duration arguments: {', '.join(unknown)}"
+            raise TypeError(msg)
+        self.y = kwargs.get("y", 0)
+        self.w = kwargs.get("w", 0)
+        self.d = kwargs.get("d", 0)
+        self.h = kwargs.get("h", 0)
+        self.m = kwargs.get("m", 0)
+        self.s = kwargs.get("s", 0)
+        self.ms = kwargs.get("ms", 0)
+
+        self.neg = kwargs.get("neg", False)
+
+        negative = [
+            name for name in ("y", "w", "d", "h", "m", "s", "ms") if getattr(self, name) < 0
+        ]
         if negative:
             msg = f"Duration fields must be non-negative ({', '.join(negative)}); use neg=True"
             raise ValueError(msg)
-        self.y = y
-        self.w = w
-        self.d = d
-        self.h = h
-        self.m = m
-        self.s = s
-        self.ms = ms
-
-        self.neg = neg
 
     @classmethod
     def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
