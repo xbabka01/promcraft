@@ -74,7 +74,23 @@ def test_binary_operator_pretty_nested_non_atomic_operand() -> None:
     vec = InstantVector("metric", [])
     expr = add(sum_(vec), Float(1.0))
 
-    assert expr.to_string(indent=4) == ("(\n    sum(\n        metric{}\n    )\n)\n+\n1.0")
+    assert expr.to_string(indent=4) == ("sum(\n    metric{}\n)\n+\n1.0")
+
+
+def test_binary_operator_pretty_nested_binary_operand() -> None:
+    vec = InstantVector("metric", [])
+    expr = add(vec, Float(1.0)) * vec
+
+    assert expr.to_string(indent=2) == ("(\n  metric{}\n  +\n  1.0\n)\n*\nmetric{}")
+
+
+def test_binary_operator_pretty_doubly_nested() -> None:
+    vec = InstantVector("metric", [])
+    expr = sum_(add(vec, add(vec, Float(1.0))))
+
+    assert expr.to_string(indent=2) == (
+        "sum(\n  metric{}\n  +\n  (\n    metric{}\n    +\n    1.0\n  )\n)"
+    )
 
 
 def test_binary_operator_pretty_with_match_clause() -> None:
@@ -196,4 +212,11 @@ def test_binary_operator_compact_nested_no_paren_padding() -> None:
     vec = InstantVector("metric", [])
     expr = add(sum_(vec), Float(1.0))
 
-    assert str(expr) == "(sum(metric{})) + 1.0"
+    assert str(expr) == "sum(metric{}) + 1.0"
+
+
+def test_binary_operator_compact_nested_binary_keeps_parens() -> None:
+    vec = InstantVector("metric", [])
+    expr = add(sum_(vec), Float(1.0)) / Float(2.0)
+
+    assert str(expr) == "(sum(metric{}) + 1.0) / 2.0"

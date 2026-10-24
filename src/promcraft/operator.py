@@ -4,10 +4,7 @@ import enum
 from typing import Literal
 
 from promcraft.base import Query
-from promcraft.scalar import Scalar
-from promcraft.string import String
 from promcraft.variable import Variable
-from promcraft.vector import InstantVector, RangeVector
 
 
 class Match:
@@ -153,16 +150,18 @@ class BinaryOprator(Query):
         sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
 
         def render_operand(operand: Query) -> str:
-            if isinstance(operand, Scalar | String | InstantVector | RangeVector | Variable):
+            # Function calls and aggregations are self-delimiting; only nested
+            # binary operations need parentheses to preserve evaluation order.
+            if not isinstance(operand, BinaryOprator):
                 return operand.to_string(indent=indent, _indent_level=_indent_level)
             body = operand.to_string(indent=indent, _indent_level=_indent_level + 1)
-            return f"({space}{body}{space}{pad})"
+            return f"{pad}({space}{body}{space}{pad})"
 
         match_str = f" {self.match}" if self.match else ""
         group_str = f" {self.group}" if self.group else ""
         left_str = render_operand(self.left)
         right_str = render_operand(self.right)
-        return f"{left_str}{sep}{self.op}{match_str}{group_str}{sep}{pad}{right_str}"
+        return f"{left_str}{sep}{pad}{self.op}{match_str}{group_str}{sep}{right_str}"
 
     def on(self, labels: list[str | Variable]) -> "BinaryOprator":
         """Return a copy of this operation with an ``on(labels)`` match clause."""
