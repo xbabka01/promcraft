@@ -2,11 +2,11 @@
 
 from typing import Literal
 
+from promcraft._scalar import SCALAR_TYPE, Duration, Float, Scalar
+from promcraft._vector import RangeVector
 from promcraft.base import Query
 from promcraft.operator import BinaryOprator, Negation
-from promcraft.scalar import SCALAR_TYPE, Duration, Float, Scalar
 from promcraft.variable import Variable
-from promcraft.vector import RangeVector
 
 
 class Subquery(Query):

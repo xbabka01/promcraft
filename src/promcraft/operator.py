@@ -4,8 +4,8 @@ import builtins
 import enum
 from typing import Literal
 
+from promcraft._scalar import Float
 from promcraft.base import Query
-from promcraft.scalar import Float
 from promcraft.variable import Variable
 
 OPERAND_TYPE = Query | float

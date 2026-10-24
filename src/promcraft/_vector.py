@@ -3,8 +3,8 @@
 import enum
 from typing import TYPE_CHECKING, Literal, overload
 
+from promcraft._scalar import SCALAR_TYPE, Duration, Float, Scalar
 from promcraft.base import Query
-from promcraft.scalar import SCALAR_TYPE, Duration, Float, Scalar
 from promcraft.string import STRING_TYPE, String
 from promcraft.variable import Variable
 

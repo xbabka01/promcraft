@@ -7,8 +7,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from typing import Literal
 
+    from promcraft._scalar import SCALAR_TYPE
     from promcraft.operator import OPERAND_TYPE, BinaryOprator, Negation
-    from promcraft.scalar import SCALAR_TYPE
     from promcraft.subquery import Subquery
 
     # ``expr[range:resolution]`` / ``expr[range:]``

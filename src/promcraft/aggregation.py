@@ -2,9 +2,9 @@
 
 from typing import Literal
 
+from promcraft._scalar import SCALAR_TYPE, Float
 from promcraft.base import Query
 from promcraft.operator import OPERAND_TYPE, _as_operand
-from promcraft.scalar import SCALAR_TYPE, Float
 from promcraft.string import STRING_TYPE, String
 from promcraft.variable import Variable
 
