@@ -299,6 +299,36 @@ InstantVector("up", [])[Duration(m=5)]  # equivalent to RangeVector("up", [], Du
 InstantVector("up", [])[Duration(m=5), Duration(s=30)]  # range + resolution
 ```
 
+### `Subquery`
+
+A subquery evaluates any instant-vector expression over a range at a fixed resolution,
+producing a range vector for functions like `max_over_time`. Build one with `.subquery()`
+on any query, or construct `Subquery` directly. Leaving out `resolution` uses the global
+evaluation interval (`[1h:]`). Binary operations and negations are
+parenthesized automatically.
+
+```python
+from promcraft import Duration, InstantVector, Subquery, max_over_time, rate, sum_
+
+requests = InstantVector("http_requests_total", [])
+per_second = rate(requests[Duration(m=5)])
+
+per_second.subquery(Duration(h=1), Duration(m=1))
+# "rate(http_requests_total{}[5m])[1h:1m]"
+
+max_over_time(per_second.subquery(Duration(h=1)))
+# "max_over_time(rate(http_requests_total{}[5m])[1h:])"
+
+sum_(per_second).by(["job"]).subquery(Duration(h=1), Duration(m=1), offset=Duration(d=1))
+# "sum(rate(http_requests_total{}[5m])) by (job)[1h:1m] offset 1d"
+
+Subquery(requests + requests, Duration(h=1), at="end()")
+# "(http_requests_total{} + http_requests_total{})[1h:] @ end()"
+```
+
+PromQL only allows `offset` and `@` on selectors and subqueries. To shift a function or
+aggregation, wrap it in a subquery or put the modifier on the selector inside it.
+
 ---
 
 ### Binary operators
