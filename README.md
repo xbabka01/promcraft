@@ -411,7 +411,9 @@ errors / requests * 100  # "(errors{} / requests{}) * 100"
 ```
 
 Because comparisons build PromQL expressions, `Query` objects have no truth value:
-`bool(q)`, `if q:` and `q in some_list` raise `TypeError`. Use `is None` / `is` instead.
+`bool(q)`, `if q:` and `q in some_list` raise `TypeError`. Comparing with anything that
+isn't a query or a number (`q == "foo"`, `q != None`) raises `TypeError` too, rather than
+silently returning `False`/`True`. Use `is None` / `is` instead.
 
 #### Nested expressions
 
