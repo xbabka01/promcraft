@@ -38,6 +38,7 @@ from promcraft.operator import (
 )
 from promcraft.scalar import Duration, Float, Hex, Scalar
 from promcraft.string import String
+from promcraft.subquery import Subquery
 from promcraft.variable import Variable
 from promcraft.vector import InstantVector, Label, RangeVector
 
@@ -135,6 +136,7 @@ __all__ = [
     "RangeVector",
     "Scalar",
     "String",
+    "Subquery",
     "Variable",
     "abs",
     "absent",
