@@ -4,6 +4,7 @@ from promcraft import (
     Float,
     InstantVector,
     String,
+    Variable,
     avg,
     bottomk,
     count,
@@ -159,3 +160,10 @@ def test_aggregation_operator(expr: Query, expected: str) -> None:
 )
 def test_grouping_str(grouping: Grouping, expected: str) -> None:
     assert str(grouping) == expected
+
+
+def test_grouping_copies_caller_labels() -> None:
+    labels: list[str | Variable] = ["job"]
+    expr = sum_(InstantVector("up", [])).by(labels)
+    labels.append("env")
+    assert str(expr) == "sum(up{}) by (job)"

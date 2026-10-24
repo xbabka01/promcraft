@@ -129,3 +129,18 @@ def test_instant_vector(query: Query, expected: str) -> None:
 )
 def test_range_vector(query: Query, expected: str) -> None:
     assert str(query) == expected
+
+
+def test_range_vector_does_not_share_labels() -> None:
+    """``v[5m]`` copies the label list, so mutating one selector leaves the other intact."""
+    v = InstantVector("up", [Label.eq("job", String("api"))])
+    r = v[Duration(m=5)]
+    v.labels.append(Label.eq("env", String("prod")))
+    assert str(r) == 'up{ job = "api" }[5m]'
+
+
+def test_vector_copies_caller_labels() -> None:
+    labels = [Label.eq("job", String("api"))]
+    v = InstantVector("up", labels)
+    labels.clear()
+    assert str(v) == 'up{ job = "api" }'

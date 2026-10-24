@@ -36,7 +36,7 @@ class Match:
 
     def __init__(self, type: Literal["on", "ignoring"], labels: list[str | Variable]) -> None:
         self.type = type
-        self.labels = labels
+        self.labels = list(labels)
 
     @classmethod
     def on(cls, labels: list[str | Variable]) -> "Match":
@@ -73,7 +73,7 @@ class Group:
 
     def __init__(self, type: Literal["left", "right"], labels: list[str | Variable]) -> None:
         self.type = type
-        self.labels = labels
+        self.labels = list(labels)
 
     @classmethod
     def left(cls, labels: list[str | Variable]) -> "Group":
@@ -161,8 +161,9 @@ class BinaryOprator(Query):
         self.op = op
         self.left = _as_operand(left)
         self.right = _as_operand(right)
-        self.match = match
-        self.group = group
+        # Copied so chained copies (``.on()``, ``.bool()``, ...) don't share label lists
+        self.match = Match(match.type, match.labels) if match is not None else None
+        self.group = Group(group.type, group.labels) if group is not None else None
         self.return_bool = return_bool
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
