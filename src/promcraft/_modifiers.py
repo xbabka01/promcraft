@@ -28,18 +28,18 @@ class TimeModifiers:
     def _replace_modifiers(self, *, offset: SCALAR_TYPE | None, at: AT_TYPE | None) -> Self:
         """Return a copy of this expression with the given ``offset`` and ``at``."""
 
-    def set_offset(self, offset: SCALAR_TYPE) -> Self:
+    def with_offset(self, offset: SCALAR_TYPE) -> Self:
         """Return a copy of this expression with the given ``offset``."""
         return self._replace_modifiers(offset=offset, at=self.at)
 
-    def set_at(self, at: AT_TYPE) -> Self:
+    def with_at(self, at: AT_TYPE) -> Self:
         """Return a copy of this expression with the given ``@`` time."""
         return self._replace_modifiers(offset=self.offset, at=at)
 
-    def set_at_start(self) -> Self:
+    def with_at_start(self) -> Self:
         """Return a copy of this expression with ``@ start()``."""
-        return self.set_at("start()")
+        return self.with_at("start()")
 
-    def set_at_end(self) -> Self:
+    def with_at_end(self) -> Self:
         """Return a copy of this expression with ``@ end()``."""
-        return self.set_at("end()")
+        return self.with_at("end()")
