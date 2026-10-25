@@ -27,7 +27,7 @@ The `version` in `pyproject.toml` (`0.1.0`) is a placeholder and is never bumped
 
 ## Architecture
 
-This is a Python library for building PromQL query strings programmatically. All query objects extend `Query` and implement `to_string(indent=None, _indent_level=0)` to serialize to valid PromQL syntax (`__str__` delegates to it; `indent` enables multi-line pretty-printing). Composing objects by nesting them is the core design pattern.
+This is a Python library for building PromQL query strings programmatically. All query objects extend `Query` and implement `to_string(indent=None, _indent_level=0, *, style=None)` to serialize to valid PromQL syntax (`__str__` delegates to it; `indent` enables multi-line pretty-printing; `style` is a `Style` from `_base.py` selecting formatting options). Composing objects by nesting them is the core design pattern.
 
 ### Class Hierarchy
 
@@ -48,6 +48,7 @@ All implementation modules are `_`-prefixed: users import only from `promcraft`,
 ### Key Patterns
 
 - Every `Query` implements `to_string` — the output IS the PromQL query fragment.
+- `to_string` must forward `style=style` to every child `to_string` call (and pass it to `Label`/`Grouping`/`Match`/`Group.to_string(style)`). `Style()` defaults must reproduce `str(query)` exactly; leaf literals accept `style` and ignore it (`# noqa: ARG002`).
 - `BinaryOprator` auto-parenthesizes nested `BinaryOprator`/`Negation` operands (and a negative `^` base). A `group_left`/`group_right` without `on`/`ignoring` renders `ignoring ()`; group modifiers on `and`/`or`/`unless` raise.
 - `BinaryOprator` and `Aggregation` support method chaining (`.on()`, `.ignoring()`, `.group_left()`, `.group_right()`, `.bool()`, `.by()`, `.without()`) that return new instances (immutable style).
 - Raw Python values are coerced via `from_value`: `str` → `String` in string positions (`Variable` passes through, except as a `Label` value), numbers → `Float`/`Duration` in scalar positions.

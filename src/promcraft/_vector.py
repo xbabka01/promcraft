@@ -3,7 +3,7 @@
 import enum
 from typing import TYPE_CHECKING, Self, overload
 
-from promcraft._base import Query
+from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._modifiers import AT_TYPE, TimeModifiers
 from promcraft._scalar import SCALAR_TYPE, Duration
 from promcraft._string import STRING_TYPE, String
@@ -61,8 +61,13 @@ class Label:
             String(str(value)) if isinstance(value, Variable) else String.from_value(value)
         )
 
+    def to_string(self, style: Style = DEFAULT_STYLE) -> str:
+        """Render this matcher, honouring ``style.compact_matchers``."""
+        space = "" if style.compact_matchers else " "
+        return f"{self.name}{space}{self.op}{space}{self.value}"
+
     def __str__(self) -> str:
-        return f"{self.name} {self.op} {self.value}"
+        return self.to_string()
 
     @classmethod
     def eq(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
@@ -83,6 +88,66 @@ class Label:
     def nre(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
         """Return a label matcher that requires ``name !~ value`` (negated RE2 regex match)."""
         return cls(name, Label.Operator.NRE, value)
+
+
+# Bare identifiers the PromQL lexer reads as keywords (case-insensitively), so a
+# metric with one of these names needs ``{}`` to parse as a selector
+_KEYWORDS = frozenset(
+    {
+        "sum",
+        "avg",
+        "count",
+        "min",
+        "max",
+        "group",
+        "stddev",
+        "stdvar",
+        "topk",
+        "bottomk",
+        "count_values",
+        "quantile",
+        "limitk",
+        "limit_ratio",
+        "and",
+        "or",
+        "unless",
+        "atan2",
+        "by",
+        "without",
+        "on",
+        "ignoring",
+        "group_left",
+        "group_right",
+        "bool",
+        "offset",
+        "start",
+        "end",
+        "inf",
+        "nan",
+    }
+)
+
+
+def _selector_str(
+    vector: "InstantVector | RangeVector",
+    indent: str | int | None,
+    indent_level: int,
+    style: Style | None,
+) -> str:
+    """Render ``metric{matchers}`` shared by instant and range vector selectors."""
+    style = DEFAULT_STYLE if style is None else style
+    sep, _space, pad, inner_pad = Query.get_indent(indent, indent_level)
+    metric = str(vector.metric)
+
+    if not vector.labels:
+        keyword = isinstance(vector.metric, str) and metric.lower() in _KEYWORDS
+        braces = "{}" if style.empty_braces or keyword else ""
+        return f"{pad}{metric}{braces}"
+
+    # Prometheus prints ``{a="1", b="2"}``: no padding inside the braces
+    brace_sep = "" if style.compact_matchers and indent is None else sep
+    labels_str = f",{sep}".join(inner_pad + label.to_string(style) for label in vector.labels)
+    return f"{pad}{metric}{{{brace_sep}{labels_str}{brace_sep}{pad}}}"
 
 
 class InstantVector(TimeModifiers, Query):
@@ -115,16 +180,16 @@ class InstantVector(TimeModifiers, Query):
         self.labels = list(labels)
         self._init_modifiers(offset, at)
 
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style | None = None,
+    ) -> str:
         """Render this expression as a PromQL string."""
-        modifiers = self._modifiers_str()
-        sep, _space, pad, inner_pad = self.get_indent(indent, _indent_level)
-
-        if not self.labels:
-            return f"{pad}{self.metric}{{}}{modifiers}"
-
-        labels_str = f",{sep}".join(inner_pad + str(label) for label in self.labels)
-        return f"{pad}{self.metric}{{{sep}{labels_str}{sep}{pad}}}{modifiers}"
+        selector = _selector_str(self, indent, _indent_level, style)
+        return selector + self._modifiers_str()
 
     @overload
     def __getitem__(self, item: "SUBQUERY_SLICE") -> "Subquery": ...
@@ -194,17 +259,17 @@ class RangeVector(TimeModifiers, Query):
         self.resolution = Duration.from_value(resolution) if resolution is not None else None
         self._init_modifiers(offset, at)
 
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style | None = None,
+    ) -> str:
         """Render this expression as a PromQL string."""
-        modifiers = self._modifiers_str()
+        selector = _selector_str(self, indent, _indent_level, style)
         resolution = f":{self.resolution}" if self.resolution is not None else ""
-        sep, _space, pad, inner_pad = self.get_indent(indent, _indent_level)
-
-        if not self.labels:
-            return f"{pad}{self.metric}{{}}[{self.range}{resolution}]{modifiers}"
-
-        labels_str = f",{sep}".join(inner_pad + str(label) for label in self.labels)
-        return f"{pad}{self.metric}{{{sep}{labels_str}{sep}{pad}}}[{self.range}{resolution}]{modifiers}"  # noqa: E501
+        return f"{selector}[{self.range}{resolution}]{self._modifiers_str()}"
 
     def _replace_modifiers(self, *, offset: SCALAR_TYPE | None, at: AT_TYPE | None) -> Self:
         return type(self)(

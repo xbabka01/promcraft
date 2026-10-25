@@ -2,7 +2,7 @@
 
 from typing import Literal, Union
 
-from promcraft._base import Query
+from promcraft._base import Query, Style
 from promcraft._variable import Variable
 
 STRING_TYPE = Union["String", "Variable", str]
@@ -67,7 +67,13 @@ class String(Query):
             return value
         return cls(value)
 
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style | None = None,  # noqa: ARG002 -- literals have no style-dependent output
+    ) -> str:
         """Render this expression as a PromQL string."""
         content: str
         match self.quote:

@@ -785,6 +785,38 @@ print(expr.to_string(indent=4))
 Omitting `indent` (or passing `None`) keeps the existing single-line output — `str(query)`
 is unaffected either way.
 
+### Formatting style
+
+`to_string()` also takes a keyword-only `style` argument, a `Style` object that picks
+between equivalent ways of writing the same query. The defaults reproduce `str(query)`:
+
+| Option             | Default    | Effect when changed                                                     |
+|--------------------|------------|-------------------------------------------------------------------------|
+| `empty_braces`     | `True`     | `False` renders `up` instead of `up{}` (keyword names like `sum` keep `{}`) |
+| `grouping`         | `SUFFIX`   | `Style.GroupingPosition.PREFIX` renders `sum by (job) (x)` instead of `sum(x) by (job)` |
+| `compact_matchers` | `False`    | `True` renders `{job="api"}` instead of `{ job = "api" }`               |
+| `paren_space`      | `True`     | `False` renders `by(job)`, `on(env)`, `group_left(x)`                   |
+
+`Style.prometheus()` combines these to match the output of Prometheus' own query printer:
+
+```python
+from promcraft import InstantVector, Duration, Label, Style, rate, sum_
+
+expr = sum_(rate(InstantVector("up", [Label.eq("job", "api")])[Duration(m=5)])).by(["job"])
+
+expr.to_string(style=Style.prometheus())
+# 'sum by (job) (rate(up{job="api"}[5m]))'
+
+print(expr.to_string(indent=4, style=Style(grouping=Style.GroupingPosition.PREFIX)))
+# sum by (job) (
+#     rate(
+#         up{
+#             job = "api"
+#         }[5m]
+#     )
+# )
+```
+
 ## Development
 
 ```bash

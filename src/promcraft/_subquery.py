@@ -2,7 +2,7 @@
 
 from typing import Self
 
-from promcraft._base import Query
+from promcraft._base import Query, Style
 from promcraft._modifiers import AT_TYPE, TimeModifiers
 from promcraft._operator import BinaryOprator, Negation
 from promcraft._scalar import SCALAR_TYPE, Duration
@@ -47,7 +47,13 @@ class Subquery(TimeModifiers, Query):
         self.resolution = Duration.from_value(resolution) if resolution is not None else None
         self._init_modifiers(offset, at)
 
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style | None = None,
+    ) -> str:
         """Render this expression as a PromQL string."""
         _sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
         resolution = str(self.resolution) if self.resolution is not None else ""
@@ -55,9 +61,13 @@ class Subquery(TimeModifiers, Query):
 
         # Unparenthesised, ``-x[1h:]`` would negate the range vector, which PromQL rejects
         if isinstance(self.query, BinaryOprator | Negation):
-            body = self.query.to_string(indent=indent, _indent_level=_indent_level + 1)
+            body = self.query.to_string(
+                indent=indent, _indent_level=_indent_level + 1, style=style
+            )
             return f"{pad}({space}{body}{space}{pad}){suffix}"
-        return self.query.to_string(indent=indent, _indent_level=_indent_level) + suffix
+        return (
+            self.query.to_string(indent=indent, _indent_level=_indent_level, style=style) + suffix
+        )
 
     def _replace_modifiers(self, *, offset: SCALAR_TYPE | None, at: AT_TYPE | None) -> Self:
         return type(self)(self.query, self.range, self.resolution, offset=offset, at=at)

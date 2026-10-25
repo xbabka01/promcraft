@@ -1,10 +1,12 @@
 """Abstract base class shared by every PromQL query component."""
 
+import enum
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, NamedTuple
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable
 
     from promcraft._modifiers import AT_TYPE
     from promcraft._operator import OPERAND_TYPE, BinaryOprator, Negation
@@ -22,6 +24,51 @@ class Indent(NamedTuple):
     space: str
     pad: str
     inner_pad: str
+
+
+@dataclass(frozen=True, kw_only=True)
+class Style:
+    """Rendering options for ``to_string``; the defaults reproduce ``str(query)``.
+
+    - ``empty_braces`` — render ``up{}`` (``True``) or a bare ``up`` (``False``).
+      Metric names that are PromQL keywords always keep their braces.
+    - ``grouping`` — place ``by``/``without`` after (``GroupingPosition.SUFFIX``,
+      ``sum(x) by (job)``) or before (``GroupingPosition.PREFIX``, ``sum by (job) (x)``)
+      the aggregation arguments.
+    - ``compact_matchers`` — render ``{job="api"}`` instead of ``{ job = "api" }``.
+    - ``paren_space`` — render ``by (job)`` (``True``) or ``by(job)`` (``False``);
+      also applies to ``on``, ``ignoring``, ``group_left`` and ``group_right``.
+
+    Example::
+
+        expr.to_string(style=Style.prometheus())
+        # → 'sum by (job) (rate(up{job="api"}[5m]))'
+    """
+
+    class GroupingPosition(enum.Enum):
+        """Where an aggregation's ``by``/``without`` clause is placed."""
+
+        SUFFIX = "suffix"
+        PREFIX = "prefix"
+
+    empty_braces: bool = True
+    grouping: GroupingPosition = GroupingPosition.SUFFIX
+    compact_matchers: bool = False
+    paren_space: bool = True
+
+    @classmethod
+    def prometheus(cls) -> "Style":
+        """Match Prometheus' canonical formatting (``sum by (job) (up{job="api"})``)."""
+        return cls(empty_braces=False, grouping=cls.GroupingPosition.PREFIX, compact_matchers=True)
+
+    def labels_clause(self, keyword: str, labels: "Iterable[object]") -> str:
+        """Render a ``keyword (label, ...)`` clause such as ``by (job)`` or ``on (env)``."""
+        space = " " if self.paren_space else ""
+        labels_str = ", ".join(str(label) for label in labels)
+        return f"{keyword}{space}({labels_str})"
+
+
+DEFAULT_STYLE = Style()
 
 
 class Query(ABC):
@@ -57,11 +104,18 @@ class Query(ABC):
         raise ValueError(msg)
 
     @abstractmethod
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style | None = None,
+    ) -> str:
         """Render this expression as a PromQL string.
 
         ``indent`` enables multi-line output: an ``int`` is a number of spaces
-        per level, a whitespace ``str`` is used verbatim per level.
+        per level, a whitespace ``str`` is used verbatim per level.  ``style``
+        selects formatting options (see :class:`Style`).
         """
         msg = "Subclasses must implement to_string method"
         raise NotImplementedError(msg)
