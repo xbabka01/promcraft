@@ -147,3 +147,44 @@ def test_subquery_slice_plain_index_raises() -> None:
 def test_subquery_invalid_slice_raises(item: slice) -> None:
     with pytest.raises(ValueError, match="Subquery slices"):
         _rate[item]
+
+
+_sq = _rate.subquery(_h, _m)
+
+
+@pytest.mark.parametrize(
+    ("query", "expected"),
+    [
+        (_sq.set_offset(Duration(d=1)), "rate(http_requests_total{}[5m])[1h:1m] offset 1d"),
+        (_sq.set_offset(86400), "rate(http_requests_total{}[5m])[1h:1m] offset 1d"),
+        (_sq.set_at(1609746000), "rate(http_requests_total{}[5m])[1h:1m] @ 1609746000"),
+        (_sq.set_at(Float(1609746000.0)), "rate(http_requests_total{}[5m])[1h:1m] @ 1609746000.0"),
+        (_sq.set_at_start(), "rate(http_requests_total{}[5m])[1h:1m] @ start()"),
+        (_sq.set_at_end(), "rate(http_requests_total{}[5m])[1h:1m] @ end()"),
+        (
+            _sq.set_offset(86400).set_at_end(),
+            "rate(http_requests_total{}[5m])[1h:1m] offset 1d @ end()",
+        ),
+        (
+            _sq.set_at_start().set_offset(86400),
+            "rate(http_requests_total{}[5m])[1h:1m] offset 1d @ start()",
+        ),
+        (_rate.subquery(_h).set_at_end(), "rate(http_requests_total{}[5m])[1h:] @ end()"),
+        (
+            (_vec + _vec)[3600:].set_offset(60),
+            "(http_requests_total{} + http_requests_total{})[1h:] offset 1m",
+        ),
+    ],
+)
+def test_subquery_modifier_helpers(query: Query, expected: str) -> None:
+    assert str(query) == expected
+
+
+@pytest.mark.parametrize(
+    "result",
+    [_sq.set_offset(300), _sq.set_at(0), _sq.set_at_start(), _sq.set_at_end()],
+)
+def test_subquery_modifier_helpers_return_copy(result: Subquery) -> None:
+    assert isinstance(result, Subquery)
+    assert result is not _sq
+    assert str(_sq) == "rate(http_requests_total{}[5m])[1h:1m]"

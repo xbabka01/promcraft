@@ -149,19 +149,15 @@ class InstantVector(Query):
         )
 
     def set_offset(self, offset: SCALAR_TYPE) -> "InstantVector":
-        """Return a copy of this subquery with the given ``offset``."""
-        return InstantVector(
-            metric=self.metric, labels=self.labels, offset=Duration.from_value(offset), at=self.at
-        )
+        """Return a copy of this selector with the given ``offset``."""
+        return InstantVector(metric=self.metric, labels=self.labels, offset=offset, at=self.at)
 
     def set_at(self, at: SCALAR_TYPE) -> "InstantVector":
-        """Return a copy of this subquery with the given ``at``."""
-        return InstantVector(
-            metric=self.metric, labels=self.labels, offset=self.offset, at=Float.from_value(at)
-        )
+        """Return a copy of this selector with the given ``at``."""
+        return InstantVector(metric=self.metric, labels=self.labels, offset=self.offset, at=at)
 
     def set_at_start(self) -> "InstantVector":
-        """Return a copy of this subquery with ``@ start()``."""
+        """Return a copy of this selector with ``@ start()``."""
         return InstantVector(
             metric=self.metric,
             labels=self.labels,
@@ -170,7 +166,7 @@ class InstantVector(Query):
         )
 
     def set_at_end(self) -> "InstantVector":
-        """Return a copy of this subquery with ``@ end()``."""
+        """Return a copy of this selector with ``@ end()``."""
         return InstantVector(
             metric=self.metric,
             labels=self.labels,
@@ -230,7 +226,7 @@ class RangeVector(Query):
         return f"{pad}{self.metric}{{{sep}{labels_str}{sep}{pad}}}[{self.range}{resolution}]{offset}{at}"  # noqa: E501
 
     def set_offset(self, offset: SCALAR_TYPE) -> "RangeVector":
-        """Return a copy of this subquery with the given ``offset``."""
+        """Return a copy of this selector with the given ``offset``."""
         return RangeVector(
             metric=self.metric,
             labels=self.labels,
@@ -241,7 +237,7 @@ class RangeVector(Query):
         )
 
     def set_at(self, at: SCALAR_TYPE) -> "RangeVector":
-        """Return a copy of this subquery with the given ``at``."""
+        """Return a copy of this selector with the given ``at``."""
         return RangeVector(
             metric=self.metric,
             labels=self.labels,
@@ -252,7 +248,7 @@ class RangeVector(Query):
         )
 
     def set_at_start(self) -> "RangeVector":
-        """Return a copy of this subquery with ``@ start()``."""
+        """Return a copy of this selector with ``@ start()``."""
         return RangeVector(
             metric=self.metric,
             labels=self.labels,
@@ -263,7 +259,7 @@ class RangeVector(Query):
         )
 
     def set_at_end(self) -> "RangeVector":
-        """Return a copy of this subquery with ``@ end()``."""
+        """Return a copy of this selector with ``@ end()``."""
         return RangeVector(
             metric=self.metric,
             labels=self.labels,
