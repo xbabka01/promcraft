@@ -38,7 +38,7 @@ Only tags matching `v<major>.<minor>.<patch>` (optionally followed by a suffix, 
 | `test` | Runs the full `Pytest` workflow (Python 3.11–3.15: tests, mypy, ruff). | `contents: read` |
 | `build` | Sets the version from the tag, runs `poetry build`, uploads `dist/` as an artifact. | `contents: read` |
 | `publish` | Downloads `dist/` and uploads it to PyPI via trusted publishing (OIDC, no API token). Runs in the `pypi` environment. | `id-token: write` |
-| `github-release` | Downloads the same `dist/` and creates a GitHub Release for the tag with generated notes. | `contents: write` |
+| `github-release` | Downloads the same `dist/` and creates a GitHub Release for the tag with generated notes. Pre-release and dev tags (`a`, `b`, `rc`, `.dev`, ...) are marked as pre-releases. | `contents: write` |
 
 Each job runs only if the previous one succeeded, so a failing test stops the release
 before anything is published.
@@ -76,7 +76,3 @@ publisher on PyPI is updated to match.
   GitHub Release that already exists for the tag. Re-run the job after deleting that
   release, or attach the files to it by hand: download the `dist` artifact from the
   workflow run and run `gh release upload v0.7.0 dist/*`.
-
-- **Pre-releases.** The GitHub Release is created as a regular release. For a
-  pre-release such as `v1.0.0rc1`, edit it afterwards and tick *Set as a pre-release*,
-  or run `gh release edit v1.0.0rc1 --prerelease`.
