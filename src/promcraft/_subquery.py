@@ -2,7 +2,7 @@
 
 from typing import Self
 
-from promcraft._base import Query, Style
+from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._modifiers import AT_TYPE, TimeModifiers
 from promcraft._operator import BinaryOprator, Negation
 from promcraft._scalar import SCALAR_TYPE, Duration
@@ -52,7 +52,7 @@ class Subquery(TimeModifiers, Query):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,
+        style: Style = DEFAULT_STYLE,
     ) -> str:
         """Render this expression as a PromQL string."""
         _sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)

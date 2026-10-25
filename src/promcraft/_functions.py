@@ -1,6 +1,6 @@
 """PromQL function helpers (``rate``, ``abs``, ``histogram_quantile``, ...)."""
 
-from promcraft._base import Query, Style
+from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._operator import OPERAND_TYPE, _as_operand
 from promcraft._scalar import SCALAR_TYPE, Float
 from promcraft._string import STRING_TYPE, String
@@ -24,7 +24,7 @@ class Function(Query):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,
+        style: Style = DEFAULT_STYLE,
     ) -> str:
         """Render this expression as a PromQL string."""
         sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)

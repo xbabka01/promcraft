@@ -3,7 +3,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import TypedDict, Union, Unpack
 
-from promcraft._base import Query, Style
+from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._variable import Variable
 
 SCALAR_TYPE = Union["Scalar", "Variable", float, int]
@@ -47,7 +47,7 @@ class Float(Scalar):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,  # noqa: ARG002 -- literals have no style-dependent output
+        style: Style = DEFAULT_STYLE,  # noqa: ARG002 -- literals have no style-dependent output
     ) -> str:
         """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)
@@ -75,7 +75,7 @@ class Hex(Scalar):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,  # noqa: ARG002 -- literals have no style-dependent output
+        style: Style = DEFAULT_STYLE,  # noqa: ARG002 -- literals have no style-dependent output
     ) -> str:
         """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)
@@ -166,7 +166,7 @@ class Duration(Scalar):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,  # noqa: ARG002 -- literals have no style-dependent output
+        style: Style = DEFAULT_STYLE,  # noqa: ARG002 -- literals have no style-dependent output
     ) -> str:
         """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)

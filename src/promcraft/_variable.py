@@ -1,6 +1,6 @@
 """Grafana template variables usable in place of PromQL expressions."""
 
-from promcraft._base import Query, Style
+from promcraft._base import DEFAULT_STYLE, Query, Style
 
 
 class Variable(Query):
@@ -29,7 +29,7 @@ class Variable(Query):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,  # noqa: ARG002 -- literals have no style-dependent output
+        style: Style = DEFAULT_STYLE,  # noqa: ARG002 -- literals have no style-dependent output
     ) -> str:
         """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)

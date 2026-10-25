@@ -1,6 +1,7 @@
 """PromQL instant and range vector selectors with label matchers."""
 
 import enum
+import re
 from typing import TYPE_CHECKING, Self, overload
 
 from promcraft._base import DEFAULT_STYLE, Query, Style
@@ -90,6 +91,9 @@ class Label:
         return cls(name, Label.Operator.NRE, value)
 
 
+# A metric name that can be written bare, without ``{}``
+_METRIC_NAME = re.compile(r"[a-zA-Z_:][a-zA-Z0-9_:]*")
+
 # Bare identifiers the PromQL lexer reads as keywords (case-insensitively), so a
 # metric with one of these names needs ``{}`` to parse as a selector
 _KEYWORDS = frozenset(
@@ -132,16 +136,18 @@ def _selector_str(
     vector: "InstantVector | RangeVector",
     indent: str | int | None,
     indent_level: int,
-    style: Style | None,
+    style: Style,
 ) -> str:
     """Render ``metric{matchers}`` shared by instant and range vector selectors."""
-    style = DEFAULT_STYLE if style is None else style
     sep, _space, pad, inner_pad = Query.get_indent(indent, indent_level)
     metric = str(vector.metric)
 
     if not vector.labels:
-        keyword = isinstance(vector.metric, str) and metric.lower() in _KEYWORDS
-        braces = "{}" if style.empty_braces or keyword else ""
+        # An empty or non-identifier name (or a keyword) needs ``{}`` to stay a selector
+        bare = isinstance(vector.metric, Variable) or (
+            _METRIC_NAME.fullmatch(metric) is not None and metric.lower() not in _KEYWORDS
+        )
+        braces = "" if bare and not style.empty_braces else "{}"
         return f"{pad}{metric}{braces}"
 
     # Prometheus prints ``{a="1", b="2"}``: no padding inside the braces
@@ -185,7 +191,7 @@ class InstantVector(TimeModifiers, Query):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,
+        style: Style = DEFAULT_STYLE,
     ) -> str:
         """Render this expression as a PromQL string."""
         selector = _selector_str(self, indent, _indent_level, style)
@@ -264,7 +270,7 @@ class RangeVector(TimeModifiers, Query):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,
+        style: Style = DEFAULT_STYLE,
     ) -> str:
         """Render this expression as a PromQL string."""
         selector = _selector_str(self, indent, _indent_level, style)

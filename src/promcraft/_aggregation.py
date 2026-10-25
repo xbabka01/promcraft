@@ -76,10 +76,9 @@ class Aggregation(Query):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,
+        style: Style = DEFAULT_STYLE,
     ) -> str:
         """Render this expression as a PromQL string."""
-        style = DEFAULT_STYLE if style is None else style
         sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
         params_str = f",{sep}".join(
             param.to_string(indent=indent, _indent_level=_indent_level + 1, style=style)

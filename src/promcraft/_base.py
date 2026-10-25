@@ -109,7 +109,7 @@ class Query(ABC):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,
+        style: Style = DEFAULT_STYLE,
     ) -> str:
         """Render this expression as a PromQL string.
 

@@ -189,10 +189,9 @@ class BinaryOprator(Query):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,
+        style: Style = DEFAULT_STYLE,
     ) -> str:
         """Render this expression as a PromQL string."""
-        style = DEFAULT_STYLE if style is None else style
         sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
 
         def render_operand(operand: Query, *, pow_base: builtins.bool = False) -> str:
@@ -299,7 +298,7 @@ class Negation(Query):
         indent: str | int | None = None,
         _indent_level: int = 0,
         *,
-        style: Style | None = None,
+        style: Style = DEFAULT_STYLE,
     ) -> str:
         """Render this expression as a PromQL string."""
         _sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)

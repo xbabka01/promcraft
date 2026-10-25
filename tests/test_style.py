@@ -53,6 +53,14 @@ def test_empty_braces_off_keeps_braces_for_keyword_metric(metric: str) -> None:
     assert RangeVector(metric, [], Duration(m=5)).to_string(style=style) == f"{metric}{{}}[5m]"
 
 
+@pytest.mark.parametrize("metric", ["", "my.metric", "1st"])
+def test_empty_braces_off_keeps_braces_for_non_identifier_metric(metric: str) -> None:
+    style = Style(empty_braces=False)
+
+    assert InstantVector(metric, []).to_string(style=style) == f"{metric}{{}}"
+    assert sum_(InstantVector(metric, [])).to_string(style=style) == f"sum({metric}{{}})"
+
+
 def test_grouping_prefix() -> None:
     style = Style(grouping=PREFIX)
     vec = InstantVector("up", [])
