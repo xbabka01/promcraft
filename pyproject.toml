@@ -1,6 +1,6 @@
 [project]
 name = "promcraft"
-version = "0.1.0"
+version = "0.0.0"
 description = "Build Prometheus PromQL queries programmatically with composable, typed Python objects."
 authors = [
     {name = "Peter Babka",email = "159peter951@gmail.com"}
