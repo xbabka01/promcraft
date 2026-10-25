@@ -179,7 +179,7 @@ from promcraft import InstantVector, Label, sum_, topk
 
 # dynamic metric name and label value
 InstantVector(Variable("metric_name"), [Label.eq("env", Variable("environment"))])
-# '$metric_name{ env = $environment }'
+# '$metric_name{ env = "$environment" }'
 
 # dynamic offset and range
 InstantVector("up", [], offset=Variable("offset_var"))[Variable("range_var")]
@@ -194,7 +194,7 @@ topk(Variable("k"), InstantVector("requests", []))
 # 'topk($k, requests{})'
 ```
 
-A `Variable` is never coerced into a literal — `Float.from_value()`, `Hex.from_value()`, `Duration.from_value()`, and `String.from_value()` all pass an existing `Variable` through unchanged, the same way they already do for `Scalar`/`String` instances.
+In numeric positions a `Variable` is never coerced into a literal — `Float.from_value()`, `Hex.from_value()` and `Duration.from_value()` pass it through unchanged, the same way they do for `Scalar` instances. In string positions (label values, `count_values`, label-manipulation function arguments) `String.from_value()` wraps it in quotes (`"$environment"`), because Grafana substitutes raw text and PromQL string values must be quoted.
 
 ---
 
