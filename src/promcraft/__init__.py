@@ -18,7 +18,7 @@ from promcraft._aggregation import (
     sum_,
     topk,
 )
-from promcraft._base import Query
+from promcraft._base import Query, Style
 from promcraft._functions import (
     Function,
     abs,
@@ -145,6 +145,7 @@ __all__ = [
     "RangeVector",
     "Scalar",
     "String",
+    "Style",
     "Subquery",
     "Variable",
     "abs",

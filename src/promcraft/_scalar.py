@@ -3,7 +3,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import TypedDict, Union, Unpack
 
-from promcraft._base import Query
+from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._variable import Variable
 
 SCALAR_TYPE = Union["Scalar", "Variable", float, int]
@@ -42,7 +42,13 @@ class Float(Scalar):
             return value
         return cls(value)
 
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style = DEFAULT_STYLE,  # noqa: ARG002 -- literals have no style-dependent output
+    ) -> str:
         """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)
         return fmt.pad + str(self.value)
@@ -64,7 +70,13 @@ class Hex(Scalar):
             raise ValueError(msg)
         return cls(int(value))
 
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style = DEFAULT_STYLE,  # noqa: ARG002 -- literals have no style-dependent output
+    ) -> str:
         """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)
         return fmt.pad + hex(self.value)
@@ -149,7 +161,13 @@ class Duration(Scalar):
             neg=number < 0,
         )
 
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style = DEFAULT_STYLE,  # noqa: ARG002 -- literals have no style-dependent output
+    ) -> str:
         """Render this expression as a PromQL string."""
         fmt = self.get_indent(indent, _indent_level)
         parts = []

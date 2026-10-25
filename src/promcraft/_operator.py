@@ -4,7 +4,7 @@ import builtins
 import enum
 from typing import Literal
 
-from promcraft._base import Query
+from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._scalar import Float, Scalar
 from promcraft._variable import Variable
 
@@ -48,9 +48,12 @@ class Match:
         """Return an ``ignoring(labels)`` match clause."""
         return cls("ignoring", labels)
 
+    def to_string(self, style: Style = DEFAULT_STYLE) -> str:
+        """Render this clause, honouring ``style.paren_space``."""
+        return style.labels_clause(self.type, self.labels)
+
     def __str__(self) -> str:
-        labels_str = ", ".join(str(label) for label in self.labels)
-        return f"{self.type} ({labels_str})"
+        return self.to_string()
 
 
 class Group:
@@ -85,9 +88,12 @@ class Group:
         """Return a ``group_right(labels)`` modifier."""
         return cls("right", labels)
 
+    def to_string(self, style: Style = DEFAULT_STYLE) -> str:
+        """Render this modifier, honouring ``style.paren_space``."""
+        return style.labels_clause(f"group_{self.type}", self.labels)
+
     def __str__(self) -> str:
-        labels_str = ", ".join(str(label) for label in self.labels)
-        return f"group_{self.type} ({labels_str})"
+        return self.to_string()
 
 
 class BinaryOprator(Query):
@@ -178,7 +184,13 @@ class BinaryOprator(Query):
         self.group = Group(group.type, group.labels) if group is not None else None
         self.return_bool = return_bool
 
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style = DEFAULT_STYLE,
+    ) -> str:
         """Render this expression as a PromQL string."""
         sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
 
@@ -187,16 +199,18 @@ class BinaryOprator(Query):
             # binary operations and negations need parentheses to preserve
             # evaluation order (``-a ^ b`` is ``-(a ^ b)`` in PromQL).
             if not isinstance(operand, BinaryOprator | Negation):
-                rendered = operand.to_string(indent=indent, _indent_level=_indent_level)
+                rendered = operand.to_string(
+                    indent=indent, _indent_level=_indent_level, style=style
+                )
                 # A negative literal base has the same problem: ``-2 ^ 2`` is ``-(2 ^ 2)``
                 if not (pow_base and rendered.removeprefix(pad).startswith("-")):
                     return rendered
-            body = operand.to_string(indent=indent, _indent_level=_indent_level + 1)
+            body = operand.to_string(indent=indent, _indent_level=_indent_level + 1, style=style)
             return f"{pad}({space}{body}{space}{pad})"
 
         bool_str = " bool" if self.return_bool else ""
-        match_str = f" {self.match}" if self.match else ""
-        group_str = f" {self.group}" if self.group else ""
+        match_str = f" {self.match.to_string(style)}" if self.match else ""
+        group_str = f" {self.group.to_string(style)}" if self.group else ""
         left_str = render_operand(self.left, pow_base=self.op is BinaryOprator.Operator.POW)
         right_str = render_operand(self.right)
         modifiers = f"{bool_str}{match_str}{group_str}"
@@ -279,13 +293,21 @@ class Negation(Query):
     def __init__(self, operand: OPERAND_TYPE) -> None:
         self.operand = _as_operand(operand)
 
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style = DEFAULT_STYLE,
+    ) -> str:
         """Render this expression as a PromQL string."""
         _sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
         if isinstance(self.operand, BinaryOprator | Negation):
-            body = self.operand.to_string(indent=indent, _indent_level=_indent_level + 1)
+            body = self.operand.to_string(
+                indent=indent, _indent_level=_indent_level + 1, style=style
+            )
             return f"{pad}-({space}{body}{space}{pad})"
-        body = self.operand.to_string(indent=indent, _indent_level=_indent_level)
+        body = self.operand.to_string(indent=indent, _indent_level=_indent_level, style=style)
         return f"{pad}-{body.removeprefix(pad)}"
 
 

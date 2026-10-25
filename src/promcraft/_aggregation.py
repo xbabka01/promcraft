@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from promcraft._base import Query
+from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._operator import OPERAND_TYPE, _as_operand
 from promcraft._scalar import SCALAR_TYPE, Float
 from promcraft._string import STRING_TYPE, String
@@ -35,9 +35,12 @@ class Grouping:
         """Return a ``without(labels)`` grouping clause."""
         return cls("without", labels)
 
+    def to_string(self, style: Style = DEFAULT_STYLE) -> str:
+        """Render this clause, honouring ``style.paren_space``."""
+        return style.labels_clause(self.type, self.labels)
+
     def __str__(self) -> str:
-        labels_str = ", ".join(str(label) for label in self.labels)
-        return f"{self.type} ({labels_str})"
+        return self.to_string()
 
 
 class Aggregation(Query):
@@ -50,6 +53,8 @@ class Aggregation(Query):
 
         sum_(rate(http_requests_total[Duration(m=5)])).by(["job"])
         # → 'sum(rate(http_requests_total{}[5m])) by (job)'
+        # with Style(grouping=Style.GroupingPosition.PREFIX):
+        # → 'sum by (job) (rate(http_requests_total{}[5m]))'
 
         topk(3, http_requests_total).without(["instance"])
         # → 'topk(3, http_requests_total{}) without (instance)'
@@ -66,19 +71,27 @@ class Aggregation(Query):
         self.params = [_as_operand(param) for param in params]
         self.grouping = grouping
 
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style = DEFAULT_STYLE,
+    ) -> str:
         """Render this expression as a PromQL string."""
         sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
         params_str = f",{sep}".join(
-            param.to_string(indent=indent, _indent_level=_indent_level + 1)
+            param.to_string(indent=indent, _indent_level=_indent_level + 1, style=style)
             for param in self.params
         )
-        result = f"{pad}{self.operator}({space}{params_str}{space}{pad})"
+        call = f"({space}{params_str}{space}{pad})"
 
-        if self.grouping is not None:
-            result += f" {self.grouping}"
-
-        return result
+        if self.grouping is None:
+            return f"{pad}{self.operator}{call}"
+        grouping = self.grouping.to_string(style)
+        if style.grouping is Style.GroupingPosition.PREFIX:
+            return f"{pad}{self.operator} {grouping} {call}"
+        return f"{pad}{self.operator}{call} {grouping}"
 
     def by(self, labels: list[str | Variable]) -> "Aggregation":
         """Return a copy of this aggregation with a ``by(labels)`` grouping clause."""

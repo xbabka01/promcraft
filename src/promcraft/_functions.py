@@ -1,6 +1,6 @@
 """PromQL function helpers (``rate``, ``abs``, ``histogram_quantile``, ...)."""
 
-from promcraft._base import Query
+from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._operator import OPERAND_TYPE, _as_operand
 from promcraft._scalar import SCALAR_TYPE, Float
 from promcraft._string import STRING_TYPE, String
@@ -19,7 +19,13 @@ class Function(Query):
         self.name = name
         self.args = [_as_operand(arg) for arg in args]
 
-    def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
+    def to_string(
+        self,
+        indent: str | int | None = None,
+        _indent_level: int = 0,
+        *,
+        style: Style = DEFAULT_STYLE,
+    ) -> str:
         """Render this expression as a PromQL string."""
         sep, space, pad, _inner_pad = self.get_indent(indent, _indent_level)
 
@@ -27,7 +33,8 @@ class Function(Query):
             return f"{pad}{self.name}()"
 
         args_str = f",{sep}".join(
-            arg.to_string(indent=indent, _indent_level=_indent_level + 1) for arg in self.args
+            arg.to_string(indent=indent, _indent_level=_indent_level + 1, style=style)
+            for arg in self.args
         )
         return f"{pad}{self.name}({space}{args_str}{space}{pad})"
 
