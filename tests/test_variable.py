@@ -107,17 +107,23 @@ def test_variable_as_label_name() -> None:
 
 
 def test_variable_as_label_value() -> None:
-    assert str(Label.eq("env", Variable("environment"))) == "env = $environment"
+    assert str(Label.eq("env", Variable("environment"))) == 'env = "$environment"'
+
+
+def test_variable_with_braces_as_label_value() -> None:
+    assert str(Label.re("env", Variable("env", braces=True))) == 'env =~ "${env}"'
 
 
 def test_variable_as_count_values_label() -> None:
-    assert str(count_values(Variable("label_name"), _left)) == "count_values($label_name, left{})"
+    assert str(count_values(Variable("label_name"), _left)) == (
+        'count_values("$label_name", left{})'
+    )
 
 
 def test_variable_as_function_string_argument() -> None:
     assert (
         str(label_replace(_left, "job", Variable("replacement"), "job", "(.*)"))
-        == 'label_replace(left{}, "job", $replacement, "job", "(.*)")'
+        == 'label_replace(left{}, "job", "$replacement", "job", "(.*)")'
     )
 
 
@@ -181,9 +187,11 @@ def test_duration_from_value_with_variable_returns_variable_unchanged() -> None:
     assert Duration.from_value(v) is v
 
 
-def test_string_from_value_with_variable_returns_variable_unchanged() -> None:
-    v = Variable("x")
-    assert String.from_value(v) is v
+def test_string_from_value_with_variable_quotes_it() -> None:
+    """In a string position Grafana substitutes raw text, so the variable must be quoted."""
+    result = String.from_value(Variable("x"))
+    assert isinstance(result, String)
+    assert str(result) == '"$x"'
 
 
 # --- pretty-printing ---------------------------------------------------------
