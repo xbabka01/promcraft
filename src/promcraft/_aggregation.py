@@ -41,7 +41,19 @@ class Grouping:
 
 
 class Aggregation(Query):
-    """A PromQL aggregation expression that collapses multiple time series into fewer results."""
+    """A PromQL aggregation expression that collapses multiple time series into fewer results.
+
+    Usually built with a helper such as :func:`sum_` or :func:`topk`; :meth:`by`
+    and :meth:`without` return a copy with a grouping clause.
+
+    Example::
+
+        sum_(rate(http_requests_total[Duration(m=5)])).by(["job"])
+        # → 'sum(rate(http_requests_total{}[5m])) by (job)'
+
+        topk(3, http_requests_total).without(["instance"])
+        # → 'topk(3, http_requests_total{}) without (instance)'
+    """
 
     def __init__(
         self,
