@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: xbabka01/poetry-action@33b75886ee1504a47eb3ee3050045a2bb6d01db6 # v1
+      - uses: xbabka01/poetry-action@727695e974cfe009c799c73fc9d1c59ef5a8e1af # v2
         with:
           python_version: '3.13'
       - name: Set version
