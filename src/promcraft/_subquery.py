@@ -61,3 +61,43 @@ class Subquery(Query):
             body = self.query.to_string(indent=indent, _indent_level=_indent_level + 1)
             return f"{pad}({space}{body}{space}{pad}){suffix}"
         return self.query.to_string(indent=indent, _indent_level=_indent_level) + suffix
+
+    def set_offset(self, offset: SCALAR_TYPE) -> "Subquery":
+        """Return a copy of this subquery with the given ``offset``."""
+        return Subquery(
+            query=self.query,
+            range=self.range,
+            resolution=self.resolution,
+            offset=offset,
+            at=self.at,
+        )
+
+    def set_at(self, at: SCALAR_TYPE) -> "Subquery":
+        """Return a copy of this subquery with the given ``at``."""
+        return Subquery(
+            query=self.query,
+            range=self.range,
+            resolution=self.resolution,
+            offset=self.offset,
+            at=at,
+        )
+
+    def set_at_start(self) -> "Subquery":
+        """Return a copy of this subquery with ``@ start()``."""
+        return Subquery(
+            query=self.query,
+            range=self.range,
+            resolution=self.resolution,
+            offset=self.offset,
+            at="start()",
+        )
+
+    def set_at_end(self) -> "Subquery":
+        """Return a copy of this subquery with ``@ end()``."""
+        return Subquery(
+            query=self.query,
+            range=self.range,
+            resolution=self.resolution,
+            offset=self.offset,
+            at="end()",
+        )
