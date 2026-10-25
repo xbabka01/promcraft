@@ -479,12 +479,15 @@ expr = div(errors, requests).ignoring(["instance"])
 Use `.group_left()` or `.group_right()` for many-to-one or one-to-many matching:
 
 ```python
-# group_left: result has labels from the left side
+# group_left: many left-side series match one right-side series;
+# the listed labels are copied from the right ("one") side
 expr = mul(requests, errors).on(["job"]).group_left(["env"])
 # '... on (job) group_left (env) ...'
 
-# group_right: result has labels from the right side
+# group_right: the mirror image; without on/ignoring, `ignoring ()` is added
+# because PromQL requires a matching clause before group_left/group_right
 expr = mul(requests, errors).group_right([])
+# '... ignoring () group_right () ...'
 ```
 
 `.on()`, `.ignoring()`, `.group_left()`, and `.group_right()` are all chainable and each returns a new immutable instance, so they can be combined freely:

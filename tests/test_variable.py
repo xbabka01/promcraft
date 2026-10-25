@@ -144,13 +144,13 @@ def test_variable_in_ignoring_labels() -> None:
 
 def test_variable_in_group_left_labels() -> None:
     assert str(add(_left, _right).group_left([Variable("labels")])) == (
-        "left{} + group_left ($labels) right{}"
+        "left{} + ignoring () group_left ($labels) right{}"
     )
 
 
 def test_variable_in_group_right_labels() -> None:
     assert str(add(_left, _right).group_right([Variable("labels")])) == (
-        "left{} + group_right ($labels) right{}"
+        "left{} + ignoring () group_right ($labels) right{}"
     )
 
 

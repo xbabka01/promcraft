@@ -115,10 +115,14 @@ _right = InstantVector("right", [])
             add(_left, _right).ignoring(["env"]),
             "left{} + ignoring (env) right{}",
         ),
-        # with group
+        # with group: PromQL requires on/ignoring before group_*, so ``ignoring ()`` is added
         (
             add(_left, _right).group_left([]),
-            "left{} + group_left () right{}",
+            "left{} + ignoring () group_left () right{}",
+        ),
+        (
+            add(_left, _right).group_right(["env"]).on(["job"]),
+            "left{} + on (job) group_right (env) right{}",
         ),
         # with match and group
         (
