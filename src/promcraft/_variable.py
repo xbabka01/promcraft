@@ -20,6 +20,8 @@ class Variable(Query):
         Variable("job", braces=True)  # → "${job}"
     """
 
+    __slots__ = ("braces", "name")
+
     def __init__(self, name: str, *, braces: bool = False) -> None:
         self.name = name
         self.braces = braces

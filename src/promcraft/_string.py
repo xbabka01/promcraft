@@ -53,6 +53,8 @@ class String(Query):
         String("line\nnew", "`")  # → '`line\nnew`'
     """
 
+    __slots__ = ("quote", "value")
+
     def __init__(self, value: str, quote: Literal["`", '"', "'"] = '"') -> None:
         if quote == "`" and "`" in value:
             msg = "Backtick-quoted strings cannot contain a backtick"

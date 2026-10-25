@@ -27,6 +27,8 @@ class Indent(NamedTuple):
 class Query(ABC):
     """Base class for all PromQL query components."""
 
+    __slots__ = ()
+
     @staticmethod
     def get_indent(indent_size: str | int | None, _indent_level: int) -> Indent:
         """Compute the separators and padding for the given indent size and level."""

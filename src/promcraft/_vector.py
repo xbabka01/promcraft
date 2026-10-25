@@ -32,6 +32,8 @@ class Label:
         Label.re("job", String("api.*"))  # → 'job =~ "api.*"'
     """
 
+    __slots__ = ("name", "op", "value")
+
     class Operator(enum.Enum):
         """Enum of PromQL label matching operators."""
 
@@ -94,6 +96,8 @@ class InstantVector(Query):
         InstantVector("up", [], offset=Duration(m=5))
         # → 'up{} offset 5m'
     """
+
+    __slots__ = ("at", "labels", "metric", "offset")
 
     def __init__(
         self,
@@ -194,6 +198,8 @@ class RangeVector(Query):
         RangeVector("rate_query", [], range=Duration(h=1), resolution=Duration(m=1))
         # → 'rate_query{}[1h:1m]'
     """
+
+    __slots__ = ("at", "labels", "metric", "offset", "range", "resolution")
 
     def __init__(
         self,

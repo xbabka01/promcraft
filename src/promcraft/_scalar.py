@@ -12,6 +12,8 @@ SCALAR_TYPE = Union["Scalar", "Variable", float, int]
 class Scalar(Query, metaclass=ABCMeta):
     """Abstract base class for PromQL scalar values."""
 
+    __slots__ = ()
+
     @classmethod
     @abstractmethod
     def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
@@ -30,6 +32,8 @@ class Float(Scalar):
     The value is rendered as given: an ``int`` stays an integer (``Float(5)`` →
     ``5``) and a ``float`` keeps its decimal point (``Float(5.0)`` → ``5.0``).
     """
+
+    __slots__ = ("value",)
 
     def __init__(self, value: float) -> None:
         self.value = value
@@ -50,6 +54,8 @@ class Float(Scalar):
 
 class Hex(Scalar):
     """A hexadecimal integer scalar literal (e.g. ``0xff``, ``0x8f``)."""
+
+    __slots__ = ("value",)
 
     def __init__(self, value: int) -> None:
         self.value = value
@@ -100,6 +106,8 @@ class Duration(Scalar):
         Duration(d=1, neg=True)  # → "-1d"
         Duration()  # → "0s"
     """
+
+    __slots__ = ("d", "h", "m", "ms", "neg", "s", "w", "y")
 
     def __init__(self, **kwargs: Unpack[DurationParams]) -> None:
         # ``**kwargs`` would otherwise swallow typos such as ``Duration(min=5)`` at runtime

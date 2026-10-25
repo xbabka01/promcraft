@@ -30,6 +30,8 @@ class Subquery(Query):
         # → '(up{} + down{})[1h:] offset 1d'
     """
 
+    __slots__ = ("at", "offset", "query", "range", "resolution")
+
     def __init__(
         self,
         query: Query,

@@ -15,6 +15,8 @@ class Function(Query):
     :class:`~promcraft._scalar.Float`.
     """
 
+    __slots__ = ("args", "name")
+
     def __init__(self, name: str, args: list[OPERAND_TYPE]) -> None:
         self.name = name
         self.args = [_as_operand(arg) for arg in args]

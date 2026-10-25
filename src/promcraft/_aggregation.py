@@ -21,6 +21,8 @@ class Grouping:
         Grouping.without(["instance"])  # → 'without (instance)'
     """
 
+    __slots__ = ("labels", "type")
+
     def __init__(self, type: Literal["by", "without"], labels: list[str | Variable]) -> None:
         self.type = type
         self.labels = list(labels)
@@ -42,6 +44,8 @@ class Grouping:
 
 class Aggregation(Query):
     """A PromQL aggregation expression that collapses multiple time series into fewer results."""
+
+    __slots__ = ("grouping", "operator", "params")
 
     def __init__(
         self,

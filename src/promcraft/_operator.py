@@ -34,6 +34,8 @@ class Match:
         Match.ignoring(["instance"])  # → 'ignoring (instance)'
     """
 
+    __slots__ = ("labels", "type")
+
     def __init__(self, type: Literal["on", "ignoring"], labels: list[str | Variable]) -> None:
         self.type = type
         self.labels = list(labels)
@@ -70,6 +72,8 @@ class Group:
         Group.left(["region"])  # → 'group_left (region)'
         Group.right([])  # → 'group_right ()'
     """
+
+    __slots__ = ("labels", "type")
 
     def __init__(self, type: Literal["left", "right"], labels: list[str | Variable]) -> None:
         self.type = type
@@ -114,6 +118,8 @@ class BinaryOprator(Query):
         # → 'errors{} > bool 0'
 
     """
+
+    __slots__ = ("group", "left", "match", "op", "return_bool", "right")
 
     class Operator(enum.Enum):
         """Enum of all PromQL binary operators."""
@@ -255,6 +261,8 @@ class Negation(Query):
         -rate(errors_total[5m])  # → '-rate(errors_total{}[5m])'
         -(a + b)  # → '-(a{} + b{})'
     """
+
+    __slots__ = ("operand",)
 
     def __init__(self, operand: OPERAND_TYPE) -> None:
         self.operand = _as_operand(operand)
