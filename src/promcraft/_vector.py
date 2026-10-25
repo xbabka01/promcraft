@@ -148,6 +148,32 @@ class InstantVector(Query):
             at=self.at,
         )
 
+    def set_offset(self, offset: SCALAR_TYPE) -> "InstantVector":
+        """Return a copy of this selector with the given ``offset``."""
+        return InstantVector(metric=self.metric, labels=self.labels, offset=offset, at=self.at)
+
+    def set_at(self, at: SCALAR_TYPE) -> "InstantVector":
+        """Return a copy of this selector with the given ``at``."""
+        return InstantVector(metric=self.metric, labels=self.labels, offset=self.offset, at=at)
+
+    def set_at_start(self) -> "InstantVector":
+        """Return a copy of this selector with ``@ start()``."""
+        return InstantVector(
+            metric=self.metric,
+            labels=self.labels,
+            offset=self.offset,
+            at="start()",
+        )
+
+    def set_at_end(self) -> "InstantVector":
+        """Return a copy of this selector with ``@ end()``."""
+        return InstantVector(
+            metric=self.metric,
+            labels=self.labels,
+            offset=self.offset,
+            at="end()",
+        )
+
 
 class RangeVector(Query):
     """A PromQL range vector selector.
@@ -198,3 +224,47 @@ class RangeVector(Query):
 
         labels_str = f",{sep}".join(inner_pad + str(label) for label in self.labels)
         return f"{pad}{self.metric}{{{sep}{labels_str}{sep}{pad}}}[{self.range}{resolution}]{offset}{at}"  # noqa: E501
+
+    def set_offset(self, offset: SCALAR_TYPE) -> "RangeVector":
+        """Return a copy of this selector with the given ``offset``."""
+        return RangeVector(
+            metric=self.metric,
+            labels=self.labels,
+            range=self.range,
+            resolution=self.resolution,
+            offset=offset,
+            at=self.at,
+        )
+
+    def set_at(self, at: SCALAR_TYPE) -> "RangeVector":
+        """Return a copy of this selector with the given ``at``."""
+        return RangeVector(
+            metric=self.metric,
+            labels=self.labels,
+            range=self.range,
+            resolution=self.resolution,
+            offset=self.offset,
+            at=at,
+        )
+
+    def set_at_start(self) -> "RangeVector":
+        """Return a copy of this selector with ``@ start()``."""
+        return RangeVector(
+            metric=self.metric,
+            labels=self.labels,
+            range=self.range,
+            resolution=self.resolution,
+            offset=self.offset,
+            at="start()",
+        )
+
+    def set_at_end(self) -> "RangeVector":
+        """Return a copy of this selector with ``@ end()``."""
+        return RangeVector(
+            metric=self.metric,
+            labels=self.labels,
+            range=self.range,
+            resolution=self.resolution,
+            offset=self.offset,
+            at="end()",
+        )
