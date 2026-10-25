@@ -158,6 +158,9 @@ class BinaryOprator(Query):
         if return_bool and op not in _COMPARISON_OPERATORS:
             msg = f"The bool modifier is only valid for comparison operators, not {op}"
             raise ValueError(msg)
+        if group is not None and op in _SET_OPERATORS:
+            msg = f"Group modifiers are not valid for set operators (always many-to-many): {op}"
+            raise ValueError(msg)
         self.op = op
         self.left = _as_operand(left)
         self.right = _as_operand(right)
@@ -245,6 +248,14 @@ _COMPARISON_OPERATORS = frozenset(
         BinaryOprator.Operator.LTE,
         BinaryOprator.Operator.GT,
         BinaryOprator.Operator.GTE,
+    }
+)
+
+_SET_OPERATORS = frozenset(
+    {
+        BinaryOprator.Operator.AND,
+        BinaryOprator.Operator.OR,
+        BinaryOprator.Operator.UNLESS,
     }
 )
 
