@@ -61,16 +61,10 @@ class String(Query):
         self.quote = quote
 
     @classmethod
-    def from_value(cls, value: STRING_TYPE) -> "String":
-        """Wrap a raw ``str`` or ``Variable``, passing ``String`` through unchanged.
-
-        A ``Variable`` is quoted (``"$name"``): Grafana substitutes raw text, so an
-        unquoted ``$name`` in a string position would not be a valid PromQL string.
-        """
-        if isinstance(value, String):
+    def from_value(cls, value: STRING_TYPE) -> "String | Variable":
+        """Wrap a raw ``str``, passing ``String`` and ``Variable`` through unchanged."""
+        if isinstance(value, String | Variable):
             return value
-        if isinstance(value, Variable):
-            return cls(str(value))
         return cls(value)
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:

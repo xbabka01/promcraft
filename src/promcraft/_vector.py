@@ -26,8 +26,8 @@ class Label:
     - ``!~`` (``Label.nre``) — negated RE2 regular-expression match
 
     The matcher value may be a :class:`~promcraft._string.String`, a raw ``str``
-    or a :class:`~promcraft._variable.Variable`; the latter two are quoted via
-    :meth:`String.from_value <promcraft._string.String.from_value>`.
+    or a :class:`~promcraft._variable.Variable`; the latter two are wrapped in a
+    double-quoted :class:`~promcraft._string.String`.
 
     Example::
 
@@ -55,7 +55,11 @@ class Label:
     ) -> None:
         self.name = name
         self.op = op
-        self.value = String.from_value(value)
+        # Grafana substitutes raw text, so an unquoted ``$name`` would not be a valid
+        # PromQL label value
+        self.value = (
+            String(str(value)) if isinstance(value, Variable) else String.from_value(value)
+        )
 
     def __str__(self) -> str:
         return f"{self.name} {self.op} {self.value}"
