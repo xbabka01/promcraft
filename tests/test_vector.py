@@ -156,33 +156,33 @@ _rv = RangeVector("up", [], Duration(m=5), resolution=Duration(s=30))
     ("query", "expected"),
     [
         # InstantVector
-        (_iv.set_offset(Duration(m=5)), 'up{ job = "prom" } offset 5m'),
-        (_iv.set_offset(300), 'up{ job = "prom" } offset 5m'),
-        (_iv.set_offset(-90), 'up{ job = "prom" } offset -1m30s'),
-        (_iv.set_at(1609746000), 'up{ job = "prom" } @ 1609746000'),
-        (_iv.set_at(Float(1609746000.0)), 'up{ job = "prom" } @ 1609746000.0'),
-        (_iv.set_at(Duration(m=5)), 'up{ job = "prom" } @ 5m'),
-        (_iv.set_at_start(), 'up{ job = "prom" } @ start()'),
-        (_iv.set_at_end(), 'up{ job = "prom" } @ end()'),
-        (_iv.set_at("start()"), 'up{ job = "prom" } @ start()'),
-        (_iv.set_offset(300).set_at_end(), 'up{ job = "prom" } offset 5m @ end()'),
-        (_iv.set_at_start().set_offset(300), 'up{ job = "prom" } offset 5m @ start()'),
-        (_iv.set_at(0).set_offset(60).set_at_end(), 'up{ job = "prom" } offset 1m @ end()'),
-        (_iv.set_offset(60).set_offset(120), 'up{ job = "prom" } offset 2m'),
+        (_iv.with_offset(Duration(m=5)), 'up{ job = "prom" } offset 5m'),
+        (_iv.with_offset(300), 'up{ job = "prom" } offset 5m'),
+        (_iv.with_offset(-90), 'up{ job = "prom" } offset -1m30s'),
+        (_iv.with_at(1609746000), 'up{ job = "prom" } @ 1609746000'),
+        (_iv.with_at(Float(1609746000.0)), 'up{ job = "prom" } @ 1609746000.0'),
+        (_iv.with_at(Duration(m=5)), 'up{ job = "prom" } @ 5m'),
+        (_iv.with_at_start(), 'up{ job = "prom" } @ start()'),
+        (_iv.with_at_end(), 'up{ job = "prom" } @ end()'),
+        (_iv.with_at("start()"), 'up{ job = "prom" } @ start()'),
+        (_iv.with_offset(300).with_at_end(), 'up{ job = "prom" } offset 5m @ end()'),
+        (_iv.with_at_start().with_offset(300), 'up{ job = "prom" } offset 5m @ start()'),
+        (_iv.with_at(0).with_offset(60).with_at_end(), 'up{ job = "prom" } offset 1m @ end()'),
+        (_iv.with_offset(60).with_offset(120), 'up{ job = "prom" } offset 2m'),
         # RangeVector
-        (_rv.set_offset(Duration(m=1)), "up{}[5m:30s] offset 1m"),
-        (_rv.set_offset(86400), "up{}[5m:30s] offset 1d"),
-        (_rv.set_at(1609746000), "up{}[5m:30s] @ 1609746000"),
-        (_rv.set_at(Float(1609746000.0)), "up{}[5m:30s] @ 1609746000.0"),
-        (_rv.set_at_start(), "up{}[5m:30s] @ start()"),
-        (_rv.set_at_end(), "up{}[5m:30s] @ end()"),
-        (_rv.set_at("end()"), "up{}[5m:30s] @ end()"),
-        (_rv.set_offset(60).set_at_start(), "up{}[5m:30s] offset 1m @ start()"),
-        (_rv.set_at_end().set_offset(60), "up{}[5m:30s] offset 1m @ end()"),
-        (_rv.set_at_start().set_at(0), "up{}[5m:30s] @ 0"),
+        (_rv.with_offset(Duration(m=1)), "up{}[5m:30s] offset 1m"),
+        (_rv.with_offset(86400), "up{}[5m:30s] offset 1d"),
+        (_rv.with_at(1609746000), "up{}[5m:30s] @ 1609746000"),
+        (_rv.with_at(Float(1609746000.0)), "up{}[5m:30s] @ 1609746000.0"),
+        (_rv.with_at_start(), "up{}[5m:30s] @ start()"),
+        (_rv.with_at_end(), "up{}[5m:30s] @ end()"),
+        (_rv.with_at("end()"), "up{}[5m:30s] @ end()"),
+        (_rv.with_offset(60).with_at_start(), "up{}[5m:30s] offset 1m @ start()"),
+        (_rv.with_at_end().with_offset(60), "up{}[5m:30s] offset 1m @ end()"),
+        (_rv.with_at_start().with_at(0), "up{}[5m:30s] @ 0"),
         # modifiers set on the instant vector carry over to the range vector
         (
-            _iv.set_offset(60).set_at_end()[Duration(m=5)],
+            _iv.with_offset(60).with_at_end()[Duration(m=5)],
             'up{ job = "prom" }[5m] offset 1m @ end()',
         ),
     ],
@@ -194,10 +194,10 @@ def test_vector_modifier_helpers(query: Query, expected: str) -> None:
 @pytest.mark.parametrize(
     "apply",
     [
-        lambda q: q.set_offset(300),
-        lambda q: q.set_at(0),
-        lambda q: q.set_at_start(),
-        lambda q: q.set_at_end(),
+        lambda q: q.with_offset(300),
+        lambda q: q.with_at(0),
+        lambda q: q.with_at_start(),
+        lambda q: q.with_at_end(),
     ],
 )
 @pytest.mark.parametrize("query", [_iv, _rv])
@@ -213,6 +213,6 @@ def test_vector_modifier_helpers_return_copy(
 
 @pytest.mark.parametrize("query", [_iv, _rv])
 def test_vector_modifier_helpers_do_not_share_labels(query: InstantVector | RangeVector) -> None:
-    copy = query.set_offset(60)
+    copy = query.with_offset(60)
     copy.labels.append(Label.eq("env", String("prod")))
     assert "env" not in str(query)
