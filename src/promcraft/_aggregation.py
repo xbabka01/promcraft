@@ -124,7 +124,7 @@ def stddev(query: Query) -> Aggregation:
 
 
 def stdvar(query: Query) -> Aggregation:
-    """Compute the population standard variance of sample values across the aggregated dimensions.
+    """Compute the population variance of sample values across the aggregated dimensions.
 
     PromQL: ``stdvar(v)``
     """
