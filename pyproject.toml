@@ -11,8 +11,7 @@ license-files = ["LICENSE"]
 requires-python = ">=3.11,<4.0"
 keywords = ["prometheus", "promql", "query-builder", "monitoring", "grafana", "observability"]
 dynamic = ["classifiers"]
-dependencies = [
-]
+dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/xbabka01/promcraft"
