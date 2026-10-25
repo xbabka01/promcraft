@@ -1,0 +1,52 @@
+name: Bug report
+description: A query renders incorrect PromQL, raises unexpectedly, or otherwise misbehaves.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: code
+    attributes:
+      label: Code
+      description: Minimal Python code that reproduces the problem.
+      render: python
+      placeholder: |
+        from promcraft import InstantVector, Label
+
+        query = InstantVector("up", [Label.eq("job", "api")])
+        print(query)
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: The PromQL produced, or the full traceback if an exception was raised.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: The PromQL (or behaviour) you expected.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: promcraft-version
+    attributes:
+      label: promcraft version
+      placeholder: "0.6.1"
+    validations:
+      required: true
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: "3.13"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Anything else that might help, e.g. the Prometheus or Grafana version the query is used with.
