@@ -93,7 +93,7 @@ class InstantVector(TimeModifiers, Query):
     Example::
 
         InstantVector("http_requests_total", [Label.eq("job", String("api"))])
-        # → 'http_requests_total{job = "api"}'
+        # → 'http_requests_total{ job = "api" }'
 
         InstantVector("up", [], offset=Duration(m=5))
         # → 'up{} offset 5m'

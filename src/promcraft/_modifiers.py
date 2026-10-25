@@ -7,6 +7,7 @@ from promcraft._scalar import SCALAR_TYPE, Duration, Float, Scalar
 from promcraft._variable import Variable
 
 AT_TYPE = SCALAR_TYPE | Literal["start()", "end()"]
+_AT_KEYWORDS = frozenset({"start()", "end()"})
 
 
 class TimeModifiers:
@@ -17,7 +18,14 @@ class TimeModifiers:
 
     def _init_modifiers(self, offset: SCALAR_TYPE | None, at: AT_TYPE | None) -> None:
         self.offset = Duration.from_value(offset) if offset is not None else None
-        self.at = Float.from_value(at) if isinstance(at, float | int | Scalar | Variable) else at
+        if isinstance(at, float | int | Scalar | Variable):
+            self.at = Float.from_value(at)
+        elif at is None or at in _AT_KEYWORDS:
+            self.at = at
+        else:
+            # Only reachable from untyped callers; mypy rejects other strings
+            msg = f"Invalid @ modifier {at!r}: expected a number, 'start()' or 'end()'"
+            raise ValueError(msg)
 
     def _modifiers_str(self) -> str:
         offset = f" offset {self.offset}" if self.offset is not None else ""

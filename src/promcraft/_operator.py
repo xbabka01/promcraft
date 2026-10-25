@@ -5,7 +5,7 @@ import enum
 from typing import Literal
 
 from promcraft._base import Query
-from promcraft._scalar import Float
+from promcraft._scalar import Float, Scalar
 from promcraft._variable import Variable
 
 OPERAND_TYPE = Query | float
@@ -107,8 +107,8 @@ class BinaryOprator(Query):
 
     Example::
 
-        add(http_requests_total, Float(1)).on(["env"])
-        # → 'http_requests_total{} + on (env) 1'
+        add(http_requests_total, http_errors_total).on(["env"])
+        # → 'http_requests_total{} + on (env) http_errors_total{}'
 
         gt(errors, Float(0)).bool()
         # → 'errors{} > bool 0'
@@ -164,6 +164,15 @@ class BinaryOprator(Query):
         self.op = op
         self.left = _as_operand(left)
         self.right = _as_operand(right)
+        if (match is not None or group is not None) and (
+            isinstance(self.left, Scalar) or isinstance(self.right, Scalar)
+        ):
+            msg = f"Vector matching requires two instant vectors, not a scalar operand: {op}"
+            raise ValueError(msg)
+        # PromQL only allows group_left/right after on/ignoring; ``ignoring ()`` is the
+        # default matching, so it keeps the meaning while making the query valid.
+        if match is None and group is not None:
+            match = Match.ignoring([])
         # Copied so chained copies (``.on()``, ``.bool()``, ...) don't share label lists
         self.match = Match(match.type, match.labels) if match is not None else None
         self.group = Group(group.type, group.labels) if group is not None else None
@@ -186,12 +195,7 @@ class BinaryOprator(Query):
             return f"{pad}({space}{body}{space}{pad})"
 
         bool_str = " bool" if self.return_bool else ""
-        # PromQL only allows group_left/right after on/ignoring; ``ignoring ()`` is the
-        # default matching, so it keeps the meaning while making the query valid.
-        match = self.match
-        if match is None and self.group is not None:
-            match = Match.ignoring([])
-        match_str = f" {match}" if match else ""
+        match_str = f" {self.match}" if self.match else ""
         group_str = f" {self.group}" if self.group else ""
         left_str = render_operand(self.left, pow_base=self.op is BinaryOprator.Operator.POW)
         right_str = render_operand(self.right)

@@ -294,6 +294,29 @@ def test_group_modifier_rejects_set_operators(
 
 
 @pytest.mark.parametrize(
+    "build",
+    [
+        lambda: add(1, _right).group_left([]),
+        lambda: add(_left, Float(1)).on(["job"]),
+        lambda: mul(Duration(m=5), _right).ignoring(["env"]),
+        lambda: BinaryOprator(BinaryOprator.Operator.ADD, _left, 2, group=Group.right([])),
+    ],
+)
+def test_vector_matching_rejects_scalar_operand(build: Callable[[], BinaryOprator]) -> None:
+    with pytest.raises(ValueError, match="requires two instant vectors"):
+        build()
+
+
+def test_implicit_ignoring_is_stored() -> None:
+    """The ``ignoring ()`` implied by a bare group modifier is stored, not only rendered."""
+    expr = add(_left, _right).group_left([])
+    assert expr.match is not None
+    assert str(expr.match) == "ignoring ()"
+    rebuilt = BinaryOprator(expr.op, expr.left, expr.right, expr.match, expr.group)
+    assert str(rebuilt) == str(expr)
+
+
+@pytest.mark.parametrize(
     ("expr", "expected"),
     [
         (-_left, "-left{}"),
