@@ -21,6 +21,8 @@ poetry run pytest tests/test_operator.py -o addopts=""
 poetry run pytest tests/test_operator.py::test_binary_helpers -o addopts=""
 ```
 
+The `version` in `pyproject.toml` (`0.1.0`) is a placeholder and is never bumped by hand. The release workflow ([.github/workflows/release.yaml](.github/workflows/release.yaml)) sets the real version from the pushed git tag (`poetry version "${GITHUB_REF_NAME#v}"`, so tag `v0.5.0` publishes `0.5.0`). Do not flag the mismatch between `pyproject.toml` and the tags, and do not suggest bumping it.
+
 `pytest` is configured (in `pyproject.toml`) to always run `--mypy`, `--ruff`, `--ruff-format`, and `--cov` alongside unit tests. Mypy and ruff violations are reported as test failures. `-p no:mypy -p no:ruff` does NOT work to skip them here — the plugins would be disabled while `addopts` still passes their `--mypy`/`--ruff`/`--ruff-format` flags, which pytest then rejects as unrecognized. Use `-o addopts=""` to clear the ini `addopts` instead.
 
 ## Architecture
