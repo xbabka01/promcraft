@@ -25,12 +25,15 @@ class Label:
     - ``=~`` (``Label.re``)  — RE2 regular-expression match (fully anchored)
     - ``!~`` (``Label.nre``) — negated RE2 regular-expression match
 
-    The matcher value must be a :class:`~promcraft._string.String` instance.
+    The matcher value may be a :class:`~promcraft._string.String`, a raw ``str``
+    or a :class:`~promcraft._variable.Variable`; the latter two are quoted via
+    :meth:`String.from_value <promcraft._string.String.from_value>`.
 
     Example::
 
-        Label.eq("env", String("prod"))  # → 'env = "prod"'
-        Label.re("job", String("api.*"))  # → 'job =~ "api.*"'
+        Label.eq("env", "prod")  # → 'env = "prod"'
+        Label.re("job", String("api.*", "'"))  # → "job =~ 'api.*'"
+        Label.eq("env", Variable("env"))  # → 'env = "$env"'
     """
 
     class Operator(enum.Enum):
