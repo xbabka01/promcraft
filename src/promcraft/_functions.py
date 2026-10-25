@@ -391,9 +391,9 @@ def clamp(v: Query, min: SCALAR_TYPE, max: SCALAR_TYPE) -> Function:
 # ---------------------------------------------------------------------------
 
 
-def quantile_over_time(quantile: SCALAR_TYPE, v: Query) -> Function:
-    """φ-quantile of float samples over the specified range window."""
-    return Function("quantile_over_time", [Float.from_value(quantile), v])
+def quantile_over_time(phi: SCALAR_TYPE, v: Query) -> Function:
+    """φ-quantile (0 ≤ φ ≤ 1) of float samples over the specified range window."""
+    return Function("quantile_over_time", [Float.from_value(phi), v])
 
 
 def histogram_quantile(phi: SCALAR_TYPE, b: Query) -> Function:
