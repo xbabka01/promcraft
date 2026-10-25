@@ -88,7 +88,7 @@ class InstantVector(TimeModifiers, Query):
     the query evaluation timestamp.  Results can be filtered by label
     matchers and shifted in time with ``offset`` or pinned to an absolute
     Unix timestamp with ``@`` (also accepts the special values
-    ``"start()"`` and ``"end()"``.
+    ``"start()"`` and ``"end()"``).
 
     Example::
 
