@@ -490,6 +490,8 @@ expr = mul(requests, errors).group_right([])
 # '... ignoring () group_right () ...'
 ```
 
+Group modifiers are rejected on the set operators `and`, `or` and `unless`, which are always many-to-many.
+
 `.on()`, `.ignoring()`, `.group_left()`, and `.group_right()` are all chainable and each returns a new immutable instance, so they can be combined freely:
 
 ```python

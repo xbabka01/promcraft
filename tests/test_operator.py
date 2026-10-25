@@ -284,6 +284,15 @@ def test_bool_modifier_rejects_non_comparison(helper: Callable[..., BinaryOprato
         helper(_left, _right).bool()
 
 
+@pytest.mark.parametrize("helper", [and_, or_, unless])
+@pytest.mark.parametrize("method", ["group_left", "group_right"])
+def test_group_modifier_rejects_set_operators(
+    helper: Callable[..., BinaryOprator], method: str
+) -> None:
+    with pytest.raises(ValueError, match="not valid for set operators"):
+        getattr(helper(_left, _right).on(["job"]), method)(["env"])
+
+
 @pytest.mark.parametrize(
     ("expr", "expected"),
     [
