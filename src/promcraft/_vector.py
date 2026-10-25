@@ -1,10 +1,11 @@
 """PromQL instant and range vector selectors with label matchers."""
 
 import enum
-from typing import TYPE_CHECKING, Literal, overload
+from typing import TYPE_CHECKING, Self, overload
 
 from promcraft._base import Query
-from promcraft._scalar import SCALAR_TYPE, Duration, Float, Scalar
+from promcraft._modifiers import AT_TYPE, TimeModifiers
+from promcraft._scalar import SCALAR_TYPE, Duration
 from promcraft._string import STRING_TYPE, String
 from promcraft._variable import Variable
 
@@ -77,7 +78,7 @@ class Label:
         return cls(name, Label.Operator.NRE, value)
 
 
-class InstantVector(Query):
+class InstantVector(TimeModifiers, Query):
     """A PromQL instant vector selector.
 
     Selects a set of time series and a single sample value for each at
@@ -101,24 +102,22 @@ class InstantVector(Query):
         labels: list[Label],
         *,
         offset: SCALAR_TYPE | None = None,
-        at: SCALAR_TYPE | Literal["start()", "end()"] | None = None,
+        at: AT_TYPE | None = None,
     ) -> None:
         self.metric = metric
         self.labels = list(labels)
-        self.offset = Duration.from_value(offset) if offset is not None else None
-        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar, Variable)) else at
+        self._init_modifiers(offset, at)
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         """Render this expression as a PromQL string."""
-        offset = f" offset {self.offset}" if self.offset is not None else ""
-        at = f" @ {self.at}" if self.at is not None else ""
+        modifiers = self._modifiers_str()
         sep, _space, pad, inner_pad = self.get_indent(indent, _indent_level)
 
         if not self.labels:
-            return f"{pad}{self.metric}{{}}{offset}{at}"
+            return f"{pad}{self.metric}{{}}{modifiers}"
 
         labels_str = f",{sep}".join(inner_pad + str(label) for label in self.labels)
-        return f"{pad}{self.metric}{{{sep}{labels_str}{sep}{pad}}}{offset}{at}"
+        return f"{pad}{self.metric}{{{sep}{labels_str}{sep}{pad}}}{modifiers}"
 
     @overload
     def __getitem__(self, item: "SUBQUERY_SLICE") -> "Subquery": ...
@@ -148,34 +147,11 @@ class InstantVector(Query):
             at=self.at,
         )
 
-    def set_offset(self, offset: SCALAR_TYPE) -> "InstantVector":
-        """Return a copy of this selector with the given ``offset``."""
-        return InstantVector(metric=self.metric, labels=self.labels, offset=offset, at=self.at)
-
-    def set_at(self, at: SCALAR_TYPE) -> "InstantVector":
-        """Return a copy of this selector with the given ``at``."""
-        return InstantVector(metric=self.metric, labels=self.labels, offset=self.offset, at=at)
-
-    def set_at_start(self) -> "InstantVector":
-        """Return a copy of this selector with ``@ start()``."""
-        return InstantVector(
-            metric=self.metric,
-            labels=self.labels,
-            offset=self.offset,
-            at="start()",
-        )
-
-    def set_at_end(self) -> "InstantVector":
-        """Return a copy of this selector with ``@ end()``."""
-        return InstantVector(
-            metric=self.metric,
-            labels=self.labels,
-            offset=self.offset,
-            at="end()",
-        )
+    def _replace_modifiers(self, *, offset: SCALAR_TYPE | None, at: AT_TYPE | None) -> Self:
+        return type(self)(self.metric, self.labels, offset=offset, at=at)
 
 
-class RangeVector(Query):
+class RangeVector(TimeModifiers, Query):
     """A PromQL range vector selector.
 
     Selects a set of time series and a range of sample values for each,
@@ -203,68 +179,27 @@ class RangeVector(Query):
         resolution: SCALAR_TYPE | None = None,
         *,
         offset: SCALAR_TYPE | None = None,
-        at: SCALAR_TYPE | Literal["start()", "end()"] | None = None,
+        at: AT_TYPE | None = None,
     ) -> None:
         self.metric = metric
         self.labels = list(labels)
         self.range = Duration.from_value(range)
         self.resolution = Duration.from_value(resolution) if resolution is not None else None
-        self.offset = Duration.from_value(offset) if offset is not None else None
-        self.at = Float.from_value(at) if isinstance(at, (float, int, Scalar, Variable)) else at
+        self._init_modifiers(offset, at)
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         """Render this expression as a PromQL string."""
-        offset = f" offset {self.offset}" if self.offset is not None else ""
-        at = f" @ {self.at}" if self.at is not None else ""
+        modifiers = self._modifiers_str()
         resolution = f":{self.resolution}" if self.resolution is not None else ""
         sep, _space, pad, inner_pad = self.get_indent(indent, _indent_level)
 
         if not self.labels:
-            return f"{pad}{self.metric}{{}}[{self.range}{resolution}]{offset}{at}"
+            return f"{pad}{self.metric}{{}}[{self.range}{resolution}]{modifiers}"
 
         labels_str = f",{sep}".join(inner_pad + str(label) for label in self.labels)
-        return f"{pad}{self.metric}{{{sep}{labels_str}{sep}{pad}}}[{self.range}{resolution}]{offset}{at}"  # noqa: E501
+        return f"{pad}{self.metric}{{{sep}{labels_str}{sep}{pad}}}[{self.range}{resolution}]{modifiers}"  # noqa: E501
 
-    def set_offset(self, offset: SCALAR_TYPE) -> "RangeVector":
-        """Return a copy of this selector with the given ``offset``."""
-        return RangeVector(
-            metric=self.metric,
-            labels=self.labels,
-            range=self.range,
-            resolution=self.resolution,
-            offset=offset,
-            at=self.at,
-        )
-
-    def set_at(self, at: SCALAR_TYPE) -> "RangeVector":
-        """Return a copy of this selector with the given ``at``."""
-        return RangeVector(
-            metric=self.metric,
-            labels=self.labels,
-            range=self.range,
-            resolution=self.resolution,
-            offset=self.offset,
-            at=at,
-        )
-
-    def set_at_start(self) -> "RangeVector":
-        """Return a copy of this selector with ``@ start()``."""
-        return RangeVector(
-            metric=self.metric,
-            labels=self.labels,
-            range=self.range,
-            resolution=self.resolution,
-            offset=self.offset,
-            at="start()",
-        )
-
-    def set_at_end(self) -> "RangeVector":
-        """Return a copy of this selector with ``@ end()``."""
-        return RangeVector(
-            metric=self.metric,
-            labels=self.labels,
-            range=self.range,
-            resolution=self.resolution,
-            offset=self.offset,
-            at="end()",
+    def _replace_modifiers(self, *, offset: SCALAR_TYPE | None, at: AT_TYPE | None) -> Self:
+        return type(self)(
+            self.metric, self.labels, self.range, self.resolution, offset=offset, at=at
         )

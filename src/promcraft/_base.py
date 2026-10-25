@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, NamedTuple
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Literal
 
+    from promcraft._modifiers import AT_TYPE
     from promcraft._operator import OPERAND_TYPE, BinaryOprator, Negation
     from promcraft._scalar import SCALAR_TYPE
     from promcraft._subquery import Subquery
@@ -97,7 +97,7 @@ class Query(ABC):
         resolution: "SCALAR_TYPE | None" = None,
         *,
         offset: "SCALAR_TYPE | None" = None,
-        at: "SCALAR_TYPE | Literal['start()', 'end()'] | None" = None,
+        at: "AT_TYPE | None" = None,
     ) -> "Subquery":
         """Evaluate this expression as a subquery: ``<expr>[range:resolution]``.
 
