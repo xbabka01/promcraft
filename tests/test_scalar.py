@@ -64,6 +64,11 @@ def test_float_from_value(value: float, expected: str) -> None:
     assert str(Float.from_value(value)) == expected
 
 
+@pytest.mark.parametrize(("value", "expected"), [(True, "1"), (False, "0")])
+def test_float_constructor_renders_bool_as_int(value: bool, expected: str) -> None:  # noqa: FBT001
+    assert str(Float(value)) == expected
+
+
 def test_float_from_value_passthrough() -> None:
     original = Float(1.5)
     assert Float.from_value(original) is original

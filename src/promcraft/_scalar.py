@@ -32,15 +32,15 @@ class Float(Scalar):
     """
 
     def __init__(self, value: float) -> None:
-        self.value = value
+        # bool is an int subclass but would render as "True"/"False"
+        self.value = int(value) if isinstance(value, bool) else value
 
     @classmethod
     def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
         """Wrap a raw number, passing ``Scalar`` and ``Variable`` through unchanged."""
         if isinstance(value, Scalar | Variable):
             return value
-        # bool is an int subclass but would render as "True"/"False"
-        return cls(int(value) if isinstance(value, bool) else value)
+        return cls(value)
 
     def to_string(self, indent: str | int | None = None, _indent_level: int = 0) -> str:
         """Render this expression as a PromQL string."""
