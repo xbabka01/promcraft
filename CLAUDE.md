@@ -33,7 +33,7 @@ This is a Python library for building PromQL query strings programmatically. All
 
 - [src/promcraft/_base.py](src/promcraft/_base.py) — `Query`: abstract base class with a single required `to_string` method. Everything in the library inherits from it. It also provides the Python operator overloads (`+`, `==`, unary `-`, ...) that build `BinaryOprator`/`Negation`, and `subquery()`/slice syntax.
 - [src/promcraft/_scalar.py](src/promcraft/_scalar.py) — `Scalar(Query)` (abstract), then `Float`, `Hex`, `Duration`. Scalars are used as values in other query components (offsets, range windows, etc.).
-- [src/promcraft/_variable.py](src/promcraft/_variable.py) — `Variable(Query)`: Grafana template variable (`$name` / `${name}`). Passed through unchanged in numeric positions; `String.from_value` quotes it (`"$name"`) in string positions.
+- [src/promcraft/_variable.py](src/promcraft/_variable.py) — `Variable(Query)`: Grafana template variable (`$name` / `${name}`). `from_value` passes it through unchanged everywhere; only `Label` quotes it (`"$name"`) as a label matcher value.
 - [src/promcraft/_string.py](src/promcraft/_string.py) — `String(Query)`: PromQL string literals with configurable quoting (`"`, `'`, `` ` ``).
 - [src/promcraft/_vector.py](src/promcraft/_vector.py) — `Label` (label matcher), `InstantVector(Query)`, `RangeVector(Query)`. These are the primary selector types.
 - [src/promcraft/_modifiers.py](src/promcraft/_modifiers.py) — `TimeModifiers` mixin shared by `InstantVector`, `RangeVector`, `Subquery`: `offset`/`@` normalisation, rendering, and `with_offset`/`with_at`/`with_at_start`/`with_at_end`. Each class implements only `_replace_modifiers`.
@@ -50,5 +50,5 @@ All implementation modules are `_`-prefixed: users import only from `promcraft`,
 - Every `Query` implements `to_string` — the output IS the PromQL query fragment.
 - `BinaryOprator` auto-parenthesizes nested `BinaryOprator`/`Negation` operands (and a negative `^` base). A `group_left`/`group_right` without `on`/`ignoring` renders `ignoring ()`; group modifiers on `and`/`or`/`unless` raise.
 - `BinaryOprator` and `Aggregation` support method chaining (`.on()`, `.ignoring()`, `.group_left()`, `.group_right()`, `.bool()`, `.by()`, `.without()`) that return new instances (immutable style).
-- Raw Python values are coerced via `from_value`: `str`/`Variable` → `String` in string positions, numbers → `Float`/`Duration` in scalar positions.
+- Raw Python values are coerced via `from_value`: `str` → `String` in string positions (`Variable` passes through, except as a `Label` value), numbers → `Float`/`Duration` in scalar positions.
 - Mypy is strict (`disallow_untyped_defs`, `warn_return_any`, etc.) — all new code must be fully typed.

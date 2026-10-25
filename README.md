@@ -194,7 +194,7 @@ topk(Variable("k"), InstantVector("requests", []))
 # 'topk($k, requests{})'
 ```
 
-In numeric positions a `Variable` is never coerced into a literal — `Float.from_value()`, `Hex.from_value()` and `Duration.from_value()` pass it through unchanged, the same way they do for `Scalar` instances. In string positions (label values, `count_values`, label-manipulation function arguments) `String.from_value()` wraps it in quotes (`"$environment"`), because Grafana substitutes raw text and PromQL string values must be quoted.
+A `Variable` is never coerced into a literal — `Float.from_value()`, `Hex.from_value()`, `Duration.from_value()`, and `String.from_value()` all pass an existing `Variable` through unchanged, the same way they already do for `Scalar`/`String` instances. The one exception is a label matcher value: `Label` wraps it in quotes (`"$environment"`), because Grafana substitutes raw text and a PromQL label value must be quoted.
 
 ---
 
