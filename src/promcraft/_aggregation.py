@@ -142,9 +142,10 @@ def bottomk(k: SCALAR_TYPE, query: Query) -> Aggregation:
 
 
 def count_values(label: STRING_TYPE, query: Query) -> Aggregation:
-    """Count the number of series per unique sample value, writing counts to ``parameter`` label.
+    """Count the series sharing each distinct sample value (``count_values(label, v)``).
 
-    PromQL: ``count_values(label, v)``
+    Each output series carries that sample value in a new label named ``label``,
+    and its value is the number of input series that had it.
     """
     return Aggregation(operator="count_values", params=[String.from_value(label), query])
 
