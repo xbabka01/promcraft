@@ -1,0 +1,28 @@
+name: Feature request
+description: Suggest a new PromQL construct, helper, or API improvement.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to build, and what makes it hard or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: promql
+    attributes:
+      label: Target PromQL
+      description: The PromQL you want to be able to generate, if applicable.
+      render: text
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API
+      description: How you would like to write it in Python.
+      render: python
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you use today, or other designs you considered.
