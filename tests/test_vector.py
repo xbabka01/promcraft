@@ -211,6 +211,15 @@ def test_vector_modifier_helpers_return_copy(
     assert str(query) == before
 
 
+@pytest.mark.parametrize("at", ["start", "now", "bogus", "end"])
+@pytest.mark.parametrize("query", [_iv, _rv])
+def test_invalid_at_keyword_raises(query: InstantVector | RangeVector, at: str) -> None:
+    with pytest.raises(ValueError, match="Invalid @ modifier"):
+        query.with_at(at)  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="Invalid @ modifier"):
+        InstantVector("up", [], at=at)  # type: ignore[arg-type]
+
+
 @pytest.mark.parametrize("query", [_iv, _rv])
 def test_vector_modifier_helpers_do_not_share_labels(query: InstantVector | RangeVector) -> None:
     copy = query.with_offset(60)
