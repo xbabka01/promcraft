@@ -1,5 +1,11 @@
+import ast
 import importlib
+import inspect
 import pkgutil
+import subprocess
+import sys
+
+import pytest
 
 import promcraft
 from promcraft import Float, Function, InstantVector
@@ -32,3 +38,26 @@ def test_submodules_are_private() -> None:
 def test_all_names_are_exported() -> None:
     missing = [name for name in promcraft.__all__ if not hasattr(promcraft, name)]
     assert missing == []
+
+
+def test_lazy_imports_cover_all_submodules() -> None:
+    """Every module ``__init__`` imports from is listed in ``__lazy_modules__``."""
+    tree = ast.parse(inspect.getsource(promcraft))
+    imported = {
+        node.module for node in tree.body if isinstance(node, ast.ImportFrom) and node.module
+    }
+    assert sorted(promcraft.__lazy_modules__) == sorted(imported)
+
+
+@pytest.mark.skipif(sys.version_info < (3, 15), reason="lazy imports need Python 3.15+")
+def test_submodules_load_lazily() -> None:
+    code = (
+        "import sys, promcraft\n"
+        "print(any(m.startswith('promcraft._') for m in sys.modules))\n"
+        "promcraft.rate\n"
+        "print('promcraft._functions' in sys.modules)\n"
+    )
+    result = subprocess.run(  # noqa: S603
+        [sys.executable, "-c", code], capture_output=True, text=True, check=True
+    )
+    assert result.stdout.split() == ["False", "True"]

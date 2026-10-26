@@ -1,5 +1,19 @@
 """Build PromQL query strings programmatically."""
 
+# Python 3.15+ (PEP 810) defers these imports until a name is first used;
+# older Pythons ignore the attribute and import eagerly.
+__lazy_modules__ = [
+    "promcraft._aggregation",
+    "promcraft._base",
+    "promcraft._functions",
+    "promcraft._operator",
+    "promcraft._scalar",
+    "promcraft._string",
+    "promcraft._subquery",
+    "promcraft._variable",
+    "promcraft._vector",
+]
+
 from promcraft._aggregation import (
     Aggregation,
     Grouping,
