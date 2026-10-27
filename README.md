@@ -364,7 +364,7 @@ from promcraft import (
     mul,
     div,
     mod,
-    pow,
+    pow_,
     eq,
     neq,
     lt,
@@ -395,7 +395,7 @@ and_(v1, v2)  # "requests{} and errors{}"
 | `mul`    | `*`      | Arithmetic     |
 | `div`    | `/`      | Arithmetic     |
 | `mod`    | `%`      | Arithmetic     |
-| `pow`    | `^`      | Arithmetic     |
+| `pow_`   | `^`      | Arithmetic     |
 | `eq`     | `==`     | Comparison     |
 | `neq`    | `!=`     | Comparison     |
 | `lt`     | `<`      | Comparison     |
@@ -593,15 +593,15 @@ first_over_time(rv)  # "first_over_time(http_requests_total{}[5m])"
 #### Math & rounding
 
 ```python
-from promcraft import InstantVector, abs, ceil, floor, sqrt, round, clamp, clamp_min, clamp_max
+from promcraft import InstantVector, abs_, ceil, floor, sqrt, round_, clamp, clamp_min, clamp_max
 
 v = InstantVector("cpu_usage", [])
 
-abs(v)  # "abs(cpu_usage{})"
+abs_(v)  # "abs(cpu_usage{})"
 ceil(v)  # "ceil(cpu_usage{})"
 sqrt(v)  # "sqrt(cpu_usage{})"
-round(v)  # "round(cpu_usage{})"
-round(v, 0.5)  # "round(cpu_usage{}, 0.5)"
+round_(v)  # "round(cpu_usage{})"
+round_(v, 0.5)  # "round(cpu_usage{}, 0.5)"
 clamp(v, 0.0, 1.0)  # "clamp(cpu_usage{}, 0.0, 1.0)"
 clamp_min(v, 0.0)  # "clamp_min(cpu_usage{}, 0.0)"
 clamp_max(v, 1.0)  # "clamp_max(cpu_usage{}, 1.0)"

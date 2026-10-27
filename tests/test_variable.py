@@ -14,7 +14,7 @@ from promcraft import (
     count_values,
     label_replace,
     quantile,
-    round,
+    round_,
     sum_,
     topk,
 )
@@ -85,7 +85,7 @@ def test_variable_as_aggregation_phi_param() -> None:
 
 
 def test_variable_as_function_scalar_argument() -> None:
-    assert str(round(_left, Variable("nearest"))) == "round(left{}, $nearest)"
+    assert str(round_(_left, Variable("nearest"))) == "round(left{}, $nearest)"
 
 
 # --- in place of a raw str/int identifier (metric name, label name) --------

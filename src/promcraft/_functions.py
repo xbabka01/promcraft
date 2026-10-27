@@ -1,4 +1,4 @@
-"""PromQL function helpers (``rate``, ``abs``, ``histogram_quantile``, ...)."""
+"""PromQL function helpers (``rate``, ``abs_``, ``histogram_quantile``, ...)."""
 
 from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._operator import OPERAND_TYPE, _as_operand
@@ -44,7 +44,7 @@ class Function(Query):
 # ---------------------------------------------------------------------------
 
 
-def abs(v: Query) -> Function:
+def abs_(v: Query) -> Function:
     """Return the absolute value of each float sample in ``v``."""
     return Function("abs", [v])
 
@@ -361,7 +361,7 @@ def vector(s: SCALAR_TYPE) -> Function:
 # ---------------------------------------------------------------------------
 
 
-def round(v: Query, to_nearest: SCALAR_TYPE | None = None) -> Function:
+def round_(v: Query, to_nearest: SCALAR_TYPE | None = None) -> Function:
     """Round float samples to the nearest integer, or to a multiple of ``to_nearest``."""
     if to_nearest is None:
         return Function("round", [v])

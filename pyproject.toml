@@ -121,8 +121,8 @@ ignore = [
 ]
 
 [tool.ruff.lint.flake8-builtins]
-# Public API mirrors PromQL names, which intentionally shadow these builtins
-ignorelist = ["abs", "max", "min", "pow", "range", "round", "type"]
+# Parameter names mirror PromQL terms, which intentionally shadow these builtins
+ignorelist = ["max", "min", "range", "type"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "D", "PLR2004"]

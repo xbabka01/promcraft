@@ -228,14 +228,14 @@ class Query(ABC):
         return self._binary(mod, other, reflected=True)
 
     def __pow__(self, other: "OPERAND_TYPE") -> "BinaryOprator":
-        from promcraft._operator import pow
+        from promcraft._operator import pow_
 
-        return self._binary(pow, other)
+        return self._binary(pow_, other)
 
     def __rpow__(self, other: float) -> "BinaryOprator":
-        from promcraft._operator import pow
+        from promcraft._operator import pow_
 
-        return self._binary(pow, other, reflected=True)
+        return self._binary(pow_, other, reflected=True)
 
     def _comparison(
         self,
