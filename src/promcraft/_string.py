@@ -53,12 +53,14 @@ class String(Query):
     Raises:
         ValueError: If `quote` is a backtick and `value` contains one.
 
-    Example:
-        ```python
-        String("prod")  # → '"prod"'
-        String("us-east", "'")  # → "'us-east'"
-        String("line\nnew", "`")  # → '`line\nnew`'
-        ```
+    Examples:
+        >>> print(String("prod"))
+        "prod"
+        >>> print(String("us-east", "'"))
+        'us-east'
+        >>> print(String("line\nnew", "`"))
+        `line
+        new`
     """
 
     def __init__(self, value: str, quote: Literal["`", '"', "'"] = '"') -> None:

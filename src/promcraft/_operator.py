@@ -28,11 +28,11 @@ class Match:
     - `on(labels)`      — match *only* on the listed labels, ignore all others.
     - `ignoring(labels)` — exclude the listed labels from matching; use all others.
 
-    Example:
-        ```python
-        Match.on(["env", "job"])  # → 'on (env, job)'
-        Match.ignoring(["instance"])  # → 'ignoring (instance)'
-        ```
+    Examples:
+        >>> print(Match.on(["env", "job"]))
+        on (env, job)
+        >>> print(Match.ignoring(["instance"]))
+        ignoring (instance)
     """
 
     def __init__(self, type: Literal["on", "ignoring"], labels: list[str | Variable]) -> None:
@@ -69,11 +69,11 @@ class Group:
     The optional `labels` list copies those labels from the "one" side
     into the result.
 
-    Example:
-        ```python
-        Group.left(["region"])  # → 'group_left (region)'
-        Group.right([])  # → 'group_right ()'
-        ```
+    Examples:
+        >>> print(Group.left(["region"]))
+        group_left (region)
+        >>> print(Group.right([]))
+        group_right ()
     """
 
     def __init__(self, type: Literal["left", "right"], labels: list[str | Variable]) -> None:
@@ -120,14 +120,16 @@ class BinaryOprator(Query):
         The class name `BinaryOprator` (missing an 'e') is intentional and
         preserved for backwards compatibility.
 
-    Example:
-        ```python
-        add(http_requests_total, http_errors_total).on(["env"])
-        # → 'http_requests_total{} + on (env) http_errors_total{}'
+    Examples:
+        >>> http_requests_total = InstantVector("http_requests_total", [])
+        >>> http_errors_total = InstantVector("http_errors_total", [])
+        >>> errors = InstantVector("errors", [])
 
-        gt(errors, Float(0)).bool()
-        # → 'errors{} > bool 0'
-        ```
+        >>> print(add(http_requests_total, http_errors_total).on(["env"]))
+        http_requests_total{} + on (env) http_errors_total{}
+
+        >>> print(gt(errors, Float(0)).bool())
+        errors{} > bool 0
 
     Raises:
         ValueError: If `return_bool` is set on a non-comparison operator, a
@@ -314,11 +316,15 @@ class Negation(Query):
     Binary-operation operands are parenthesised so the sign applies to the
     whole expression.
 
-    Example:
-        ```python
-        -rate(errors_total[5m])  # → '-rate(errors_total{}[5m])'
-        -(a + b)  # → '-(a{} + b{})'
-        ```
+    Examples:
+        >>> errors_total = InstantVector("errors_total", [])
+        >>> a = InstantVector("a", [])
+        >>> b = InstantVector("b", [])
+
+        >>> print(-rate(errors_total[Duration(m=5)]))
+        -rate(errors_total{}[5m])
+        >>> print(-(a + b))
+        -(a{} + b{})
     """
 
     def __init__(self, operand: OPERAND_TYPE) -> None:

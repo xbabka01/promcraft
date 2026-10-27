@@ -40,11 +40,11 @@ class Style:
         paren_space: Render `by (job)` (`True`) or `by(job)` (`False`);
             also applies to `on`, `ignoring`, `group_left` and `group_right`.
 
-    Example:
-        ```python
-        expr.to_string(style=Style.prometheus())
-        # → 'sum by (job) (rate(up{job="api"}[5m]))'
-        ```
+    Examples:
+        >>> up = InstantVector("up", [Label.eq("job", "api")])
+        >>> expr = sum_(rate(up[Duration(m=5)])).by(["job"])
+        >>> print(expr.to_string(style=Style.prometheus()))
+        sum by (job) (rate(up{job="api"}[5m]))
     """
 
     class GroupingPosition(enum.Enum):

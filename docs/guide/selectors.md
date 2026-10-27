@@ -4,13 +4,18 @@
 
 Represents a label matcher used inside vector selectors. Use the factory methods for convenience. The value accepts either a raw `str` or a `String` instance.
 
-```python
-from promcraft import Label, String
+```pycon
+>>> from promcraft import Label, String
 
-Label.eq("job", "prometheus")  # 'job = "prometheus"'
-Label.neq("env", "prod")  # 'env != "prod"'
-Label.re("name", "prom.*")  # 'name =~ "prom.*"'
-Label.nre("name", String("test.*"))  # 'name !~ "test.*"'
+>>> print(Label.eq("job", "prometheus"))
+job = "prometheus"
+>>> print(Label.neq("env", "prod"))
+env != "prod"
+>>> print(Label.re("name", "prom.*"))
+name =~ "prom.*"
+>>> print(Label.nre("name", String("test.*")))
+name !~ "test.*"
+
 ```
 
 | Method      | Operator | Meaning              |
@@ -24,41 +29,40 @@ Label.nre("name", String("test.*"))  # 'name !~ "test.*"'
 
 Selects a set of time series at a single point in time.
 
-```python
-InstantVector(metric, labels, *, offset=None, at=None)
-```
+Signature: `InstantVector(metric, labels, *, offset=None, at=None)`
 
-```python
-from promcraft import InstantVector, Label, String, Duration, Float
+```pycon
+>>> from promcraft import InstantVector, Label, String, Duration, Float
 
-# Basic
-InstantVector("up", [])
-# "up{}"
+>>> # Basic
+>>> print(InstantVector("up", []))
+up{}
 
-# With labels
-InstantVector(
-    "http_requests_total",
-    [
-        Label.eq("job", "api"),
-        Label.re("status", "5.."),
-    ],
-)
-# 'http_requests_total{ job = "api", status =~ "5.." }'
+>>> # With labels
+>>> print(InstantVector(
+...     "http_requests_total",
+...     [
+...         Label.eq("job", "api"),
+...         Label.re("status", "5.."),
+...     ],
+... ))
+http_requests_total{ job = "api", status =~ "5.." }
 
-# With offset
-InstantVector("up", [], offset=Duration(m=5))
-# "up{} offset 5m"
+>>> # With offset
+>>> print(InstantVector("up", [], offset=Duration(m=5)))
+up{} offset 5m
 
-# With @ modifier (Unix timestamp)
-InstantVector("up", [], at=1609746000.0)
-# "up{} @ 1609746000.0"
+>>> # With @ modifier (Unix timestamp)
+>>> print(InstantVector("up", [], at=1609746000.0))
+up{} @ 1609746000.0
 
-# With @ modifier (range function references)
-InstantVector("up", [], at="start()")
-# "up{} @ start()"
+>>> # With @ modifier (range function references)
+>>> print(InstantVector("up", [], at="start()"))
+up{} @ start()
 
-InstantVector("up", [], at="end()")
-# "up{} @ end()"
+>>> print(InstantVector("up", [], at="end()"))
+up{} @ end()
+
 ```
 
 Selectors and subqueries also have `with_offset()`, `with_at()`, `with_at_start()` and
@@ -68,42 +72,44 @@ Selectors and subqueries also have `with_offset()`, `with_at()`, `with_at_start(
 
 Selects a range of samples over a time window. Required by functions like `rate()`, `increase()`, `avg_over_time()`.
 
-```python
-RangeVector(metric, labels, range, resolution=None, *, offset=None, at=None)
-```
+Signature: `RangeVector(metric, labels, range, resolution=None, *, offset=None, at=None)`
 
-```python
-from promcraft import RangeVector, Label, String, Duration
+```pycon
+>>> from promcraft import RangeVector, Label, String, Duration
 
-# Basic range
-RangeVector("http_requests_total", [], Duration(m=5))
-# "http_requests_total{}[5m]"
+>>> # Basic range
+>>> print(RangeVector("http_requests_total", [], Duration(m=5)))
+http_requests_total{}[5m]
 
-# With resolution (subquery step)
-RangeVector("up", [], Duration(m=5), resolution=Duration(s=30))
-# "up{}[5m:30s]"
+>>> # With resolution (subquery step)
+>>> print(RangeVector("up", [], Duration(m=5), resolution=Duration(s=30)))
+up{}[5m:30s]
 
-# With offset
-RangeVector("up", [], Duration(m=5), offset=Duration(m=1))
-# "up{}[5m] offset 1m"
+>>> # With offset
+>>> print(RangeVector("up", [], Duration(m=5), offset=Duration(m=1)))
+up{}[5m] offset 1m
 
-# Combined
-RangeVector(
-    "http_requests_total",
-    [Label.eq("job", "api")],
-    Duration(m=5),
-    resolution=Duration(s=30),
-    offset=Duration(m=1),
-    at="end()",
-)
-# 'http_requests_total{ job = "api" }[5m:30s] offset 1m @ end()'
+>>> # Combined
+>>> print(RangeVector(
+...     "http_requests_total",
+...     [Label.eq("job", "api")],
+...     Duration(m=5),
+...     resolution=Duration(s=30),
+...     offset=Duration(m=1),
+...     at="end()",
+... ))
+http_requests_total{ job = "api" }[5m:30s] offset 1m @ end()
+
 ```
 
 `InstantVector` also supports subscript syntax as a shortcut for building a `RangeVector` that reuses its metric, labels, offset and `@` modifier:
 
-```python
-InstantVector("up", [])[Duration(m=5)]  # equivalent to RangeVector("up", [], Duration(m=5))
-InstantVector("up", [])[Duration(m=5), Duration(s=30)]  # range + resolution
+```pycon
+>>> print(InstantVector("up", [])[Duration(m=5)])  # same as RangeVector("up", [], Duration(m=5))
+up{}[5m]
+>>> print(InstantVector("up", [])[Duration(m=5), Duration(s=30)])  # range + resolution
+up{}[5m:30s]
+
 ```
 
 ## `Subquery`
@@ -114,31 +120,36 @@ on any query, or construct `Subquery` directly. Leaving out `resolution` uses th
 evaluation interval (`[1h:]`). Binary operations and negations are
 parenthesized automatically.
 
-```python
-from promcraft import Duration, InstantVector, Subquery, max_over_time, rate, sum_
+```pycon
+>>> from promcraft import Duration, InstantVector, Subquery, max_over_time, rate, sum_
 
-requests = InstantVector("http_requests_total", [])
-per_second = rate(requests[Duration(m=5)])
+>>> requests = InstantVector("http_requests_total", [])
+>>> per_second = rate(requests[Duration(m=5)])
 
-per_second.subquery(Duration(h=1), Duration(m=1))
-# "rate(http_requests_total{}[5m])[1h:1m]"
+>>> print(per_second.subquery(Duration(h=1), Duration(m=1)))
+rate(http_requests_total{}[5m])[1h:1m]
 
-max_over_time(per_second.subquery(Duration(h=1)))
-# "max_over_time(rate(http_requests_total{}[5m])[1h:])"
+>>> print(max_over_time(per_second.subquery(Duration(h=1))))
+max_over_time(rate(http_requests_total{}[5m])[1h:])
 
-sum_(per_second).by(["job"]).subquery(Duration(h=1), Duration(m=1), offset=Duration(d=1))
-# "sum(rate(http_requests_total{}[5m])) by (job)[1h:1m] offset 1d"
+>>> print(sum_(per_second).by(["job"]).subquery(Duration(h=1), Duration(m=1), offset=Duration(d=1)))
+sum(rate(http_requests_total{}[5m])) by (job)[1h:1m] offset 1d
 
-Subquery(requests + requests, Duration(h=1), at="end()")
-# "(http_requests_total{} + http_requests_total{})[1h:] @ end()"
+>>> print(Subquery(requests + requests, Duration(h=1), at="end()"))
+(http_requests_total{} + http_requests_total{})[1h:] @ end()
+
 ```
 
 Slice syntax is a shorthand for `.subquery(range, resolution)`:
 
-```python
-per_second[Duration(h=1) : Duration(m=1)]  # "rate(http_requests_total{}[5m])[1h:1m]"
-per_second[3600:]  # "rate(http_requests_total{}[5m])[1h:]"
-requests[Duration(h=1) :]  # "http_requests_total{}[1h:]"
+```pycon
+>>> print(per_second[Duration(h=1) : Duration(m=1)])
+rate(http_requests_total{}[5m])[1h:1m]
+>>> print(per_second[3600:])
+rate(http_requests_total{}[5m])[1h:]
+>>> print(requests[Duration(h=1) :])
+http_requests_total{}[1h:]
+
 ```
 
 On an `InstantVector`, a slice builds a `Subquery`, while plain and tuple indexing still

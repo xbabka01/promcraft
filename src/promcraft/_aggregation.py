@@ -15,11 +15,11 @@ class Grouping:
     - `by(labels)`      — keep only the listed labels in the output.
     - `without(labels)` — drop the listed labels; preserve all others.
 
-    Example:
-        ```python
-        Grouping.by(["job", "env"])  # → 'by (job, env)'
-        Grouping.without(["instance"])  # → 'without (instance)'
-        ```
+    Examples:
+        >>> print(Grouping.by(["job", "env"]))
+        by (job, env)
+        >>> print(Grouping.without(["instance"]))
+        without (instance)
     """
 
     def __init__(self, type: Literal["by", "without"], labels: list[str | Variable]) -> None:
@@ -51,16 +51,17 @@ class Aggregation(Query):
     [`topk`][promcraft.topk]; [`by`][promcraft.Aggregation.by] and
     [`without`][promcraft.Aggregation.without] return a copy with a grouping clause.
 
-    Example:
-        ```python
-        sum_(rate(http_requests_total[Duration(m=5)])).by(["job"])
-        # → 'sum(rate(http_requests_total{}[5m])) by (job)'
-        # with Style(grouping=Style.GroupingPosition.PREFIX):
-        # → 'sum by (job) (rate(http_requests_total{}[5m]))'
+    Examples:
+        >>> http_requests_total = InstantVector("http_requests_total", [])
 
-        topk(3, http_requests_total).without(["instance"])
-        # → 'topk(3, http_requests_total{}) without (instance)'
-        ```
+        >>> expr = sum_(rate(http_requests_total[Duration(m=5)])).by(["job"])
+        >>> print(expr)
+        sum(rate(http_requests_total{}[5m])) by (job)
+        >>> print(expr.to_string(style=Style(grouping=Style.GroupingPosition.PREFIX)))
+        sum by (job) (rate(http_requests_total{}[5m]))
+
+        >>> print(topk(3, http_requests_total).without(["instance"]))
+        topk(3, http_requests_total{}) without (instance)
     """
 
     def __init__(

@@ -18,11 +18,11 @@ class Variable(Query):
         name: Variable name, without the leading `$`.
         braces: Render `${name}` instead of `$name`.
 
-    Example:
-        ```python
-        Variable("job")  # → "$job"
-        Variable("job", braces=True)  # → "${job}"
-        ```
+    Examples:
+        >>> print(Variable("job"))
+        $job
+        >>> print(Variable("job", braces=True))
+        ${job}
     """
 
     def __init__(self, name: str, *, braces: bool = False) -> None:

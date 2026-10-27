@@ -57,11 +57,11 @@ class Float(Scalar):
 class Hex(Scalar):
     """A hexadecimal integer scalar literal (e.g. `0xff`, `0x8f`).
 
-    Example:
-        ```python
-        Hex(255)  # → "0xff"
-        Hex(16)  # → "0x10"
-        ```
+    Examples:
+        >>> print(Hex(255))
+        0xff
+        >>> print(Hex(16))
+        0x10
     """
 
     def __init__(self, value: int) -> None:
@@ -132,13 +132,15 @@ class Duration(Scalar):
     prepends a `-` sign for negative offsets.  Fields are keyword-only, see
     [`DurationParams`][promcraft.DurationParams].
 
-    Example:
-        ```python
-        Duration(h=1, m=30)  # → "1h30m"
-        Duration(ms=500)  # → "500ms"
-        Duration(d=1, neg=True)  # → "-1d"
-        Duration()  # → "0s"
-        ```
+    Examples:
+        >>> print(Duration(h=1, m=30))
+        1h30m
+        >>> print(Duration(ms=500))
+        500ms
+        >>> print(Duration(d=1, neg=True))
+        -1d
+        >>> print(Duration())
+        0s
 
     Raises:
         TypeError: If an unknown keyword (e.g. `min=5`) is passed.

@@ -30,12 +30,13 @@ class Label:
     or a [`Variable`][promcraft.Variable]; the latter two are wrapped in a
     double-quoted [`String`][promcraft.String].
 
-    Example:
-        ```python
-        Label.eq("env", "prod")  # → 'env = "prod"'
-        Label.re("job", String("api.*", "'"))  # → "job =~ 'api.*'"
-        Label.eq("env", Variable("env"))  # → 'env = "$env"'
-        ```
+    Examples:
+        >>> print(Label.eq("env", "prod"))
+        env = "prod"
+        >>> print(Label.re("job", String("api.*", "'")))
+        job =~ 'api.*'
+        >>> print(Label.eq("env", Variable("env")))
+        env = "$env"
     """
 
     class Operator(enum.Enum):
@@ -177,14 +178,12 @@ class InstantVector(TimeModifiers, Query):
         offset: Time shift; raw numbers are seconds (`300` → `offset 5m`).
         at: Evaluation time: a Unix timestamp, `"start()"` or `"end()"`.
 
-    Example:
-        ```python
-        InstantVector("http_requests_total", [Label.eq("job", String("api"))])
-        # → 'http_requests_total{ job = "api" }'
+    Examples:
+        >>> print(InstantVector("http_requests_total", [Label.eq("job", String("api"))]))
+        http_requests_total{ job = "api" }
 
-        InstantVector("up", [], offset=Duration(m=5))
-        # → 'up{} offset 5m'
-        ```
+        >>> print(InstantVector("up", [], offset=Duration(m=5)))
+        up{} offset 5m
     """
 
     def __init__(
@@ -261,14 +260,12 @@ class RangeVector(TimeModifiers, Query):
         offset: Time shift; raw numbers are seconds.
         at: Evaluation time: a Unix timestamp, `"start()"` or `"end()"`.
 
-    Example:
-        ```python
-        RangeVector("http_requests_total", [], range=Duration(m=5))
-        # → 'http_requests_total{}[5m]'
+    Examples:
+        >>> print(RangeVector("http_requests_total", [], range=Duration(m=5)))
+        http_requests_total{}[5m]
 
-        RangeVector("rate_query", [], range=Duration(h=1), resolution=Duration(m=1))
-        # → 'rate_query{}[1h:1m]'
-        ```
+        >>> print(RangeVector("rate_query", [], range=Duration(h=1), resolution=Duration(m=1)))
+        rate_query{}[1h:1m]
     """
 
     def __init__(

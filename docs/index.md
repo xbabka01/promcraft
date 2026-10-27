@@ -14,42 +14,47 @@ Requires Python 3.11+.
 
 ## Quick Start
 
-```python
-from promcraft import InstantVector, RangeVector, Label, Duration
+```pycon
+>>> from promcraft import InstantVector, RangeVector, Label, Duration
 
-# Simple metric selector
-query = InstantVector("up", [])
-str(query)  # "up{}"
+>>> # Simple metric selector
+>>> query = InstantVector("up", [])
+>>> print(query)
+up{}
 
-# With label filters
-query = InstantVector(
-    "http_requests_total",
-    [
-        Label.eq("job", "api-server"),
-        Label.eq("env", "production"),
-    ],
-)
-str(query)  # 'http_requests_total{ job = "api-server", env = "production" }'
+>>> # With label filters
+>>> query = InstantVector(
+...     "http_requests_total",
+...     [
+...         Label.eq("job", "api-server"),
+...         Label.eq("env", "production"),
+...     ],
+... )
+>>> print(query)
+http_requests_total{ job = "api-server", env = "production" }
 
-# Range vector with rate()
-from promcraft import rate
+>>> # Range vector with rate()
+>>> from promcraft import rate
 
-query = rate(
-    RangeVector(
-        "http_requests_total",
-        [
-            Label.eq("job", "api-server"),
-        ],
-        Duration(m=5),
-    )
-)
-str(query)  # 'rate(http_requests_total{ job = "api-server" }[5m])'
+>>> query = rate(
+...     RangeVector(
+...         "http_requests_total",
+...         [
+...             Label.eq("job", "api-server"),
+...         ],
+...         Duration(m=5),
+...     )
+... )
+>>> print(query)
+rate(http_requests_total{ job = "api-server" }[5m])
 
-# Binary operation
-left = InstantVector("http_requests_total", [Label.eq("status", "500")])
-right = InstantVector("http_requests_total", [])
-ratio = left / right
-str(ratio)  # 'http_requests_total{ status = "500" } / http_requests_total{}'
+>>> # Binary operation
+>>> left = InstantVector("http_requests_total", [Label.eq("status", "500")])
+>>> right = InstantVector("http_requests_total", [])
+>>> ratio = left / right
+>>> print(ratio)
+http_requests_total{ status = "500" } / http_requests_total{}
+
 ```
 
 ## Raw values instead of wrapper types
@@ -62,9 +67,16 @@ converted with `Float.from_value()`. Range, resolution and `offset` values are c
 `Duration.from_value()` instead, so `offset=300` renders as `offset 5m`. Passing an existing
 `String`/`Scalar` instance through is a no-op, so both styles compose freely:
 
-```python
-Label.eq("job", "api-server")  # same as Label.eq("job", String("api-server"))
-topk(5, v)  # same as topk(Float(5), v)
+```pycon
+>>> from promcraft import InstantVector, Label, topk
+
+>>> v = InstantVector("http_requests_total", [])
+
+>>> print(Label.eq("job", "api-server"))  # same as Label.eq("job", String("api-server"))
+job = "api-server"
+>>> print(topk(5, v))  # same as topk(Float(5), v)
+topk(5, http_requests_total{})
+
 ```
 
 ## Where next
