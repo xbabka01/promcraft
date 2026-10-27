@@ -58,7 +58,7 @@ poetry run ruff check --fix
   public API changes. A new public name also goes on the matching `docs/api/*.md` page.
 - Docstrings use Google style with Markdown (`Args:`, `Raises:`, `Example:` with a fenced
   code block). Link other objects by their public path, e.g. `` [`Float`][promcraft.Float] ``.
-  Check the docs with `poetry install --with docs` and `poetry run mkdocs build --strict`.
+  Check the docs with `poetry install --with docs` and `poetry run zensical build --strict`.
 
 ## Pull requests
 

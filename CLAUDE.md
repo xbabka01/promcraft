@@ -22,11 +22,11 @@ poetry run pytest tests/test_operator.py::test_binary_helpers -o addopts=""
 
 # Docs (optional `docs` group): live preview, and the strict build CI runs
 poetry install --with docs
-poetry run mkdocs serve
-poetry run mkdocs build --strict
+poetry run zensical serve
+poetry run zensical build --strict
 ```
 
-User documentation lives in `docs/` (MkDocs Material, config in `mkdocs.yml`), deployed to GitHub Pages by [.github/workflows/docs.yml](.github/workflows/docs.yml) on release tags; PRs and `main` only build it. `docs/guide/*.md` are hand-written guides; `docs/api/*.md` hold one `::: promcraft.<name>` mkdocstrings block per public name, so a new public name must be added to the matching API page. `README.md` is kept short (it is also the PyPI description) and links to the site with absolute URLs only.
+User documentation lives in `docs/` (built with [Zensical](https://zensical.org/), config in `zensical.toml`; API pages via mkdocstrings-python), deployed to GitHub Pages by [.github/workflows/docs.yml](.github/workflows/docs.yml) on release tags; PRs and `main` only build it. `docs/guide/*.md` are hand-written guides; `docs/api/*.md` hold one `::: promcraft.<name>` mkdocstrings block per public name, so a new public name must be added to the matching API page. `README.md` is kept short (it is also the PyPI description) and links to the site with absolute URLs only.
 
 The `version` in `pyproject.toml` (`0.0.0`) is a placeholder and is never bumped by hand. The release workflow ([.github/workflows/release.yaml](.github/workflows/release.yaml)) sets the real version from the pushed git tag (`poetry version "${GITHUB_REF_NAME#v}"`, so tag `v0.5.0` publishes `0.5.0`). Do not flag the mismatch between `pyproject.toml` and the tags, and do not suggest bumping it.
 

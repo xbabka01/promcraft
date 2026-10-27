@@ -26,10 +26,8 @@ jobs:
       - name: Install dependencies
         run: poetry install --only docs
       - name: Build docs
-        # --strict fails on broken cross-references and pages missing from nav
-        run: poetry run mkdocs build --strict
-        env:
-          NO_MKDOCS_2_WARNING: "1"
+        # --strict fails on warnings such as broken cross-references
+        run: poetry run zensical build --strict --clean
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: site/

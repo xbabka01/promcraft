@@ -127,7 +127,7 @@ poetry run pytest -o addopts=""
 
 # Build and preview the docs
 poetry install --with docs
-poetry run mkdocs serve
+poetry run zensical serve
 ```
 
 The test suite uses `pytest` with `pytest-mypy` for static type checking and `pytest-ruff` for linting. All checks run together by default.
