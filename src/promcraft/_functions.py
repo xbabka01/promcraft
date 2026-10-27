@@ -49,7 +49,7 @@ class Function(Query):
 
 
 def abs_(v: Query) -> Function:
-    """Return the absolute value of each float sample in `v`.
+    """Return `abs(v)`: the absolute value of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -58,7 +58,7 @@ def abs_(v: Query) -> Function:
 
 
 def ceil(v: Query) -> Function:
-    """Round each float sample in `v` up to the nearest integer.
+    """Return `ceil(v)`: each sample rounded up to the nearest integer.
 
     Args:
         v: Instant vector to transform.
@@ -67,7 +67,7 @@ def ceil(v: Query) -> Function:
 
 
 def floor(v: Query) -> Function:
-    """Round each float sample in `v` down to the nearest integer.
+    """Return `floor(v)`: each sample rounded down to the nearest integer.
 
     Args:
         v: Instant vector to transform.
@@ -76,7 +76,7 @@ def floor(v: Query) -> Function:
 
 
 def sqrt(v: Query) -> Function:
-    """Return the square root of each float sample in `v`.
+    """Return `sqrt(v)`: the square root of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -85,7 +85,7 @@ def sqrt(v: Query) -> Function:
 
 
 def sgn(v: Query) -> Function:
-    """Return the sign of each float sample in `v`.
+    """Return `sgn(v)`: the sign of each sample.
 
     Returns `1.0` for positive values, `-1.0` for negative, and `0.0` for zero.
 
@@ -96,7 +96,7 @@ def sgn(v: Query) -> Function:
 
 
 def exp(v: Query) -> Function:
-    """Return e raised to the power of each float sample in `v`.
+    """Return `exp(v)`: e raised to the power of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -105,7 +105,7 @@ def exp(v: Query) -> Function:
 
 
 def ln(v: Query) -> Function:
-    """Return the natural logarithm of each float sample in `v`.
+    """Return `ln(v)`: the natural logarithm of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -114,7 +114,7 @@ def ln(v: Query) -> Function:
 
 
 def log2(v: Query) -> Function:
-    """Return the base-2 logarithm of each float sample in `v`.
+    """Return `log2(v)`: the base-2 logarithm of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -123,7 +123,7 @@ def log2(v: Query) -> Function:
 
 
 def log10(v: Query) -> Function:
-    """Return the base-10 logarithm of each float sample in `v`.
+    """Return `log10(v)`: the base-10 logarithm of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -132,7 +132,7 @@ def log10(v: Query) -> Function:
 
 
 def acos(v: Query) -> Function:
-    """Return the arccosine (in radians) of each float sample in `v`.
+    """Return `acos(v)`: the arccosine of each sample, in radians.
 
     Args:
         v: Instant vector to transform.
@@ -141,7 +141,7 @@ def acos(v: Query) -> Function:
 
 
 def acosh(v: Query) -> Function:
-    """Return the inverse hyperbolic cosine of each float sample in `v`.
+    """Return `acosh(v)`: the inverse hyperbolic cosine of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -150,7 +150,7 @@ def acosh(v: Query) -> Function:
 
 
 def asin(v: Query) -> Function:
-    """Return the arcsine (in radians) of each float sample in `v`.
+    """Return `asin(v)`: the arcsine of each sample, in radians.
 
     Args:
         v: Instant vector to transform.
@@ -159,7 +159,7 @@ def asin(v: Query) -> Function:
 
 
 def asinh(v: Query) -> Function:
-    """Return the inverse hyperbolic sine of each float sample in `v`.
+    """Return `asinh(v)`: the inverse hyperbolic sine of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -168,7 +168,7 @@ def asinh(v: Query) -> Function:
 
 
 def atan(v: Query) -> Function:
-    """Return the arctangent (in radians) of each float sample in `v`.
+    """Return `atan(v)`: the arctangent of each sample, in radians.
 
     Args:
         v: Instant vector to transform.
@@ -177,7 +177,7 @@ def atan(v: Query) -> Function:
 
 
 def atanh(v: Query) -> Function:
-    """Return the inverse hyperbolic tangent of each float sample in `v`.
+    """Return `atanh(v)`: the inverse hyperbolic tangent of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -186,7 +186,7 @@ def atanh(v: Query) -> Function:
 
 
 def cos(v: Query) -> Function:
-    """Return the cosine of each float sample in `v`.
+    """Return `cos(v)`: the cosine of each sample, taken as radians.
 
     Args:
         v: Instant vector to transform.
@@ -195,7 +195,7 @@ def cos(v: Query) -> Function:
 
 
 def cosh(v: Query) -> Function:
-    """Return the hyperbolic cosine of each float sample in `v`.
+    """Return `cosh(v)`: the hyperbolic cosine of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -204,7 +204,7 @@ def cosh(v: Query) -> Function:
 
 
 def sin(v: Query) -> Function:
-    """Return the sine of each float sample in `v`.
+    """Return `sin(v)`: the sine of each sample, taken as radians.
 
     Args:
         v: Instant vector to transform.
@@ -213,7 +213,7 @@ def sin(v: Query) -> Function:
 
 
 def sinh(v: Query) -> Function:
-    """Return the hyperbolic sine of each float sample in `v`.
+    """Return `sinh(v)`: the hyperbolic sine of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -222,7 +222,7 @@ def sinh(v: Query) -> Function:
 
 
 def tan(v: Query) -> Function:
-    """Return the tangent of each float sample in `v`.
+    """Return `tan(v)`: the tangent of each sample, taken as radians.
 
     Args:
         v: Instant vector to transform.
@@ -231,7 +231,7 @@ def tan(v: Query) -> Function:
 
 
 def tanh(v: Query) -> Function:
-    """Return the hyperbolic tangent of each float sample in `v`.
+    """Return `tanh(v)`: the hyperbolic tangent of each sample.
 
     Args:
         v: Instant vector to transform.
@@ -240,7 +240,7 @@ def tanh(v: Query) -> Function:
 
 
 def deg(v: Query) -> Function:
-    """Convert each float sample in `v` from radians to degrees.
+    """Return `deg(v)`: each sample converted from radians to degrees.
 
     Args:
         v: Instant vector to transform.
@@ -249,7 +249,7 @@ def deg(v: Query) -> Function:
 
 
 def rad(v: Query) -> Function:
-    """Convert each float sample in `v` from degrees to radians.
+    """Return `rad(v)`: each sample converted from degrees to radians.
 
     Args:
         v: Instant vector to transform.
@@ -258,7 +258,7 @@ def rad(v: Query) -> Function:
 
 
 def timestamp(v: Query) -> Function:
-    """Return the Unix timestamp (seconds since epoch) of each sample in `v`.
+    """Return `timestamp(v)`: the Unix timestamp of each sample, in seconds.
 
     Args:
         v: Instant vector whose sample timestamps are returned.
@@ -267,7 +267,7 @@ def timestamp(v: Query) -> Function:
 
 
 def sort(v: Query) -> Function:
-    """Sort instant vector elements by float sample value, ascending.
+    """Return `sort(v)`: the elements sorted by sample value, ascending.
 
     Args:
         v: Instant vector to sort.
@@ -276,7 +276,7 @@ def sort(v: Query) -> Function:
 
 
 def sort_desc(v: Query) -> Function:
-    """Sort instant vector elements by float sample value, descending.
+    """Return `sort_desc(v)`: the elements sorted by sample value, descending.
 
     Args:
         v: Instant vector to sort.
@@ -285,7 +285,7 @@ def sort_desc(v: Query) -> Function:
 
 
 def absent(v: Query) -> Function:
-    """Return a 1-element vector with value 1 if `v` has no elements (`absent(v)`).
+    """Return `absent(v)`: a single element with value `1` if `v` is empty.
 
     Returns an empty vector when `v` is non-empty.
 
@@ -296,7 +296,7 @@ def absent(v: Query) -> Function:
 
 
 def scalar(v: Query) -> Function:
-    """Return `v`'s single float sample value as a scalar (`scalar(v)`).
+    """Return `scalar(v)`: the value of a single-element `v` as a scalar.
 
     Returns NaN if `v` does not contain exactly one element.
 
@@ -307,7 +307,7 @@ def scalar(v: Query) -> Function:
 
 
 def histogram_count(v: Query) -> Function:
-    """Return the count of observations in each native histogram sample.
+    """Return `histogram_count(v)`: the observation count of each native histogram.
 
     Args:
         v: Instant vector of native histograms.
@@ -316,7 +316,7 @@ def histogram_count(v: Query) -> Function:
 
 
 def histogram_sum(v: Query) -> Function:
-    """Return the sum of observations in each native histogram sample.
+    """Return `histogram_sum(v)`: the sum of observations of each native histogram.
 
     Args:
         v: Instant vector of native histograms.
@@ -325,7 +325,7 @@ def histogram_sum(v: Query) -> Function:
 
 
 def histogram_avg(v: Query) -> Function:
-    """Return the mean of observed values in each native histogram sample.
+    """Return `histogram_avg(v)`: the average observation of each native histogram.
 
     Args:
         v: Instant vector of native histograms.
@@ -334,7 +334,7 @@ def histogram_avg(v: Query) -> Function:
 
 
 def histogram_stddev(v: Query) -> Function:
-    """Return the estimated standard deviation of observations in a native histogram sample.
+    """Return `histogram_stddev(v)`: the estimated standard deviation of each native histogram.
 
     Args:
         v: Instant vector of native histograms.
@@ -343,7 +343,7 @@ def histogram_stddev(v: Query) -> Function:
 
 
 def histogram_stdvar(v: Query) -> Function:
-    """Return the estimated standard variance of observations in a native histogram sample.
+    """Return `histogram_stdvar(v)`: the estimated variance of each native histogram.
 
     Args:
         v: Instant vector of native histograms.
@@ -357,7 +357,7 @@ def histogram_stdvar(v: Query) -> Function:
 
 
 def avg_over_time(v: Query) -> Function:
-    """Average of all float samples in the specified range window.
+    """Return `avg_over_time(v)`: the average value of each series over the range.
 
     Args:
         v: Range vector: a [`RangeVector`][promcraft.RangeVector] or a
@@ -367,7 +367,7 @@ def avg_over_time(v: Query) -> Function:
 
 
 def min_over_time(v: Query) -> Function:
-    """Minimum float sample value in the specified range window.
+    """Return `min_over_time(v)`: the smallest value of each series in the range.
 
     Args:
         v: Range vector: a [`RangeVector`][promcraft.RangeVector] or a
@@ -377,7 +377,7 @@ def min_over_time(v: Query) -> Function:
 
 
 def max_over_time(v: Query) -> Function:
-    """Maximum float sample value in the specified range window.
+    """Return `max_over_time(v)`: the largest value of each series in the range.
 
     Args:
         v: Range vector: a [`RangeVector`][promcraft.RangeVector] or a
@@ -387,7 +387,7 @@ def max_over_time(v: Query) -> Function:
 
 
 def sum_over_time(v: Query) -> Function:
-    """Sum of all float samples in the specified range window.
+    """Return `sum_over_time(v)`: the sum of each series' values in the range.
 
     Args:
         v: Range vector: a [`RangeVector`][promcraft.RangeVector] or a
@@ -397,7 +397,7 @@ def sum_over_time(v: Query) -> Function:
 
 
 def count_over_time(v: Query) -> Function:
-    """Count of all samples in the specified range window.
+    """Return `count_over_time(v)`: the number of samples of each series.
 
     Args:
         v: Range vector: a [`RangeVector`][promcraft.RangeVector] or a
@@ -407,7 +407,7 @@ def count_over_time(v: Query) -> Function:
 
 
 def stddev_over_time(v: Query) -> Function:
-    """Compute the population standard deviation of float samples in the range window.
+    """Return `stddev_over_time(v)`: the population standard deviation of each series.
 
     Args:
         v: Range vector: a [`RangeVector`][promcraft.RangeVector] or a
@@ -417,7 +417,7 @@ def stddev_over_time(v: Query) -> Function:
 
 
 def stdvar_over_time(v: Query) -> Function:
-    """Compute the population standard variance of float samples in the range window.
+    """Return `stdvar_over_time(v)`: the population variance of each series.
 
     Args:
         v: Range vector: a [`RangeVector`][promcraft.RangeVector] or a
@@ -427,7 +427,7 @@ def stdvar_over_time(v: Query) -> Function:
 
 
 def last_over_time(v: Query) -> Function:
-    """Most recent float sample value in the specified range window.
+    """Return `last_over_time(v)`: the most recent value of each series.
 
     Args:
         v: Range vector: a [`RangeVector`][promcraft.RangeVector] or a
@@ -437,7 +437,7 @@ def last_over_time(v: Query) -> Function:
 
 
 def present_over_time(v: Query) -> Function:
-    """Return value 1 for any series with at least one sample in the range window.
+    """Return `present_over_time(v)`: `1` for each series with any sample in the range.
 
     Args:
         v: Range vector: a [`RangeVector`][promcraft.RangeVector] or a
@@ -447,7 +447,7 @@ def present_over_time(v: Query) -> Function:
 
 
 def absent_over_time(v: Query) -> Function:
-    """Return a 1-element vector (value 1) if `v` has no samples in the range window.
+    """Return `absent_over_time(v)`: a single element with value `1` if `v` has no samples.
 
     Args:
         v: Range vector: a [`RangeVector`][promcraft.RangeVector] or a
@@ -457,7 +457,7 @@ def absent_over_time(v: Query) -> Function:
 
 
 def first_over_time(v: Query) -> Function:
-    """Earliest sample value in the specified range window.
+    """Return `first_over_time(v)`: the oldest value of each series.
 
     Args:
         v: Range vector: a [`RangeVector`][promcraft.RangeVector] or a
@@ -467,7 +467,7 @@ def first_over_time(v: Query) -> Function:
 
 
 def rate(v: Query) -> Function:
-    """Per-second average rate of increase of a counter over the range window.
+    """Return `rate(v)`: the per-second average rate of increase of a counter.
 
     Extrapolated to cover the full interval.  Use on monotonically increasing
     counters; automatically handles counter resets.
@@ -480,7 +480,7 @@ def rate(v: Query) -> Function:
 
 
 def irate(v: Query) -> Function:
-    """Per-second instant rate of increase based on the last two data points in the range window.
+    """Return `irate(v)`: the per-second rate from the last two samples of a counter.
 
     More responsive than `rate` but more sensitive to spikes.
 
@@ -492,7 +492,9 @@ def irate(v: Query) -> Function:
 
 
 def increase(v: Query) -> Function:
-    """Total increase of a counter over the range window, extrapolated to the full interval.
+    """Return `increase(v)`: the increase of a counter over the range.
+
+    Extrapolated to cover the full interval; handles counter resets.
 
     Args:
         v: Range vector of a counter: a [`RangeVector`][promcraft.RangeVector] or a
@@ -502,7 +504,7 @@ def increase(v: Query) -> Function:
 
 
 def delta(v: Query) -> Function:
-    """Difference between the first and last float sample over the range window.
+    """Return `delta(v)`: the difference between the first and last gauge value.
 
     Extrapolated to cover the full interval.  Use on gauges, not counters.
 
@@ -514,7 +516,7 @@ def delta(v: Query) -> Function:
 
 
 def idelta(v: Query) -> Function:
-    """Difference between the last two float samples in the range window.
+    """Return `idelta(v)`: the difference between the last two gauge values.
 
     Args:
         v: Range vector of a gauge: a [`RangeVector`][promcraft.RangeVector] or a
@@ -524,9 +526,9 @@ def idelta(v: Query) -> Function:
 
 
 def deriv(v: Query) -> Function:
-    """Per-second derivative of a gauge estimated via simple linear regression.
+    """Return `deriv(v)`: the per-second derivative of a gauge.
 
-    Operates over the specified range window.
+    Estimated with simple linear regression over the range.
 
     Args:
         v: Range vector of a gauge: a [`RangeVector`][promcraft.RangeVector] or a
@@ -536,7 +538,7 @@ def deriv(v: Query) -> Function:
 
 
 def resets(v: Query) -> Function:
-    """Count the counter resets within the specified range window.
+    """Return `resets(v)`: the number of counter resets in the range.
 
     Args:
         v: Range vector of a counter: a [`RangeVector`][promcraft.RangeVector] or a
@@ -546,7 +548,7 @@ def resets(v: Query) -> Function:
 
 
 def changes(v: Query) -> Function:
-    """Count how often a gauge value changed within the specified range window.
+    """Return `changes(v)`: the number of times each value changed in the range.
 
     Args:
         v: Range vector of a gauge: a [`RangeVector`][promcraft.RangeVector] or a
@@ -561,12 +563,12 @@ def changes(v: Query) -> Function:
 
 
 def pi() -> Function:
-    """Return the mathematical constant π as a scalar."""
+    """Return `pi()`: the constant π."""
     return Function("pi", [])
 
 
 def time() -> Function:
-    """Return the current evaluation timestamp as seconds since Unix epoch."""
+    """Return `time()`: the evaluation time as seconds since the Unix epoch."""
     return Function("time", [])
 
 
@@ -576,7 +578,7 @@ def time() -> Function:
 
 
 def vector(s: SCALAR_TYPE) -> Function:
-    """Convert scalar `s` into a single-element instant vector with no labels.
+    """Return `vector(s)`: scalar `s` as a single-element vector without labels.
 
     Args:
         s: Scalar to convert; a raw number is wrapped in [`Float`][promcraft.Float].
@@ -590,7 +592,9 @@ def vector(s: SCALAR_TYPE) -> Function:
 
 
 def round_(v: Query, to_nearest: SCALAR_TYPE | None = None) -> Function:
-    """Round float samples to the nearest integer, or to a multiple of `to_nearest`.
+    """Return `round(v, to_nearest)`: each sample rounded to a multiple of `to_nearest`.
+
+    Without `to_nearest`, samples are rounded to the nearest integer.
 
     Args:
         v: Instant vector to round.
@@ -614,7 +618,7 @@ def round_(v: Query, to_nearest: SCALAR_TYPE | None = None) -> Function:
 
 
 def clamp_max(v: Query, max: SCALAR_TYPE) -> Function:
-    """Clamp float samples so that no value exceeds `max`.
+    """Return `clamp_max(v, max)`: each sample capped at `max`.
 
     Args:
         v: Instant vector to clamp.
@@ -628,7 +632,7 @@ def clamp_max(v: Query, max: SCALAR_TYPE) -> Function:
 
 
 def clamp_min(v: Query, min: SCALAR_TYPE) -> Function:
-    """Clamp float samples so that no value falls below `min`.
+    """Return `clamp_min(v, min)`: each sample raised to at least `min`.
 
     Args:
         v: Instant vector to clamp.
@@ -647,7 +651,7 @@ def clamp_min(v: Query, min: SCALAR_TYPE) -> Function:
 
 
 def clamp(v: Query, min: SCALAR_TYPE, max: SCALAR_TYPE) -> Function:
-    """Clamp float samples so all values fall within [`min`, `max`].
+    """Return `clamp(v, min, max)`: each sample limited to [`min`, `max`].
 
     Args:
         v: Instant vector to clamp.
@@ -667,7 +671,7 @@ def clamp(v: Query, min: SCALAR_TYPE, max: SCALAR_TYPE) -> Function:
 
 
 def quantile_over_time(phi: SCALAR_TYPE, v: Query) -> Function:
-    """φ-quantile (0 ≤ φ ≤ 1) of float samples over the specified range window.
+    """Return `quantile_over_time(phi, v)`: the `phi`-quantile of each series.
 
     Args:
         phi: Quantile to compute, from `0` to `1` (`0.95` is the 95th percentile).
@@ -683,7 +687,7 @@ def quantile_over_time(phi: SCALAR_TYPE, v: Query) -> Function:
 
 
 def histogram_quantile(phi: SCALAR_TYPE, b: Query) -> Function:
-    """φ-quantile estimated from a classic or native histogram `b`.
+    """Return `histogram_quantile(phi, b)`: the `phi`-quantile estimated from `b`.
 
     Args:
         phi: Quantile to compute, from `0` to `1` (`0.95` is the 95th percentile).
@@ -704,9 +708,10 @@ def histogram_quantile(phi: SCALAR_TYPE, b: Query) -> Function:
 
 
 def histogram_fraction(lower: SCALAR_TYPE, upper: SCALAR_TYPE, b: Query) -> Function:
-    """Estimated fraction of observations in histogram `b` between `lower` and `upper`.
+    """Return `histogram_fraction(lower, upper, b)`: the fraction in a value range.
 
-    Bounds that fall between bucket boundaries are interpolated as in
+    Estimates the fraction of observations in `b` between `lower` and `upper`; bounds that fall
+    between bucket boundaries are interpolated as in
     [`histogram_quantile`][promcraft.histogram_quantile].
 
     Args:
@@ -731,9 +736,9 @@ def histogram_fraction(lower: SCALAR_TYPE, upper: SCALAR_TYPE, b: Query) -> Func
 
 
 def predict_linear(v: Query, t: SCALAR_TYPE) -> Function:
-    """Predict the value of a gauge `t` seconds from now using linear regression.
+    """Return `predict_linear(v, t)`: the value of a gauge predicted `t` seconds ahead.
 
-    The regression is computed over the specified range window.
+    Uses simple linear regression over the range.
 
     Args:
         v: Range vector of a gauge: a [`RangeVector`][promcraft.RangeVector] or a
@@ -754,7 +759,9 @@ def predict_linear(v: Query, t: SCALAR_TYPE) -> Function:
 
 
 def double_exponential_smoothing(v: Query, sf: SCALAR_TYPE, tf: SCALAR_TYPE) -> Function:
-    """Produce a smoothed value using the Holt double exponential method.
+    """Return `double_exponential_smoothing(v, sf, tf)`: a smoothed gauge value.
+
+    Uses Holt's double exponential smoothing over the range.
 
     Args:
         v: Range vector of a gauge: a [`RangeVector`][promcraft.RangeVector] or a
@@ -783,7 +790,7 @@ def double_exponential_smoothing(v: Query, sf: SCALAR_TYPE, tf: SCALAR_TYPE) -> 
 
 
 def day_of_month(v: Query | None = None) -> Function:
-    """Day of the month (1-31) in UTC; defaults to `time()` when `v` is omitted.
+    """Return `day_of_month(v)`: the day of the month (1-31) of each timestamp, in UTC.
 
     Args:
         v: Instant vector of Unix timestamps; `None` uses the evaluation time (`vector(time())`).
@@ -792,7 +799,7 @@ def day_of_month(v: Query | None = None) -> Function:
 
 
 def day_of_week(v: Query | None = None) -> Function:
-    """Day of the week (0 = Sunday … 6 = Saturday) in UTC for each timestamp in `v`.
+    """Return `day_of_week(v)`: the day of the week (0 = Sunday … 6 = Saturday), in UTC.
 
     Args:
         v: Instant vector of Unix timestamps; `None` uses the evaluation time (`vector(time())`).
@@ -801,7 +808,7 @@ def day_of_week(v: Query | None = None) -> Function:
 
 
 def day_of_year(v: Query | None = None) -> Function:
-    """Day of the year (1-365/366) in UTC for each timestamp in `v`.
+    """Return `day_of_year(v)`: the day of the year (1-366) of each timestamp, in UTC.
 
     Args:
         v: Instant vector of Unix timestamps; `None` uses the evaluation time (`vector(time())`).
@@ -810,7 +817,7 @@ def day_of_year(v: Query | None = None) -> Function:
 
 
 def days_in_month(v: Query | None = None) -> Function:
-    """Return the number of days in the month in UTC for each timestamp in `v`.
+    """Return `days_in_month(v)`: the number of days in the month (28-31), in UTC.
 
     Args:
         v: Instant vector of Unix timestamps; `None` uses the evaluation time (`vector(time())`).
@@ -819,7 +826,7 @@ def days_in_month(v: Query | None = None) -> Function:
 
 
 def hour(v: Query | None = None) -> Function:
-    """Hour of the day (0-23) in UTC for each timestamp in `v`.
+    """Return `hour(v)`: the hour of the day (0-23) of each timestamp, in UTC.
 
     Args:
         v: Instant vector of Unix timestamps; `None` uses the evaluation time (`vector(time())`).
@@ -834,7 +841,7 @@ def hour(v: Query | None = None) -> Function:
 
 
 def minute(v: Query | None = None) -> Function:
-    """Minute of the hour (0-59) in UTC for each timestamp in `v`.
+    """Return `minute(v)`: the minute of the hour (0-59) of each timestamp, in UTC.
 
     Args:
         v: Instant vector of Unix timestamps; `None` uses the evaluation time (`vector(time())`).
@@ -843,7 +850,7 @@ def minute(v: Query | None = None) -> Function:
 
 
 def month(v: Query | None = None) -> Function:
-    """Month of the year (1-12) in UTC for each timestamp in `v`.
+    """Return `month(v)`: the month of the year (1-12) of each timestamp, in UTC.
 
     Args:
         v: Instant vector of Unix timestamps; `None` uses the evaluation time (`vector(time())`).
@@ -852,7 +859,7 @@ def month(v: Query | None = None) -> Function:
 
 
 def year(v: Query | None = None) -> Function:
-    """Year in UTC for each timestamp in `v`.
+    """Return `year(v)`: the year of each timestamp, in UTC.
 
     Args:
         v: Instant vector of Unix timestamps; `None` uses the evaluation time (`vector(time())`).
@@ -868,9 +875,7 @@ def year(v: Query | None = None) -> Function:
 def label_join(
     v: Query, dst_label: STRING_TYPE, separator: STRING_TYPE, *src_labels: STRING_TYPE
 ) -> Function:
-    """Join `src_labels` values with `separator` and write the result to `dst_label`.
-
-    PromQL: `label_join(v, dst_label, separator, src_label1, ...)`
+    """Return `label_join(v, ...)`: `v` with `src_labels` values joined into `dst_label`.
 
     Args:
         v: Instant vector to relabel.
@@ -900,11 +905,9 @@ def label_replace(
     src_label: STRING_TYPE,
     regex: STRING_TYPE,
 ) -> Function:
-    """Match `regex` against `src_label` and write the substituted result to `dst_label`.
+    """Return `label_replace(v, ...)`: `v` with `dst_label` set from a match on `src_label`.
 
     Capture groups from `regex` may be referenced in `replacement` as `$1`, `$2`, etc.
-
-    PromQL: `label_replace(v, dst_label, replacement, src_label, regex)`
 
     Args:
         v: Instant vector to relabel.
@@ -932,7 +935,7 @@ def label_replace(
 
 
 def sort_by_label(v: Query, *labels: STRING_TYPE) -> Function:
-    """Sort instant vector elements by the values of the specified labels, ascending.
+    """Return `sort_by_label(v, label, ...)`: the elements sorted by label, ascending.
 
     Args:
         v: Instant vector to sort.
@@ -946,7 +949,7 @@ def sort_by_label(v: Query, *labels: STRING_TYPE) -> Function:
 
 
 def sort_by_label_desc(v: Query, *labels: STRING_TYPE) -> Function:
-    """Sort instant vector elements by the values of the specified labels, descending.
+    """Return `sort_by_label_desc(v, label, ...)`: the elements sorted by label, descending.
 
     Args:
         v: Instant vector to sort.
@@ -965,9 +968,7 @@ def sort_by_label_desc(v: Query, *labels: STRING_TYPE) -> Function:
 
 
 def info(v: Query, data_label_selector: Query | None = None) -> Function:
-    """Add data labels from matching info series to each time series in `v`.
-
-    PromQL: `info(v[, data_label_selector])`
+    """Return `info(v, data_label_selector)`: `v` with data labels from info series.
 
     Args:
         v: Instant vector to add data labels to.

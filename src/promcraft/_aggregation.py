@@ -143,7 +143,7 @@ class Aggregation(Query):
 
 
 def sum_(query: Query) -> Aggregation:
-    """Sum of all sample values across the aggregated dimensions (`sum(v)`).
+    """Return `sum(query)`: the sum of the sample values in each group.
 
     Args:
         query: Instant vector to aggregate.
@@ -159,7 +159,7 @@ def sum_(query: Query) -> Aggregation:
 
 
 def avg(query: Query) -> Aggregation:
-    """Arithmetic mean of sample values across the aggregated dimensions (`avg(v)`).
+    """Return `avg(query)`: the average of the sample values in each group.
 
     Args:
         query: Instant vector to aggregate.
@@ -172,7 +172,7 @@ def avg(query: Query) -> Aggregation:
 
 
 def min_(query: Query) -> Aggregation:
-    """Smallest sample value across the aggregated dimensions (`min(v)`).
+    """Return `min(query)`: the smallest sample value in each group.
 
     Args:
         query: Instant vector to aggregate.
@@ -185,7 +185,7 @@ def min_(query: Query) -> Aggregation:
 
 
 def max_(query: Query) -> Aggregation:
-    """Largest sample value across the aggregated dimensions (`max(v)`).
+    """Return `max(query)`: the largest sample value in each group.
 
     Args:
         query: Instant vector to aggregate.
@@ -198,7 +198,7 @@ def max_(query: Query) -> Aggregation:
 
 
 def count(query: Query) -> Aggregation:
-    """Count the time series in the aggregated dimensions (`count(v)`).
+    """Return `count(query)`: the number of series in each group.
 
     Args:
         query: Instant vector to aggregate.
@@ -211,7 +211,7 @@ def count(query: Query) -> Aggregation:
 
 
 def group(query: Query) -> Aggregation:
-    """Return 1 for each group that contains at least one element (`group(v)`).
+    """Return `group(query)`: `1` for each group that has at least one series.
 
     Args:
         query: Instant vector to aggregate.
@@ -224,9 +224,7 @@ def group(query: Query) -> Aggregation:
 
 
 def stddev(query: Query) -> Aggregation:
-    """Compute the population standard deviation of sample values across the aggregated dimensions.
-
-    PromQL: `stddev(v)`
+    """Return `stddev(query)`: the population standard deviation in each group.
 
     Args:
         query: Instant vector to aggregate.
@@ -239,9 +237,7 @@ def stddev(query: Query) -> Aggregation:
 
 
 def stdvar(query: Query) -> Aggregation:
-    """Compute the population variance of sample values across the aggregated dimensions.
-
-    PromQL: `stdvar(v)`
+    """Return `stdvar(query)`: the population variance in each group.
 
     Args:
         query: Instant vector to aggregate.
@@ -254,7 +250,7 @@ def stdvar(query: Query) -> Aggregation:
 
 
 def topk(k: SCALAR_TYPE, query: Query) -> Aggregation:
-    """Largest `k` sample values across the aggregated dimensions (`topk(k, v)`).
+    """Return `topk(k, query)`: the `k` largest series in each group.
 
     Args:
         k: Number of series to keep per group.
@@ -268,7 +264,7 @@ def topk(k: SCALAR_TYPE, query: Query) -> Aggregation:
 
 
 def bottomk(k: SCALAR_TYPE, query: Query) -> Aggregation:
-    """Smallest `k` sample values across the aggregated dimensions (`bottomk(k, v)`).
+    """Return `bottomk(k, query)`: the `k` smallest series in each group.
 
     Args:
         k: Number of series to keep per group.
@@ -282,7 +278,7 @@ def bottomk(k: SCALAR_TYPE, query: Query) -> Aggregation:
 
 
 def count_values(label: STRING_TYPE, query: Query) -> Aggregation:
-    """Count the series sharing each distinct sample value (`count_values(label, v)`).
+    """Return `count_values(label, query)`: the number of series per distinct value.
 
     Each output series carries that sample value in a new label named `label`,
     and its value is the number of input series that had it.
@@ -299,9 +295,7 @@ def count_values(label: STRING_TYPE, query: Query) -> Aggregation:
 
 
 def quantile(phi: SCALAR_TYPE, query: Query) -> Aggregation:
-    """φ-quantile (0 ≤ φ ≤ 1) of sample values across the aggregated dimensions.
-
-    PromQL: `quantile(φ, v)`
+    """Return `quantile(phi, query)`: the `phi`-quantile of the values in each group.
 
     Args:
         phi: Quantile to compute, from `0` to `1` (`0.95` is the 95th percentile).
@@ -315,7 +309,7 @@ def quantile(phi: SCALAR_TYPE, query: Query) -> Aggregation:
 
 
 def limitk(k: SCALAR_TYPE, query: Query) -> Aggregation:
-    """Pseudo-randomly sample at most `k` series from the input (`limitk(k, v)`).
+    """Return `limitk(k, query)`: at most `k` pseudo-random series per group.
 
     Args:
         k: Maximum number of series to keep per group.
@@ -329,7 +323,7 @@ def limitk(k: SCALAR_TYPE, query: Query) -> Aggregation:
 
 
 def limit_ratio(r: SCALAR_TYPE, query: Query) -> Aggregation:
-    """Pseudo-randomly sample fraction `r` of series from the input (`limit_ratio(r, v)`).
+    """Return `limit_ratio(r, query)`: a pseudo-random ratio `r` of the samples.
 
     Args:
         r: Ratio of samples to keep, from `-1` to `1`. The selection is deterministic; a

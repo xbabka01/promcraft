@@ -411,7 +411,7 @@ def add(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left + right` (arithmetic addition).
+    """Return `left + right`: arithmetic addition.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -432,7 +432,7 @@ def sub(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left - right` (arithmetic subtraction).
+    """Return `left - right`: arithmetic subtraction.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -453,7 +453,7 @@ def mul(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left * right` (arithmetic multiplication).
+    """Return `left * right`: arithmetic multiplication.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -473,7 +473,7 @@ def div(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left / right` (arithmetic division).
+    """Return `left / right`: arithmetic division.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -494,7 +494,7 @@ def mod(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left % right` (arithmetic modulo).
+    """Return `left % right`: arithmetic modulo.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -514,7 +514,7 @@ def pow_(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left ^ right` (exponentiation).
+    """Return `left ^ right`: exponentiation.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -534,7 +534,10 @@ def eq(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left == right` (equality comparison; filters non-matching elements).
+    """Return `left == right`: the equality comparison.
+
+    Keeps the elements of `left` for which the comparison is true;
+    [`bool`][promcraft.BinaryOprator.bool] returns `0`/`1` instead.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -556,7 +559,10 @@ def neq(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left != right` (not-equal comparison).
+    """Return `left != right`: the inequality comparison.
+
+    Keeps the elements of `left` for which the comparison is true;
+    [`bool`][promcraft.BinaryOprator.bool] returns `0`/`1` instead.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -576,7 +582,10 @@ def lt(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left < right` (less-than comparison).
+    """Return `left < right`: the less-than comparison.
+
+    Keeps the elements of `left` for which the comparison is true;
+    [`bool`][promcraft.BinaryOprator.bool] returns `0`/`1` instead.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -596,7 +605,10 @@ def lte(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left <= right` (less-than-or-equal comparison).
+    """Return `left <= right`: the less-than-or-equal comparison.
+
+    Keeps the elements of `left` for which the comparison is true;
+    [`bool`][promcraft.BinaryOprator.bool] returns `0`/`1` instead.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -616,7 +628,10 @@ def gt(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left > right` (greater-than comparison).
+    """Return `left > right`: the greater-than comparison.
+
+    Keeps the elements of `left` for which the comparison is true;
+    [`bool`][promcraft.BinaryOprator.bool] returns `0`/`1` instead.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -636,7 +651,10 @@ def gte(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left >= right` (greater-than-or-equal comparison).
+    """Return `left >= right`: the greater-than-or-equal comparison.
+
+    Keeps the elements of `left` for which the comparison is true;
+    [`bool`][promcraft.BinaryOprator.bool] returns `0`/`1` instead.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
@@ -656,9 +674,9 @@ def and_(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left and right`.
+    """Return `left and right`: set intersection.
 
-    Set intersection: keeps left-side elements whose label set has a match in right.
+    Keeps the elements of `left` whose label set has a match in `right`.
 
     Args:
         left: Instant vector whose elements are filtered.
@@ -679,9 +697,10 @@ def or_(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left or right`.
+    """Return `left or right`: set union.
 
-    Set union: combines all elements from both sides; left takes precedence for duplicates.
+    Keeps every element of `left`, plus the elements of `right` whose label set has no match in
+    `left`.
 
     Args:
         left: Instant vector whose elements are all kept.
@@ -701,9 +720,9 @@ def unless(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left unless right`.
+    """Return `left unless right`: set complement.
 
-    Set complement: keeps left-side elements with no matching label set in right.
+    Keeps the elements of `left` whose label set has no match in `right`.
 
     Args:
         left: Instant vector whose elements are filtered.
@@ -722,9 +741,9 @@ def atan2(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left atan2 right`.
+    """Return `left atan2 right`: the two-argument arctangent, in radians.
 
-    Trigonometric two-argument arctangent, applied element-wise via vector matching.
+    Applied element-wise, with the same vector matching as the arithmetic operators.
 
     Args:
         left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
