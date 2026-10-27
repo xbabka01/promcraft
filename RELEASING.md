@@ -44,6 +44,11 @@ Only tags matching `v<major>.<minor>.<patch>` (optionally followed by a suffix, 
 Each job runs only if the previous one succeeded, so a failing test stops the release
 before anything is published.
 
+The same tag also triggers [.github/workflows/docs.yml](.github/workflows/docs.yml), which
+builds the documentation and deploys it to <https://xbabka01.github.io/promcraft/>. To
+redeploy the docs without a release (for example after a docs-only fix), run the **Docs**
+workflow manually from the Actions tab.
+
 ## One-time setup
 
 These are already configured; they are listed here in case they need to be recreated.
@@ -52,6 +57,10 @@ These are already configured; they are listed here in case they need to be recre
   owner `xbabka01`, repository `promcraft`, workflow `release.yaml`, environment `pypi`.
 - **GitHub environment** named `pypi` (repository *Settings → Environments*). Add
   protection rules, such as required reviewers, here if releases should need approval.
+- **GitHub Pages** source set to *GitHub Actions* (*Settings → Pages*). The `github-pages`
+  environment it creates allows only `main` by default; add a tag rule `v*` under
+  *Settings → Environments → github-pages → Deployment branches and tags* so release tags
+  can deploy.
 
 Renaming the workflow file or the environment breaks publishing until the trusted
 publisher on PyPI is updated to match.

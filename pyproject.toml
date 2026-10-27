@@ -15,6 +15,7 @@ dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/xbabka01/promcraft"
+Documentation = "https://xbabka01.github.io/promcraft/"
 Repository = "https://github.com/xbabka01/promcraft"
 Issues = "https://github.com/xbabka01/promcraft/issues"
 Changelog = "https://github.com/xbabka01/promcraft/releases"
@@ -26,6 +27,10 @@ dev = [
     "pytest-mypy (>=1.1.0,<2.0.0)",
     "pytest-ruff (>=0.5,<0.6)",
     "pre-commit (>=4.7.0,<5.0.0)"
+]
+docs = [
+    "mkdocs-material (>=9.8.0,<10.0.0)",
+    "mkdocstrings[python] (>=1.0.8,<2.0.0)"
 ]
 
 [tool.pytest.ini_options]
@@ -112,13 +117,15 @@ ignore = [
     "PLR0913",
     "PLC0415",
     "PLR2004",
-    "D203",   # conflicts with D211
-    "D213",   # conflicts with D212
     "COM812", # conflicts with ruff format
     "D105",   # magic methods are self-explanatory
     "D107",   # __init__ is documented in the class docstring
     "TRY003", # custom exception classes for one-off messages are overkill
 ]
+
+[tool.ruff.lint.pydocstyle]
+# Google style is what mkdocstrings renders best (Args:/Raises:/Example: sections)
+convention = "google"
 
 [tool.ruff.lint.flake8-builtins]
 # Parameter names mirror PromQL terms, which intentionally shadow these builtins
@@ -151,6 +158,10 @@ classifiers = [
     "Topic :: System :: Monitoring",
     "Typing :: Typed",
 ]
+
+# Only needed to build the docs site; install with `poetry install --with docs`
+[tool.poetry.group.docs]
+optional = true
 
 
 [build-system]

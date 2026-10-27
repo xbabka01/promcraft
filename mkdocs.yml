@@ -1,0 +1,73 @@
+site_name: promcraft
+site_description: Build Prometheus PromQL queries programmatically with composable, typed Python objects.
+site_url: https://xbabka01.github.io/promcraft/
+repo_url: https://github.com/xbabka01/promcraft
+repo_name: xbabka01/promcraft
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.highlight
+
+nav:
+  - Home: index.md
+  - Guide:
+      - Literals and variables: guide/literals.md
+      - Selectors and subqueries: guide/selectors.md
+      - Binary operators: guide/operators.md
+      - Aggregations: guide/aggregations.md
+      - Functions: guide/functions.md
+      - Composing and formatting: guide/formatting.md
+  - API reference:
+      - Query and Style: api/base.md
+      - Literals and variables: api/literals.md
+      - Selectors and subqueries: api/selectors.md
+      - Binary operators: api/operators.md
+      - Aggregations: api/aggregations.md
+      - Functions: api/functions.md
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            # get_indent is a rendering helper inherited by every Query subclass
+            filters: ["!^_", "!^get_indent$"]
+            inherited_members: true
+            merge_init_into_class: true
+            members_order: source
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+            show_source: false
+            show_root_heading: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            heading_level: 2

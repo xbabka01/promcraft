@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from promcraft._scalar import SCALAR_TYPE
     from promcraft._subquery import Subquery
 
-    # ``expr[range:resolution]`` / ``expr[range:]``
+    # `expr[range:resolution]` / `expr[range:]`
     SUBQUERY_SLICE = slice[SCALAR_TYPE, SCALAR_TYPE | None, None]
 
 
@@ -28,25 +28,27 @@ class Indent(NamedTuple):
 
 @dataclass(frozen=True, kw_only=True)
 class Style:
-    """Rendering options for ``to_string``; the defaults reproduce ``str(query)``.
+    """Rendering options for `to_string`; the defaults reproduce `str(query)`.
 
-    - ``empty_braces`` — render ``up{}`` (``True``) or a bare ``up`` (``False``).
-      Metric names that are PromQL keywords always keep their braces.
-    - ``grouping`` — place ``by``/``without`` after (``GroupingPosition.SUFFIX``,
-      ``sum(x) by (job)``) or before (``GroupingPosition.PREFIX``, ``sum by (job) (x)``)
-      the aggregation arguments.
-    - ``compact_matchers`` — render ``{job="api"}`` instead of ``{ job = "api" }``.
-    - ``paren_space`` — render ``by (job)`` (``True``) or ``by(job)`` (``False``);
-      also applies to ``on``, ``ignoring``, ``group_left`` and ``group_right``.
+    Attributes:
+        empty_braces: Render `up{}` (`True`) or a bare `up` (`False`).
+            Metric names that are PromQL keywords always keep their braces.
+        grouping: Place `by`/`without` after (`GroupingPosition.SUFFIX`,
+            `sum(x) by (job)`) or before (`GroupingPosition.PREFIX`,
+            `sum by (job) (x)`) the aggregation arguments.
+        compact_matchers: Render `{job="api"}` instead of `{ job = "api" }`.
+        paren_space: Render `by (job)` (`True`) or `by(job)` (`False`);
+            also applies to `on`, `ignoring`, `group_left` and `group_right`.
 
-    Example::
-
+    Example:
+        ```python
         expr.to_string(style=Style.prometheus())
         # → 'sum by (job) (rate(up{job="api"}[5m]))'
+        ```
     """
 
     class GroupingPosition(enum.Enum):
-        """Where an aggregation's ``by``/``without`` clause is placed."""
+        """Where an aggregation's `by`/`without` clause is placed."""
 
         SUFFIX = "suffix"
         PREFIX = "prefix"
@@ -58,11 +60,11 @@ class Style:
 
     @classmethod
     def prometheus(cls) -> "Style":
-        """Match Prometheus' canonical formatting (``sum by (job) (up{job="api"})``)."""
+        """Match Prometheus' canonical formatting (`sum by (job) (up{job="api"})`)."""
         return cls(empty_braces=False, grouping=cls.GroupingPosition.PREFIX, compact_matchers=True)
 
     def labels_clause(self, keyword: str, labels: "Iterable[object]") -> str:
-        """Render a ``keyword (label, ...)`` clause such as ``by (job)`` or ``on (env)``."""
+        """Render a `keyword (label, ...)` clause such as `by (job)` or `on (env)`."""
         space = " " if self.paren_space else ""
         labels_str = ", ".join(str(label) for label in labels)
         return f"{keyword}{space}({labels_str})"
@@ -76,7 +78,12 @@ class Query(ABC):
 
     @staticmethod
     def get_indent(indent_size: str | int | None, _indent_level: int) -> Indent:
-        """Compute the separators and padding for the given indent size and level."""
+        """Compute the separators and padding for the given indent size and level.
+
+        Raises:
+            ValueError: If `indent_size` is a `bool`, a non-whitespace `str`,
+                or any other unsupported type.
+        """
         if indent_size is None:
             return Indent(
                 " ",
@@ -85,7 +92,7 @@ class Query(ABC):
                 "",
             )
 
-        # bool is an int subclass, so ``indent=True`` would mean one space
+        # bool is an int subclass, so `indent=True` would mean one space
         if isinstance(indent_size, int) and not isinstance(indent_size, bool):
             return Indent(
                 "\n",
@@ -113,9 +120,15 @@ class Query(ABC):
     ) -> str:
         """Render this expression as a PromQL string.
 
-        ``indent`` enables multi-line output: an ``int`` is a number of spaces
-        per level, a whitespace ``str`` is used verbatim per level.  ``style``
-        selects formatting options (see :class:`Style`).
+        Args:
+            indent: Enables multi-line output: an `int` is a number of spaces
+                per level, a whitespace `str` is used verbatim per level.
+                `None` renders a single line.
+            _indent_level: Current nesting depth; internal, leave at `0`.
+            style: Formatting options, see [`Style`][promcraft.Style].
+
+        Raises:
+            ValueError: If `indent` is a `bool` or a non-whitespace `str`.
         """
         msg = "Subclasses must implement to_string method"
         raise NotImplementedError(msg)
@@ -125,7 +138,7 @@ class Query(ABC):
 
     def __bool__(self) -> bool:
         # Comparison operators build PromQL expressions instead of returning
-        # bools, so truthiness would silently be True (e.g. ``x in [y]``).
+        # bools, so truthiness would silently be True (e.g. `x in [y]`).
         msg = "Query objects have no truth value; compare with `is None` instead"
         raise TypeError(msg)
 
@@ -133,8 +146,8 @@ class Query(ABC):
         return id(self)
 
     def __getitem__(self, item: "SUBQUERY_SLICE") -> "Subquery":
-        # Slice shorthand for ``subquery()``. mypy rejects non-int slice bounds
-        # (e.g. ``Duration``) at the call site; see the README.
+        # Slice shorthand for `subquery()`. mypy rejects non-int slice bounds
+        # (e.g. `Duration`) at the call site; see docs/guide/selectors.md.
         if not isinstance(item, slice):
             # Unreachable for type-checked callers; guards plain `expr[5m]` at runtime
             msg = "Use expr[range:] or expr[range:resolution] to build a subquery"  # type: ignore[unreachable]
@@ -153,9 +166,10 @@ class Query(ABC):
         offset: "SCALAR_TYPE | None" = None,
         at: "AT_TYPE | None" = None,
     ) -> "Subquery":
-        """Evaluate this expression as a subquery: ``<expr>[range:resolution]``.
+        """Evaluate this expression as a subquery: `<expr>[range:resolution]`.
 
-        See :class:`~promcraft._subquery.Subquery`.
+        See [`Subquery`][promcraft.Subquery]; slice syntax `expr[range:resolution]`
+        is a shorthand for this method.
         """
         from promcraft._subquery import Subquery
 
@@ -243,7 +257,7 @@ class Query(ABC):
         other: object,
     ) -> "BinaryOprator":
         # Returning NotImplemented here would make Python fall back to an
-        # identity check, so ``q == "foo"`` would silently be False.
+        # identity check, so `q == "foo"` would silently be False.
         if not isinstance(other, Query | int | float):
             msg = (
                 f"Cannot compare {type(self).__name__} with {type(other).__name__}; "

@@ -6,18 +6,23 @@ from promcraft._base import DEFAULT_STYLE, Query, Style
 class Variable(Query):
     """A Grafana dashboard template variable.
 
-    Renders using Grafana's variable-interpolation syntax (``$name`` or, when
+    Renders using Grafana's variable-interpolation syntax (`$name` or, when
     braces are needed — e.g. immediately followed by another identifier
-    character — ``${name}``). Grafana substitutes the variable's selected
+    character — `${name}`). Grafana substitutes the variable's selected
     value(s) before the resulting text is sent to Prometheus, so a
-    ``Variable`` can stand in anywhere a :class:`~promcraft._base.Query` is
+    `Variable` can stand in anywhere a [`Query`][promcraft.Query] is
     expected: as a metric selector, a binary-operator operand, or an
     aggregation/function argument.
 
-    Example::
+    Args:
+        name: Variable name, without the leading `$`.
+        braces: Render `${name}` instead of `$name`.
 
+    Example:
+        ```python
         Variable("job")  # → "$job"
         Variable("job", braces=True)  # → "${job}"
+        ```
     """
 
     def __init__(self, name: str, *, braces: bool = False) -> None:
