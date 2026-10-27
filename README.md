@@ -5,10 +5,13 @@
 [![Tests](https://github.com/xbabka01/promcraft/actions/workflows/python.yml/badge.svg)](https://github.com/xbabka01/promcraft/actions/workflows/python.yml)
 [![docs](https://img.shields.io/badge/docs-xbabka01.github.io%2Fpromcraft-blue)](https://xbabka01.github.io/promcraft/)
 
+<!-- --8<-- [start:intro] -->
 A Python library for building [Prometheus QL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries programmatically. Instead of constructing raw query strings, use composable Python objects that serialize to valid PromQL syntax.
+<!-- --8<-- [end:intro] -->
 
 **Documentation:** <https://xbabka01.github.io/promcraft/>
 
+<!-- --8<-- [start:usage] -->
 ## Installation
 
 ```bash
@@ -112,6 +115,8 @@ sum(
 ) by (job)
 
 ```
+
+<!-- --8<-- [end:usage] -->
 
 ## Documentation
 

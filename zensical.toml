@@ -59,6 +59,8 @@ toc.permalink = true
 pymdownx.details = {}
 pymdownx.highlight = {}
 pymdownx.superfences = {}
+# docs/index.md includes sections of README.md; a missing file or section fails the build
+pymdownx.snippets = { check_paths = true }
 
 [project.plugins.mkdocstrings.handlers.python]
 paths = ["src"]
