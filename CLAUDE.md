@@ -19,7 +19,14 @@ poetry run pytest tests/test_operator.py -o addopts=""
 
 # Run a single test by name
 poetry run pytest tests/test_operator.py::test_binary_helpers -o addopts=""
+
+# Docs (optional `docs` group): live preview, and the strict build CI runs
+poetry install --with docs
+poetry run zensical serve
+poetry run zensical build --strict
 ```
+
+User documentation lives in `docs/` (built with [Zensical](https://zensical.org/), config in `zensical.toml`; API pages via mkdocstrings-python), deployed to GitHub Pages by [.github/workflows/docs.yml](.github/workflows/docs.yml) on release tags; PRs and `main` only build it. `docs/guide/*.md` are hand-written guides; `docs/api/*.md` hold one `::: promcraft.<name>` mkdocstrings block per public name, so a new public name must be added to the matching API page. `README.md` is kept short (it is also the PyPI description) and links to the site with absolute URLs only.
 
 The `version` in `pyproject.toml` (`0.0.0`) is a placeholder and is never bumped by hand. The release workflow ([.github/workflows/release.yaml](.github/workflows/release.yaml)) sets the real version from the pushed git tag (`poetry version "${GITHUB_REF_NAME#v}"`, so tag `v0.5.0` publishes `0.5.0`). Do not flag the mismatch between `pyproject.toml` and the tags, and do not suggest bumping it.
 
@@ -53,3 +60,4 @@ All implementation modules are `_`-prefixed: users import only from `promcraft`,
 - `BinaryOprator` and `Aggregation` support method chaining (`.on()`, `.ignoring()`, `.group_left()`, `.group_right()`, `.bool()`, `.by()`, `.without()`) that return new instances (immutable style).
 - Raw Python values are coerced via `from_value`: `str` → `String` in string positions (`Variable` passes through, except as a `Label` value), numbers → `Float`/`Duration` in scalar positions.
 - Mypy is strict (`disallow_untyped_defs`, `warn_return_any`, etc.) — all new code must be fully typed.
+- Docstrings are Google style with Markdown (ruff `pydocstyle.convention = "google"`): `Args:`/`Raises:`/`Example:` sections, examples in fenced ```` ```python ```` blocks, single-backtick code, and cross-references as mkdocstrings autorefs to the public path (`` [`Float`][promcraft.Float] ``, never `promcraft._scalar.Float`).

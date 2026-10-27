@@ -1,4 +1,4 @@
-"""PromQL function helpers (``rate``, ``abs_``, ``histogram_quantile``, ...)."""
+"""PromQL function helpers (`rate`, `abs_`, `histogram_quantile`, ...)."""
 
 from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._operator import OPERAND_TYPE, _as_operand
@@ -7,12 +7,12 @@ from promcraft._string import STRING_TYPE, String
 
 
 class Function(Query):
-    """A PromQL function call, serialised as ``name(arg1, arg2, ...)``.
+    """A PromQL function call, serialised as `name(arg1, arg2, ...)`.
 
     This class is the return type for all function helper functions in this
     module.  Construct it directly only when a helper does not exist for the
-    function you need; raw numbers in ``args`` are wrapped in
-    :class:`~promcraft._scalar.Float`.
+    function you need; raw numbers in `args` are wrapped in
+    [`Float`][promcraft.Float].
     """
 
     def __init__(self, name: str, args: list[OPERAND_TYPE]) -> None:
@@ -45,125 +45,125 @@ class Function(Query):
 
 
 def abs_(v: Query) -> Function:
-    """Return the absolute value of each float sample in ``v``."""
+    """Return the absolute value of each float sample in `v`."""
     return Function("abs", [v])
 
 
 def ceil(v: Query) -> Function:
-    """Round each float sample in ``v`` up to the nearest integer."""
+    """Round each float sample in `v` up to the nearest integer."""
     return Function("ceil", [v])
 
 
 def floor(v: Query) -> Function:
-    """Round each float sample in ``v`` down to the nearest integer."""
+    """Round each float sample in `v` down to the nearest integer."""
     return Function("floor", [v])
 
 
 def sqrt(v: Query) -> Function:
-    """Return the square root of each float sample in ``v``."""
+    """Return the square root of each float sample in `v`."""
     return Function("sqrt", [v])
 
 
 def sgn(v: Query) -> Function:
-    """Return the sign of each float sample in ``v``.
+    """Return the sign of each float sample in `v`.
 
-    Returns ``1.0`` for positive values, ``-1.0`` for negative, and ``0.0`` for zero.
+    Returns `1.0` for positive values, `-1.0` for negative, and `0.0` for zero.
     """
     return Function("sgn", [v])
 
 
 def exp(v: Query) -> Function:
-    """Return e raised to the power of each float sample in ``v``."""
+    """Return e raised to the power of each float sample in `v`."""
     return Function("exp", [v])
 
 
 def ln(v: Query) -> Function:
-    """Return the natural logarithm of each float sample in ``v``."""
+    """Return the natural logarithm of each float sample in `v`."""
     return Function("ln", [v])
 
 
 def log2(v: Query) -> Function:
-    """Return the base-2 logarithm of each float sample in ``v``."""
+    """Return the base-2 logarithm of each float sample in `v`."""
     return Function("log2", [v])
 
 
 def log10(v: Query) -> Function:
-    """Return the base-10 logarithm of each float sample in ``v``."""
+    """Return the base-10 logarithm of each float sample in `v`."""
     return Function("log10", [v])
 
 
 def acos(v: Query) -> Function:
-    """Return the arccosine (in radians) of each float sample in ``v``."""
+    """Return the arccosine (in radians) of each float sample in `v`."""
     return Function("acos", [v])
 
 
 def acosh(v: Query) -> Function:
-    """Return the inverse hyperbolic cosine of each float sample in ``v``."""
+    """Return the inverse hyperbolic cosine of each float sample in `v`."""
     return Function("acosh", [v])
 
 
 def asin(v: Query) -> Function:
-    """Return the arcsine (in radians) of each float sample in ``v``."""
+    """Return the arcsine (in radians) of each float sample in `v`."""
     return Function("asin", [v])
 
 
 def asinh(v: Query) -> Function:
-    """Return the inverse hyperbolic sine of each float sample in ``v``."""
+    """Return the inverse hyperbolic sine of each float sample in `v`."""
     return Function("asinh", [v])
 
 
 def atan(v: Query) -> Function:
-    """Return the arctangent (in radians) of each float sample in ``v``."""
+    """Return the arctangent (in radians) of each float sample in `v`."""
     return Function("atan", [v])
 
 
 def atanh(v: Query) -> Function:
-    """Return the inverse hyperbolic tangent of each float sample in ``v``."""
+    """Return the inverse hyperbolic tangent of each float sample in `v`."""
     return Function("atanh", [v])
 
 
 def cos(v: Query) -> Function:
-    """Return the cosine of each float sample in ``v``."""
+    """Return the cosine of each float sample in `v`."""
     return Function("cos", [v])
 
 
 def cosh(v: Query) -> Function:
-    """Return the hyperbolic cosine of each float sample in ``v``."""
+    """Return the hyperbolic cosine of each float sample in `v`."""
     return Function("cosh", [v])
 
 
 def sin(v: Query) -> Function:
-    """Return the sine of each float sample in ``v``."""
+    """Return the sine of each float sample in `v`."""
     return Function("sin", [v])
 
 
 def sinh(v: Query) -> Function:
-    """Return the hyperbolic sine of each float sample in ``v``."""
+    """Return the hyperbolic sine of each float sample in `v`."""
     return Function("sinh", [v])
 
 
 def tan(v: Query) -> Function:
-    """Return the tangent of each float sample in ``v``."""
+    """Return the tangent of each float sample in `v`."""
     return Function("tan", [v])
 
 
 def tanh(v: Query) -> Function:
-    """Return the hyperbolic tangent of each float sample in ``v``."""
+    """Return the hyperbolic tangent of each float sample in `v`."""
     return Function("tanh", [v])
 
 
 def deg(v: Query) -> Function:
-    """Convert each float sample in ``v`` from radians to degrees."""
+    """Convert each float sample in `v` from radians to degrees."""
     return Function("deg", [v])
 
 
 def rad(v: Query) -> Function:
-    """Convert each float sample in ``v`` from degrees to radians."""
+    """Convert each float sample in `v` from degrees to radians."""
     return Function("rad", [v])
 
 
 def timestamp(v: Query) -> Function:
-    """Return the Unix timestamp (seconds since epoch) of each sample in ``v``."""
+    """Return the Unix timestamp (seconds since epoch) of each sample in `v`."""
     return Function("timestamp", [v])
 
 
@@ -178,17 +178,17 @@ def sort_desc(v: Query) -> Function:
 
 
 def absent(v: Query) -> Function:
-    """Return a 1-element vector with value 1 if ``v`` has no elements (``absent(v)``).
+    """Return a 1-element vector with value 1 if `v` has no elements (`absent(v)`).
 
-    Returns an empty vector when ``v`` is non-empty.
+    Returns an empty vector when `v` is non-empty.
     """
     return Function("absent", [v])
 
 
 def scalar(v: Query) -> Function:
-    """Return ``v``'s single float sample value as a scalar (``scalar(v)``).
+    """Return `v`'s single float sample value as a scalar (`scalar(v)`).
 
-    Returns NaN if ``v`` does not contain exactly one element.
+    Returns NaN if `v` does not contain exactly one element.
     """
     return Function("scalar", [v])
 
@@ -269,7 +269,7 @@ def present_over_time(v: Query) -> Function:
 
 
 def absent_over_time(v: Query) -> Function:
-    """Return a 1-element vector (value 1) if ``v`` has no samples in the range window."""
+    """Return a 1-element vector (value 1) if `v` has no samples in the range window."""
     return Function("absent_over_time", [v])
 
 
@@ -290,7 +290,7 @@ def rate(v: Query) -> Function:
 def irate(v: Query) -> Function:
     """Per-second instant rate of increase based on the last two data points in the range window.
 
-    More responsive than ``rate`` but more sensitive to spikes.
+    More responsive than `rate` but more sensitive to spikes.
     """
     return Function("irate", [v])
 
@@ -352,7 +352,7 @@ def time() -> Function:
 
 
 def vector(s: SCALAR_TYPE) -> Function:
-    """Convert scalar ``s`` into a single-element instant vector with no labels."""
+    """Convert scalar `s` into a single-element instant vector with no labels."""
     return Function("vector", [Float.from_value(s)])
 
 
@@ -362,7 +362,7 @@ def vector(s: SCALAR_TYPE) -> Function:
 
 
 def round_(v: Query, to_nearest: SCALAR_TYPE | None = None) -> Function:
-    """Round float samples to the nearest integer, or to a multiple of ``to_nearest``."""
+    """Round float samples to the nearest integer, or to a multiple of `to_nearest`."""
     if to_nearest is None:
         return Function("round", [v])
     return Function("round", [v, Float.from_value(to_nearest)])
@@ -374,12 +374,12 @@ def round_(v: Query, to_nearest: SCALAR_TYPE | None = None) -> Function:
 
 
 def clamp_max(v: Query, max: SCALAR_TYPE) -> Function:
-    """Clamp float samples so that no value exceeds ``max``."""
+    """Clamp float samples so that no value exceeds `max`."""
     return Function("clamp_max", [v, Float.from_value(max)])
 
 
 def clamp_min(v: Query, min: SCALAR_TYPE) -> Function:
-    """Clamp float samples so that no value falls below ``min``."""
+    """Clamp float samples so that no value falls below `min`."""
     return Function("clamp_min", [v, Float.from_value(min)])
 
 
@@ -389,7 +389,7 @@ def clamp_min(v: Query, min: SCALAR_TYPE) -> Function:
 
 
 def clamp(v: Query, min: SCALAR_TYPE, max: SCALAR_TYPE) -> Function:
-    """Clamp float samples so all values fall within [``min``, ``max``]."""
+    """Clamp float samples so all values fall within [`min`, `max`]."""
     return Function("clamp", [v, Float.from_value(min), Float.from_value(max)])
 
 
@@ -404,7 +404,7 @@ def quantile_over_time(phi: SCALAR_TYPE, v: Query) -> Function:
 
 
 def histogram_quantile(phi: SCALAR_TYPE, b: Query) -> Function:
-    """φ-quantile estimated from a classic or native histogram ``b``."""
+    """φ-quantile estimated from a classic or native histogram `b`."""
     return Function("histogram_quantile", [Float.from_value(phi), b])
 
 
@@ -414,7 +414,7 @@ def histogram_quantile(phi: SCALAR_TYPE, b: Query) -> Function:
 
 
 def histogram_fraction(lower: SCALAR_TYPE, upper: SCALAR_TYPE, b: Query) -> Function:
-    """Estimated fraction of observations in histogram ``b`` within (``lower``, ``upper``]."""
+    """Estimated fraction of observations in histogram `b` within (`lower`, `upper`]."""
     return Function("histogram_fraction", [Float.from_value(lower), Float.from_value(upper), b])
 
 
@@ -424,7 +424,7 @@ def histogram_fraction(lower: SCALAR_TYPE, upper: SCALAR_TYPE, b: Query) -> Func
 
 
 def predict_linear(v: Query, t: SCALAR_TYPE) -> Function:
-    """Predict the value of a gauge ``t`` seconds from now using linear regression.
+    """Predict the value of a gauge `t` seconds from now using linear regression.
 
     The regression is computed over the specified range window.
     """
@@ -439,7 +439,7 @@ def predict_linear(v: Query, t: SCALAR_TYPE) -> Function:
 def double_exponential_smoothing(v: Query, sf: SCALAR_TYPE, tf: SCALAR_TYPE) -> Function:
     """Produce a smoothed value using the Holt double exponential method.
 
-    ``sf`` is the smoothing factor (0 < sf < 1); ``tf`` is the trend factor
+    `sf` is the smoothing factor (0 < sf < 1); `tf` is the trend factor
     (0 < tf < 1).
 
     Note:
@@ -457,42 +457,42 @@ def double_exponential_smoothing(v: Query, sf: SCALAR_TYPE, tf: SCALAR_TYPE) -> 
 
 
 def day_of_month(v: Query | None = None) -> Function:
-    """Day of the month (1-31) in UTC; defaults to ``time()`` when ``v`` is omitted."""
+    """Day of the month (1-31) in UTC; defaults to `time()` when `v` is omitted."""
     return Function("day_of_month", [v] if v is not None else [])
 
 
 def day_of_week(v: Query | None = None) -> Function:
-    """Day of the week (0 = Sunday … 6 = Saturday) in UTC for each timestamp in ``v``."""
+    """Day of the week (0 = Sunday … 6 = Saturday) in UTC for each timestamp in `v`."""
     return Function("day_of_week", [v] if v is not None else [])
 
 
 def day_of_year(v: Query | None = None) -> Function:
-    """Day of the year (1-365/366) in UTC for each timestamp in ``v``."""
+    """Day of the year (1-365/366) in UTC for each timestamp in `v`."""
     return Function("day_of_year", [v] if v is not None else [])
 
 
 def days_in_month(v: Query | None = None) -> Function:
-    """Return the number of days in the month in UTC for each timestamp in ``v``."""
+    """Return the number of days in the month in UTC for each timestamp in `v`."""
     return Function("days_in_month", [v] if v is not None else [])
 
 
 def hour(v: Query | None = None) -> Function:
-    """Hour of the day (0-23) in UTC for each timestamp in ``v``."""
+    """Hour of the day (0-23) in UTC for each timestamp in `v`."""
     return Function("hour", [v] if v is not None else [])
 
 
 def minute(v: Query | None = None) -> Function:
-    """Minute of the hour (0-59) in UTC for each timestamp in ``v``."""
+    """Minute of the hour (0-59) in UTC for each timestamp in `v`."""
     return Function("minute", [v] if v is not None else [])
 
 
 def month(v: Query | None = None) -> Function:
-    """Month of the year (1-12) in UTC for each timestamp in ``v``."""
+    """Month of the year (1-12) in UTC for each timestamp in `v`."""
     return Function("month", [v] if v is not None else [])
 
 
 def year(v: Query | None = None) -> Function:
-    """Year in UTC for each timestamp in ``v``."""
+    """Year in UTC for each timestamp in `v`."""
     return Function("year", [v] if v is not None else [])
 
 
@@ -504,9 +504,9 @@ def year(v: Query | None = None) -> Function:
 def label_join(
     v: Query, dst_label: STRING_TYPE, separator: STRING_TYPE, *src_labels: STRING_TYPE
 ) -> Function:
-    """Join ``src_labels`` values with ``separator`` and write the result to ``dst_label``.
+    """Join `src_labels` values with `separator` and write the result to `dst_label`.
 
-    PromQL: ``label_join(v, dst_label, separator, src_label1, ...)``
+    PromQL: `label_join(v, dst_label, separator, src_label1, ...)`
     """
     return Function(
         "label_join",
@@ -526,11 +526,11 @@ def label_replace(
     src_label: STRING_TYPE,
     regex: STRING_TYPE,
 ) -> Function:
-    """Match ``regex`` against ``src_label`` and write the substituted result to ``dst_label``.
+    """Match `regex` against `src_label` and write the substituted result to `dst_label`.
 
-    Capture groups from ``regex`` may be referenced in ``replacement`` as ``$1``, ``$2``, etc.
+    Capture groups from `regex` may be referenced in `replacement` as `$1`, `$2`, etc.
 
-    PromQL: ``label_replace(v, dst_label, replacement, src_label, regex)``
+    PromQL: `label_replace(v, dst_label, replacement, src_label, regex)`
     """
     return Function(
         "label_replace",
@@ -560,9 +560,9 @@ def sort_by_label_desc(v: Query, *labels: STRING_TYPE) -> Function:
 
 
 def info(v: Query, data_label_selector: Query | None = None) -> Function:
-    """Add data labels from matching info series to each time series in ``v``.
+    """Add data labels from matching info series to each time series in `v`.
 
-    PromQL: ``info(v[, data_label_selector])``
+    PromQL: `info(v[, data_label_selector])`
 
     Note:
         Experimental — may change in future Prometheus releases.

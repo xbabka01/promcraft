@@ -10,24 +10,36 @@ from promcraft._vector import RangeVector
 
 
 class Subquery(TimeModifiers, Query):
-    """A PromQL subquery: ``<expr>[<range>:<resolution>]``.
+    """A PromQL subquery: `<expr>[<range>:<resolution>]`.
 
-    Evaluates ``query`` (any instant-vector expression) over ``range`` at every
-    ``resolution`` step, producing a range vector that can be passed to
-    range-vector functions such as ``max_over_time``.  Without ``resolution``
-    the global evaluation interval is used (``[1h:]``).  Binary operations
-    and negations are parenthesised.  Like selectors, subqueries accept ``offset``
-    and ``@`` modifiers.
+    Evaluates `query` (any instant-vector expression) over `range` at every
+    `resolution` step, producing a range vector that can be passed to
+    range-vector functions such as `max_over_time`.  Without `resolution`
+    the global evaluation interval is used (`[1h:]`).  Binary operations
+    and negations are parenthesised.  Like selectors, subqueries accept `offset`
+    and `@` modifiers.
 
-    Usually built with :meth:`Query.subquery <promcraft._base.Query.subquery>`.
+    Usually built with [`Query.subquery`][promcraft.Query.subquery].
 
-    Example::
+    Args:
+        query: Any instant-vector expression.
+        range: Window length; raw numbers are seconds (`3600` → `[1h:]`).
+        resolution: Step between evaluations; `None` uses the global
+            evaluation interval.
+        offset: Time shift; raw numbers are seconds.
+        at: Evaluation time: a Unix timestamp, `"start()"` or `"end()"`.
 
+    Raises:
+        TypeError: If `query` is already a range vector or subquery.
+
+    Example:
+        ```python
         rate(http_requests_total[Duration(m=5)]).subquery(Duration(h=1), Duration(m=1))
         # → 'rate(http_requests_total{}[5m])[1h:1m]'
 
         Subquery(up + down, Duration(h=1), offset=Duration(d=1))
         # → '(up{} + down{})[1h:] offset 1d'
+        ```
     """
 
     def __init__(
@@ -59,7 +71,7 @@ class Subquery(TimeModifiers, Query):
         resolution = str(self.resolution) if self.resolution is not None else ""
         suffix = f"[{self.range}:{resolution}]{self._modifiers_str()}"
 
-        # Unparenthesised, ``-x[1h:]`` would negate the range vector, which PromQL rejects
+        # Unparenthesised, `-x[1h:]` would negate the range vector, which PromQL rejects
         if isinstance(self.query, BinaryOprator | Negation):
             body = self.query.to_string(
                 indent=indent, _indent_level=_indent_level + 1, style=style

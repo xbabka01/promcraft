@@ -12,7 +12,7 @@ OPERAND_TYPE = Query | float
 
 
 def _as_operand(value: OPERAND_TYPE) -> Query:
-    """Return ``value`` as a ``Query``, wrapping raw numbers in :class:`Float`."""
+    """Return `value` as a `Query`, wrapping raw numbers in [`Float`][promcraft.Float]."""
     if isinstance(value, Query):
         return value
     return Float.from_value(value)
@@ -22,16 +22,17 @@ class Match:
     """Vector matching clause that controls which labels are used when pairing series.
 
     When two instant vectors are combined with a binary operator, Prometheus
-    must match each left-hand element to a right-hand element.  ``Match``
+    must match each left-hand element to a right-hand element.  `Match`
     configures this behaviour:
 
-    - ``on(labels)``      — match *only* on the listed labels, ignore all others.
-    - ``ignoring(labels)`` — exclude the listed labels from matching; use all others.
+    - `on(labels)`      — match *only* on the listed labels, ignore all others.
+    - `ignoring(labels)` — exclude the listed labels from matching; use all others.
 
-    Example::
-
+    Example:
+        ```python
         Match.on(["env", "job"])  # → 'on (env, job)'
         Match.ignoring(["instance"])  # → 'ignoring (instance)'
+        ```
     """
 
     def __init__(self, type: Literal["on", "ignoring"], labels: list[str | Variable]) -> None:
@@ -40,16 +41,16 @@ class Match:
 
     @classmethod
     def on(cls, labels: list[str | Variable]) -> "Match":
-        """Return an ``on(labels)`` match clause."""
+        """Return an `on(labels)` match clause."""
         return cls("on", labels)
 
     @classmethod
     def ignoring(cls, labels: list[str | Variable]) -> "Match":
-        """Return an ``ignoring(labels)`` match clause."""
+        """Return an `ignoring(labels)` match clause."""
         return cls("ignoring", labels)
 
     def to_string(self, style: Style = DEFAULT_STYLE) -> str:
-        """Render this clause, honouring ``style.paren_space``."""
+        """Render this clause, honouring `style.paren_space`."""
         return style.labels_clause(self.type, self.labels)
 
     def __str__(self) -> str:
@@ -60,18 +61,19 @@ class Group:
     """Group modifier enabling many-to-one or one-to-many vector matching.
 
     By default binary operations require a one-to-one match.  When the
-    cardinalities differ, a ``Group`` modifier must be added:
+    cardinalities differ, a `Group` modifier must be added:
 
-    - ``group_left(labels)``  — multiple left-side series may match one right-side series.
-    - ``group_right(labels)`` — multiple right-side series may match one left-side series.
+    - `group_left(labels)`  — multiple left-side series may match one right-side series.
+    - `group_right(labels)` — multiple right-side series may match one left-side series.
 
-    The optional ``labels`` list copies those labels from the "one" side
+    The optional `labels` list copies those labels from the "one" side
     into the result.
 
-    Example::
-
+    Example:
+        ```python
         Group.left(["region"])  # → 'group_left (region)'
         Group.right([])  # → 'group_right ()'
+        ```
     """
 
     def __init__(self, type: Literal["left", "right"], labels: list[str | Variable]) -> None:
@@ -80,16 +82,16 @@ class Group:
 
     @classmethod
     def left(cls, labels: list[str | Variable]) -> "Group":
-        """Return a ``group_left(labels)`` modifier."""
+        """Return a `group_left(labels)` modifier."""
         return cls("left", labels)
 
     @classmethod
     def right(cls, labels: list[str | Variable]) -> "Group":
-        """Return a ``group_right(labels)`` modifier."""
+        """Return a `group_right(labels)` modifier."""
         return cls("right", labels)
 
     def to_string(self, style: Style = DEFAULT_STYLE) -> str:
-        """Render this modifier, honouring ``style.paren_space``."""
+        """Render this modifier, honouring `style.paren_space`."""
         return style.labels_clause(f"group_{self.type}", self.labels)
 
     def __str__(self) -> str:
@@ -100,25 +102,37 @@ class BinaryOprator(Query):
     """A PromQL binary operation between two query expressions.
 
     Supports arithmetic, comparison, logical/set, and trigonometric operators
-    (see :class:`BinaryOprator.Operator`).  Nested ``BinaryOprator`` operands
-    are automatically parenthesised to preserve evaluation order.
+    (see [`BinaryOprator.Operator`][promcraft.BinaryOprator.Operator]).  Nested
+    `BinaryOprator` operands are automatically parenthesised to preserve
+    evaluation order.
 
     Vector matching behaviour can be refined via the fluent methods
-    :meth:`on`, :meth:`ignoring`, :meth:`group_left`, and :meth:`group_right`,
-    each of which returns a new immutable instance.
+    [`on`][promcraft.BinaryOprator.on], [`ignoring`][promcraft.BinaryOprator.ignoring],
+    [`group_left`][promcraft.BinaryOprator.group_left], and
+    [`group_right`][promcraft.BinaryOprator.group_right], each of which returns a
+    new immutable instance.  A group modifier without `on`/`ignoring` adds
+    `ignoring ()`, since PromQL requires a matching clause before it.
+
+    Usually built with a helper such as [`add`][promcraft.add] or with Python's
+    own operators (`a + b`, `a > 0`, `a & b`).
 
     Note:
-        The class name ``BinaryOprator`` (missing an 'e') is intentional and
+        The class name `BinaryOprator` (missing an 'e') is intentional and
         preserved for backwards compatibility.
 
-    Example::
-
+    Example:
+        ```python
         add(http_requests_total, http_errors_total).on(["env"])
         # → 'http_requests_total{} + on (env) http_errors_total{}'
 
         gt(errors, Float(0)).bool()
         # → 'errors{} > bool 0'
+        ```
 
+    Raises:
+        ValueError: If `return_bool` is set on a non-comparison operator, a
+            group modifier is used with `and`/`or`/`unless`, or `on`/`ignoring`/
+            group modifiers are applied to a scalar operand.
     """
 
     class Operator(enum.Enum):
@@ -175,11 +189,11 @@ class BinaryOprator(Query):
         ):
             msg = f"Vector matching requires two instant vectors, not a scalar operand: {op}"
             raise ValueError(msg)
-        # PromQL only allows group_left/right after on/ignoring; ``ignoring ()`` is the
+        # PromQL only allows group_left/right after on/ignoring; `ignoring ()` is the
         # default matching, so it keeps the meaning while making the query valid.
         if match is None and group is not None:
             match = Match.ignoring([])
-        # Copied so chained copies (``.on()``, ``.bool()``, ...) don't share label lists
+        # Copied so chained copies (`.on()`, `.bool()`, ...) don't share label lists
         self.match = Match(match.type, match.labels) if match is not None else None
         self.group = Group(group.type, group.labels) if group is not None else None
         self.return_bool = return_bool
@@ -197,12 +211,12 @@ class BinaryOprator(Query):
         def render_operand(operand: Query, *, pow_base: builtins.bool = False) -> str:
             # Function calls and aggregations are self-delimiting; only nested
             # binary operations and negations need parentheses to preserve
-            # evaluation order (``-a ^ b`` is ``-(a ^ b)`` in PromQL).
+            # evaluation order (`-a ^ b` is `-(a ^ b)` in PromQL).
             if not isinstance(operand, BinaryOprator | Negation):
                 rendered = operand.to_string(
                     indent=indent, _indent_level=_indent_level, style=style
                 )
-                # A negative literal base has the same problem: ``-2 ^ 2`` is ``-(2 ^ 2)``
+                # A negative literal base has the same problem: `-2 ^ 2` is `-(2 ^ 2)`
                 if not (pow_base and rendered.removeprefix(pad).startswith("-")):
                     return rendered
             body = operand.to_string(indent=indent, _indent_level=_indent_level + 1, style=style)
@@ -234,27 +248,43 @@ class BinaryOprator(Query):
         )
 
     def bool(self) -> "BinaryOprator":
-        """Return a copy of this comparison with the ``bool`` modifier.
+        """Return a copy of this comparison with the `bool` modifier.
 
-        Instead of filtering, the comparison then returns ``0`` or ``1`` for each
+        Instead of filtering, the comparison then returns `0` or `1` for each
         element.  Required when both operands are scalars.
+
+        Raises:
+            ValueError: If this is not a comparison operation.
         """
         return self._replace(return_bool=True)
 
     def on(self, labels: list[str | Variable]) -> "BinaryOprator":
-        """Return a copy of this operation with an ``on(labels)`` match clause."""
+        """Return a copy of this operation with an `on(labels)` match clause."""
         return self._replace(match=Match.on(labels))
 
     def ignoring(self, labels: list[str | Variable]) -> "BinaryOprator":
-        """Return a copy of this operation with an ``ignoring(labels)`` match clause."""
+        """Return a copy of this operation with an `ignoring(labels)` match clause."""
         return self._replace(match=Match.ignoring(labels))
 
     def group_left(self, labels: list[str | Variable]) -> "BinaryOprator":
-        """Return a copy of this operation with a ``group_left(labels)`` modifier."""
+        """Return a copy of this operation with a `group_left(labels)` modifier.
+
+        Many left-side series may match one right-side series; `labels` are
+        copied from the right ("one") side.
+
+        Raises:
+            ValueError: If this is an `and`/`or`/`unless` operation.
+        """
         return self._replace(group=Group.left(labels))
 
     def group_right(self, labels: list[str | Variable]) -> "BinaryOprator":
-        """Return a copy of this operation with a ``group_right(labels)`` modifier."""
+        """Return a copy of this operation with a `group_right(labels)` modifier.
+
+        The mirror image of [`group_left`][promcraft.BinaryOprator.group_left].
+
+        Raises:
+            ValueError: If this is an `and`/`or`/`unless` operation.
+        """
         return self._replace(group=Group.right(labels))
 
 
@@ -279,15 +309,16 @@ _SET_OPERATORS = frozenset(
 
 
 class Negation(Query):
-    """Unary minus applied to a PromQL expression (``-expr``).
+    """Unary minus applied to a PromQL expression (`-expr`).
 
     Binary-operation operands are parenthesised so the sign applies to the
     whole expression.
 
-    Example::
-
+    Example:
+        ```python
         -rate(errors_total[5m])  # → '-rate(errors_total{}[5m])'
         -(a + b)  # → '-(a{} + b{})'
+        ```
     """
 
     def __init__(self, operand: OPERAND_TYPE) -> None:
@@ -315,7 +346,7 @@ def add(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left + right`` (arithmetic addition)."""
+    """Return `left + right` (arithmetic addition)."""
     return BinaryOprator(BinaryOprator.Operator.ADD, left, right)
 
 
@@ -323,7 +354,7 @@ def sub(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left - right`` (arithmetic subtraction)."""
+    """Return `left - right` (arithmetic subtraction)."""
     return BinaryOprator(BinaryOprator.Operator.SUB, left, right)
 
 
@@ -331,7 +362,7 @@ def mul(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left * right`` (arithmetic multiplication)."""
+    """Return `left * right` (arithmetic multiplication)."""
     return BinaryOprator(BinaryOprator.Operator.MUL, left, right)
 
 
@@ -339,7 +370,7 @@ def div(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left / right`` (arithmetic division)."""
+    """Return `left / right` (arithmetic division)."""
     return BinaryOprator(BinaryOprator.Operator.DIV, left, right)
 
 
@@ -347,7 +378,7 @@ def mod(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left % right`` (arithmetic modulo)."""
+    """Return `left % right` (arithmetic modulo)."""
     return BinaryOprator(BinaryOprator.Operator.MOD, left, right)
 
 
@@ -355,7 +386,7 @@ def pow_(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left ^ right`` (exponentiation)."""
+    """Return `left ^ right` (exponentiation)."""
     return BinaryOprator(BinaryOprator.Operator.POW, left, right)
 
 
@@ -363,7 +394,7 @@ def eq(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left == right`` (equality comparison; filters non-matching elements)."""
+    """Return `left == right` (equality comparison; filters non-matching elements)."""
     return BinaryOprator(BinaryOprator.Operator.EQ, left, right)
 
 
@@ -371,7 +402,7 @@ def neq(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left != right`` (not-equal comparison)."""
+    """Return `left != right` (not-equal comparison)."""
     return BinaryOprator(BinaryOprator.Operator.NEQ, left, right)
 
 
@@ -379,7 +410,7 @@ def lt(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left < right`` (less-than comparison)."""
+    """Return `left < right` (less-than comparison)."""
     return BinaryOprator(BinaryOprator.Operator.LT, left, right)
 
 
@@ -387,7 +418,7 @@ def lte(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left <= right`` (less-than-or-equal comparison)."""
+    """Return `left <= right` (less-than-or-equal comparison)."""
     return BinaryOprator(BinaryOprator.Operator.LTE, left, right)
 
 
@@ -395,7 +426,7 @@ def gt(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left > right`` (greater-than comparison)."""
+    """Return `left > right` (greater-than comparison)."""
     return BinaryOprator(BinaryOprator.Operator.GT, left, right)
 
 
@@ -403,7 +434,7 @@ def gte(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left >= right`` (greater-than-or-equal comparison)."""
+    """Return `left >= right` (greater-than-or-equal comparison)."""
     return BinaryOprator(BinaryOprator.Operator.GTE, left, right)
 
 
@@ -411,7 +442,7 @@ def and_(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left and right``.
+    """Return `left and right`.
 
     Set intersection: keeps left-side elements whose label set has a match in right.
     """
@@ -422,7 +453,7 @@ def or_(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left or right``.
+    """Return `left or right`.
 
     Set union: combines all elements from both sides; left takes precedence for duplicates.
     """
@@ -433,7 +464,7 @@ def unless(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left unless right``.
+    """Return `left unless right`.
 
     Set complement: keeps left-side elements with no matching label set in right.
     """
@@ -444,7 +475,7 @@ def atan2(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return ``left atan2 right``.
+    """Return `left atan2 right`.
 
     Trigonometric two-argument arctangent, applied element-wise via vector matching.
     """

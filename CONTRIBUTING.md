@@ -54,8 +54,11 @@ poetry run ruff check --fix
 - All code must be fully typed (mypy runs in strict mode).
 - Implementation modules are `_`-prefixed. Every user-facing name must be re-exported from
   `promcraft/__init__.py` and listed in `__all__`.
-- Add tests for new behaviour and bug fixes, and update `README.md` when the public API
-  changes.
+- Add tests for new behaviour and bug fixes, and update the guide in `docs/guide/` when the
+  public API changes. A new public name also goes on the matching `docs/api/*.md` page.
+- Docstrings use Google style with Markdown (`Args:`, `Raises:`, `Example:` with a fenced
+  code block). Link other objects by their public path, e.g. `` [`Float`][promcraft.Float] ``.
+  Check the docs with `poetry install --with docs` and `poetry run zensical build --strict`.
 
 ## Pull requests
 

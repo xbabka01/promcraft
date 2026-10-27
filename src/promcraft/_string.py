@@ -19,9 +19,9 @@ _CONTROL_ESCAPES = {
 
 
 def _escape(value: str, quote: str) -> str:
-    r"""Escape ``value`` for a Go-style quoted string delimited by ``quote``.
+    r"""Escape `value` for a Go-style quoted string delimited by `quote`.
 
-    Non-ASCII characters are kept verbatim: in Go ``\xNN`` denotes a raw byte,
+    Non-ASCII characters are kept verbatim: in Go `\xNN` denotes a raw byte,
     so escaping them would corrupt the UTF-8 encoding.
     """
     out = []
@@ -40,17 +40,25 @@ def _escape(value: str, quote: str) -> str:
 class String(Query):
     r"""A PromQL string literal with configurable quoting.
 
-    Supports single-quote (``'``), double-quote (``"``), and backtick
+    Supports single-quote (`'`), double-quote (`"`), and backtick
     (`` ` ``) delimiters.  Double- and single-quoted strings process
-    Go-style escape sequences (``\n``, ``\t``, ``\\``, etc.).
+    Go-style escape sequences (`\n`, `\t`, `\\`, etc.).
     Backtick strings are raw — no escape processing is performed and
     newlines are preserved as-is.
 
-    Example::
+    Args:
+        value: The unquoted string content.
+        quote: Delimiter: `'"'` (default), `"'"` or a backtick.
 
+    Raises:
+        ValueError: If `quote` is a backtick and `value` contains one.
+
+    Example:
+        ```python
         String("prod")  # → '"prod"'
         String("us-east", "'")  # → "'us-east'"
         String("line\nnew", "`")  # → '`line\nnew`'
+        ```
     """
 
     def __init__(self, value: str, quote: Literal["`", '"', "'"] = '"') -> None:
@@ -62,7 +70,7 @@ class String(Query):
 
     @classmethod
     def from_value(cls, value: STRING_TYPE) -> "String | Variable":
-        """Wrap a raw ``str``, passing ``String`` and ``Variable`` through unchanged."""
+        """Wrap a raw `str`, passing `String` and `Variable` through unchanged."""
         if isinstance(value, String | Variable):
             return value
         return cls(value)

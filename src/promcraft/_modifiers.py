@@ -1,4 +1,4 @@
-"""``offset`` and ``@`` modifiers shared by selectors and subqueries."""
+"""`offset` and `@` modifiers shared by selectors and subqueries."""
 
 from abc import abstractmethod
 from typing import Literal, Self
@@ -11,7 +11,7 @@ _AT_KEYWORDS = frozenset({"start()", "end()"})
 
 
 class TimeModifiers:
-    """Mixin for expressions that accept ``offset <duration>`` and ``@ <time>``."""
+    """Mixin for expressions that accept `offset <duration>` and `@ <time>`."""
 
     offset: Scalar | Variable | None
     at: Scalar | Variable | Literal["start()", "end()"] | None
@@ -34,20 +34,20 @@ class TimeModifiers:
 
     @abstractmethod
     def _replace_modifiers(self, *, offset: SCALAR_TYPE | None, at: AT_TYPE | None) -> Self:
-        """Return a copy of this expression with the given ``offset`` and ``at``."""
+        """Return a copy of this expression with the given `offset` and `at`."""
 
     def with_offset(self, offset: SCALAR_TYPE) -> Self:
-        """Return a copy of this expression with the given ``offset``."""
+        """Return a copy of this expression with the given `offset`."""
         return self._replace_modifiers(offset=offset, at=self.at)
 
     def with_at(self, at: AT_TYPE) -> Self:
-        """Return a copy of this expression with the given ``@`` time."""
+        """Return a copy of this expression with the given `@` time."""
         return self._replace_modifiers(offset=self.offset, at=at)
 
     def with_at_start(self) -> Self:
-        """Return a copy of this expression with ``@ start()``."""
+        """Return a copy of this expression with `@ start()`."""
         return self.with_at("start()")
 
     def with_at_end(self) -> Self:
-        """Return a copy of this expression with ``@ end()``."""
+        """Return a copy of this expression with `@ end()`."""
         return self.with_at("end()")
