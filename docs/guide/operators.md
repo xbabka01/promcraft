@@ -153,20 +153,27 @@ Matching and group modifiers need two vectors; using them with a scalar operand 
 
 ## Grouping
 
-Use `.group_left()` or `.group_right()` for many-to-one or one-to-many matching:
+Use `.group_left()` or `.group_right()` for many-to-one or one-to-many matching. The
+typical use is copying labels from an "info" metric, which has one series with value `1`
+per target, onto every series of that target:
 
 ```pycon
+>>> per_handler = rate(InstantVector("http_requests_total", [])[Duration(m=5)])
+>>> build_info = InstantVector("app_build_info", [])
+
 >>> # group_left: many left-side series match one right-side series;
 >>> # the listed labels are copied from the right ("one") side
->>> expr = mul(requests, errors).on(["job"]).group_left(["env"])
->>> print(expr)
-http_requests_total{} * on (job) group_left (env) http_errors_total{}
+>>> print(mul(per_handler, build_info).on(["instance"]).group_left(["version"]))
+rate(http_requests_total{}[5m]) * on (instance) group_left (version) app_build_info{}
 
->>> # group_right: the mirror image; without on/ignoring, `ignoring ()` is added
->>> # because PromQL requires a matching clause before group_left/group_right
->>> expr = mul(requests, errors).group_right([])
->>> print(expr)
-http_requests_total{} * ignoring () group_right () http_errors_total{}
+>>> # group_right: the mirror image, with the "one" side on the left
+>>> print(mul(build_info, per_handler).on(["instance"]).group_right(["version"]))
+app_build_info{} * on (instance) group_right (version) rate(http_requests_total{}[5m])
+
+>>> # PromQL requires a matching clause before group_left/group_right, so
+>>> # without on/ignoring promcraft adds `ignoring ()` (match on all labels)
+>>> print(mul(per_handler, build_info).group_left(["version"]))
+rate(http_requests_total{}[5m]) * ignoring () group_left (version) app_build_info{}
 
 ```
 
@@ -175,7 +182,7 @@ Group modifiers are rejected on the set operators `and`, `or` and `unless`, whic
 `.on()`, `.ignoring()`, `.group_left()`, and `.group_right()` are all chainable and each returns a new immutable instance, so they can be combined freely:
 
 ```pycon
->>> print(mul(requests, errors).ignoring(["env"]).group_right(["env"]))
-http_requests_total{} * ignoring (env) group_right (env) http_errors_total{}
+>>> print(mul(per_handler, build_info).ignoring(["handler"]).group_left(["version"]))
+rate(http_requests_total{}[5m]) * ignoring (handler) group_left (version) app_build_info{}
 
 ```

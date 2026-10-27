@@ -123,6 +123,8 @@ The [user guide](https://xbabka01.github.io/promcraft/) covers every building bl
 - [Aggregations](https://xbabka01.github.io/promcraft/guide/aggregations/): `sum_`, `topk`, `count_values`, `by`/`without`, ...
 - [Functions](https://xbabka01.github.io/promcraft/guide/functions/): every PromQL function
 - [Composing and formatting](https://xbabka01.github.io/promcraft/guide/formatting/): pretty printing and `Style`
+- [Recipes](https://xbabka01.github.io/promcraft/guide/recipes/): error ratios, SLO burn rates, latency percentiles, Grafana dashboards, ...
+- [Errors and validation](https://xbabka01.github.io/promcraft/guide/errors/): the mistakes promcraft catches while building a query
 
 The [API reference](https://xbabka01.github.io/promcraft/api/base/) is generated from the docstrings.
 

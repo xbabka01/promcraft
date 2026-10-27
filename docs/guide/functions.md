@@ -2,77 +2,91 @@
 
 Every [Prometheus query function](https://prometheus.io/docs/prometheus/latest/querying/functions/) has a typed module-level helper. Scalar and string arguments accept raw `float`/`int`/`str` values interchangeably with `Float`/`String`. This page shows the main groups; the [API reference](../api/functions.md) lists every helper.
 
-## Rate / counter functions
+## Counters
+
+`rate`, `irate`, `increase` and `resets` take a range vector of a counter:
 
 ```pycon
->>> from promcraft import RangeVector, Duration, rate, irate, increase, delta, deriv, resets
+>>> from promcraft import InstantVector, Duration, rate, irate, increase, resets
 
->>> rv = RangeVector("http_requests_total", [], Duration(m=5))
+>>> requests = InstantVector("http_requests_total", [])
 
->>> print(rate(rv))
+>>> print(rate(requests[Duration(m=5)]))
 rate(http_requests_total{}[5m])
->>> print(irate(rv))
+>>> print(irate(requests[Duration(m=5)]))
 irate(http_requests_total{}[5m])
->>> print(increase(rv))
-increase(http_requests_total{}[5m])
->>> print(delta(rv))
-delta(http_requests_total{}[5m])
->>> print(deriv(rv))
-deriv(http_requests_total{}[5m])
->>> print(resets(rv))
-resets(http_requests_total{}[5m])
+>>> print(increase(requests[Duration(h=1)]))
+increase(http_requests_total{}[1h])
+>>> print(resets(requests[Duration(d=1)]))
+resets(http_requests_total{}[1d])
+
+```
+
+## Gauges
+
+`delta`, `deriv` and `changes` take a range vector of a gauge:
+
+```pycon
+>>> from promcraft import delta, deriv, changes
+
+>>> memory = InstantVector("process_resident_memory_bytes", [])
+
+>>> print(delta(memory[Duration(h=1)]))
+delta(process_resident_memory_bytes{}[1h])
+>>> print(deriv(memory[Duration(m=15)]))
+deriv(process_resident_memory_bytes{}[15m])
+>>> print(changes(InstantVector("process_start_time_seconds", [])[Duration(d=1)]))
+changes(process_start_time_seconds{}[1d])
 
 ```
 
 ## `*_over_time` aggregations
 
+These aggregate each series over a range, from a selector or a subquery:
+
 ```pycon
 >>> from promcraft import (
 ...     avg_over_time,
-...     min_over_time,
 ...     max_over_time,
-...     sum_over_time,
-...     count_over_time,
-...     stddev_over_time,
-...     first_over_time,
-...     last_over_time,
-...     present_over_time,
-...     absent_over_time,
 ...     quantile_over_time,
+...     last_over_time,
+...     sum_,
 ... )
 
->>> print(avg_over_time(rv))
-avg_over_time(http_requests_total{}[5m])
->>> print(quantile_over_time(0.95, rv))
-quantile_over_time(0.95, http_requests_total{}[5m])
->>> print(first_over_time(rv))
-first_over_time(http_requests_total{}[5m])
+>>> print(avg_over_time(memory[Duration(h=1)]))
+avg_over_time(process_resident_memory_bytes{}[1h])
+>>> print(quantile_over_time(0.95, memory[Duration(h=1)]))
+quantile_over_time(0.95, process_resident_memory_bytes{}[1h])
+>>> print(last_over_time(InstantVector("node_boot_time_seconds", [])[Duration(h=1)]))
+last_over_time(node_boot_time_seconds{}[1h])
+
+>>> # peak cluster-wide request rate over the last day
+>>> total = sum_(rate(requests[Duration(m=5)]))
+>>> print(max_over_time(total.subquery(Duration(d=1), Duration(m=1))))
+max_over_time(sum(rate(http_requests_total{}[5m]))[1d:1m])
 
 ```
 
 ## Math & rounding
 
 ```pycon
->>> from promcraft import InstantVector, abs_, ceil, floor, sqrt, round_, clamp, clamp_min, clamp_max
+>>> from promcraft import abs_, ceil, floor, sqrt, round_, clamp, clamp_min, clamp_max
 
->>> v = InstantVector("cpu_usage", [])
+>>> load = InstantVector("node_load1", [])
+>>> ratio = InstantVector("cache_hit_ratio", [])
 
->>> print(abs_(v))
-abs(cpu_usage{})
->>> print(ceil(v))
-ceil(cpu_usage{})
->>> print(sqrt(v))
-sqrt(cpu_usage{})
->>> print(round_(v))
-round(cpu_usage{})
->>> print(round_(v, 0.5))
-round(cpu_usage{}, 0.5)
->>> print(clamp(v, 0.0, 1.0))
-clamp(cpu_usage{}, 0.0, 1.0)
->>> print(clamp_min(v, 0.0))
-clamp_min(cpu_usage{}, 0.0)
->>> print(clamp_max(v, 1.0))
-clamp_max(cpu_usage{}, 1.0)
+>>> print(abs_(deriv(memory[Duration(m=15)])))
+abs(deriv(process_resident_memory_bytes{}[15m]))
+>>> print(ceil(load))
+ceil(node_load1{})
+>>> print(round_(load, 0.5))
+round(node_load1{}, 0.5)
+>>> print(clamp(ratio, 0, 1))
+clamp(cache_hit_ratio{}, 0, 1)
+>>> print(clamp_min(delta(memory[Duration(h=1)]), 0))
+clamp_min(delta(process_resident_memory_bytes{}[1h]), 0)
+>>> print(clamp_max(ratio, 1))
+clamp_max(cache_hit_ratio{}, 1)
 
 ```
 
@@ -81,64 +95,62 @@ clamp_max(cpu_usage{}, 1.0)
 ```pycon
 >>> from promcraft import exp, ln, log2, log10
 
->>> print(exp(v))
-exp(cpu_usage{})
->>> print(ln(v))
-ln(cpu_usage{})
->>> print(log2(v))
-log2(cpu_usage{})
->>> print(log10(v))
-log10(cpu_usage{})
+>>> print(log10(memory))
+log10(process_resident_memory_bytes{})
+>>> print(log2(memory))
+log2(process_resident_memory_bytes{})
+>>> print(exp(ln(load)))
+exp(ln(node_load1{}))
 
 ```
 
 ## Trigonometry
 
-```pycon
->>> from promcraft import sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, deg, rad, pi, sgn
+All trigonometric functions work on radians; `deg` and `rad` convert:
 
->>> print(sin(v))
-sin(cpu_usage{})
->>> print(deg(v))
-deg(cpu_usage{})
->>> print(rad(v))
-rad(cpu_usage{})
+```pycon
+>>> from promcraft import sin, cos, atan, deg, rad, pi
+
+>>> angle = InstantVector("antenna_bearing_degrees", [])
+
+>>> print(sin(rad(angle)))
+sin(rad(antenna_bearing_degrees{}))
+>>> print(deg(atan(InstantVector("slope_ratio", []))))
+deg(atan(slope_ratio{}))
 >>> print(pi())
 pi()
->>> print(sgn(v))
-sgn(cpu_usage{})
 
 ```
 
 ## Date / time
 
-All accept an optional instant vector; when omitted they default to `vector(time())` in PromQL.
+These take an instant vector of Unix timestamps; when omitted they use the evaluation time, `vector(time())`:
 
 ```pycon
->>> from promcraft import hour, minute, day_of_week, day_of_month, month, year, time
+>>> from promcraft import hour, day_of_week, time
+
+>>> boot = InstantVector("node_boot_time_seconds", [])
 
 >>> print(hour())
 hour()
->>> print(hour(v))
-hour(cpu_usage{})
->>> print(time())
-time()
+>>> print(day_of_week(boot))
+day_of_week(node_boot_time_seconds{})
+>>> print(time() - boot)
+time() - node_boot_time_seconds{}
 
 ```
 
 ## Sorting
 
 ```pycon
->>> from promcraft import sort, sort_desc, sort_by_label, sort_by_label_desc
+>>> from promcraft import sort_desc, sort_by_label
 
->>> print(sort(v))
-sort(cpu_usage{})
->>> print(sort_desc(v))
-sort_desc(cpu_usage{})
->>> print(sort_by_label(v, "job"))
-sort_by_label(cpu_usage{}, "job")
->>> print(sort_by_label_desc(v, "job", "env"))
-sort_by_label_desc(cpu_usage{}, "job", "env")
+>>> per_job = sum_(rate(requests[Duration(m=5)])).by(["job"])
+
+>>> print(sort_desc(per_job))
+sort_desc(sum(rate(http_requests_total{}[5m])) by (job))
+>>> print(sort_by_label(InstantVector("up", []), "job", "instance"))
+sort_by_label(up{}, "job", "instance")
 
 ```
 
@@ -147,11 +159,14 @@ sort_by_label_desc(cpu_usage{}, "job", "env")
 ```pycon
 >>> from promcraft import label_join, label_replace
 
->>> print(label_join(v, "addr", ":", "host", "port"))
-label_join(cpu_usage{}, "addr", ":", "host", "port")
+>>> up = InstantVector("up", [])
 
->>> print(label_replace(v, "job", "${1}", "job", "(.+)"))
-label_replace(cpu_usage{}, "job", "${1}", "job", "(.+)")
+>>> # add a `host` label holding the instance without its port
+>>> print(label_replace(up, "host", "$1", "instance", "(.*):.*"))
+label_replace(up{}, "host", "$1", "instance", "(.*):.*")
+
+>>> print(label_join(up, "target", "/", "job", "instance"))
+label_join(up{}, "target", "/", "job", "instance")
 
 ```
 
@@ -160,32 +175,41 @@ label_replace(cpu_usage{}, "job", "${1}", "job", "(.+)")
 ```pycon
 >>> from promcraft import scalar, vector
 
->>> print(scalar(v))
-scalar(cpu_usage{})
->>> print(vector(1.0))
-vector(1.0)
+>>> # the number of healthy targets, usable where PromQL wants a scalar
+>>> print(scalar(sum_(up)))
+scalar(sum(up{}))
+>>> print(vector(1))
+vector(1)
 
 ```
 
 ## Histogram functions
 
-```pycon
->>> from promcraft import (
-...     histogram_quantile,
-...     histogram_fraction,
-...     histogram_count,
-...     histogram_sum,
-...     histogram_avg,
-...     histogram_stddev,
-...     histogram_stdvar,
-... )
+Classic histograms are a set of `_bucket` counters with an `le` label; rate them and keep `le` when aggregating:
 
->>> print(histogram_quantile(0.95, v))
-histogram_quantile(0.95, cpu_usage{})
->>> print(histogram_fraction(0.0, 1.0, v))
-histogram_fraction(0.0, 1.0, cpu_usage{})
->>> print(histogram_count(v))
-histogram_count(cpu_usage{})
+```pycon
+>>> from promcraft import histogram_quantile, histogram_fraction, histogram_count, histogram_avg
+
+>>> buckets = InstantVector("http_request_duration_seconds_bucket", [])
+
+>>> print(histogram_quantile(0.95, sum_(rate(buckets[Duration(m=5)])).by(["le"])))
+histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{}[5m])) by (le))
+
+```
+
+Native histograms are a single series, and some functions only work on them:
+
+```pycon
+>>> durations = rate(InstantVector("http_request_duration_seconds", [])[Duration(m=5)])
+
+>>> print(histogram_quantile(0.95, durations))
+histogram_quantile(0.95, rate(http_request_duration_seconds{}[5m]))
+>>> print(histogram_fraction(0, 0.2, durations))
+histogram_fraction(0, 0.2, rate(http_request_duration_seconds{}[5m]))
+>>> print(histogram_count(durations))
+histogram_count(rate(http_request_duration_seconds{}[5m]))
+>>> print(histogram_avg(durations))
+histogram_avg(rate(http_request_duration_seconds{}[5m]))
 
 ```
 
@@ -194,23 +218,30 @@ histogram_count(cpu_usage{})
 ```pycon
 >>> from promcraft import predict_linear, double_exponential_smoothing
 
->>> print(predict_linear(rv, 3600.0))
-predict_linear(http_requests_total{}[5m], 3600.0)
+>>> free = InstantVector("node_filesystem_avail_bytes", [])
 
->>> print(double_exponential_smoothing(rv, 0.1, 0.5))
-double_exponential_smoothing(http_requests_total{}[5m], 0.1, 0.5)
+>>> # free disk space in 4 hours, extrapolated from the last 6 hours
+>>> print(predict_linear(free[Duration(h=6)], 4 * 3600))
+predict_linear(node_filesystem_avail_bytes{}[6h], 14400)
+
+>>> print(double_exponential_smoothing(memory[Duration(h=1)], 0.1, 0.5))
+double_exponential_smoothing(process_resident_memory_bytes{}[1h], 0.1, 0.5)
 
 ```
 
 ## Absence detection
 
-```pycon
->>> from promcraft import absent, absent_over_time
+`absent` returns a single series when nothing matches, which makes "this metric disappeared" alerts possible:
 
->>> print(absent(v))
-absent(cpu_usage{})
->>> print(absent_over_time(rv))
-absent_over_time(http_requests_total{}[5m])
+```pycon
+>>> from promcraft import Label, absent, absent_over_time
+
+>>> api_up = InstantVector("up", [Label.eq("job", "api")])
+
+>>> print(absent(api_up))
+absent(up{ job = "api" })
+>>> print(absent_over_time(api_up[Duration(m=10)]))
+absent_over_time(up{ job = "api" }[10m])
 
 ```
 
@@ -219,7 +250,7 @@ absent_over_time(http_requests_total{}[5m])
 All of the helpers above build a `Function` instance internally. Use it directly to call a custom or newly-added Prometheus function that doesn't have a helper yet:
 
 ```pycon
->>> from promcraft import Function, InstantVector, Float
+>>> from promcraft import Function, Float
 
 >>> print(Function("my_custom_func", [InstantVector("up", []), Float(42.0)]))
 my_custom_func(up{}, 42.0)

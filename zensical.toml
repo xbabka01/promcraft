@@ -16,6 +16,8 @@ nav = [
     { "Aggregations" = "guide/aggregations.md" },
     { "Functions" = "guide/functions.md" },
     { "Composing and formatting" = "guide/formatting.md" },
+    { "Recipes" = "guide/recipes.md" },
+    { "Errors and validation" = "guide/errors.md" },
   ] },
   { "API reference" = [
     { "Query and Style" = "api/base.md" },

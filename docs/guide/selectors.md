@@ -135,8 +135,9 @@ max_over_time(rate(http_requests_total{}[5m])[1h:])
 >>> print(sum_(per_second).by(["job"]).subquery(Duration(h=1), Duration(m=1), offset=Duration(d=1)))
 sum(rate(http_requests_total{}[5m])) by (job)[1h:1m] offset 1d
 
->>> print(Subquery(requests + requests, Duration(h=1), at="end()"))
-(http_requests_total{} + http_requests_total{})[1h:] @ end()
+>>> errors_per_second = rate(InstantVector("http_errors_total", [])[Duration(m=5)])
+>>> print(Subquery(errors_per_second / per_second, Duration(h=1), at="end()"))
+(rate(http_errors_total{}[5m]) / rate(http_requests_total{}[5m]))[1h:] @ end()
 
 ```
 

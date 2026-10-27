@@ -43,14 +43,16 @@ output instead of the single-line compact form. Pass an `int` (spaces per level)
 whitespace string (e.g. `"\t"`). A `bool` is rejected rather than treated as `1`/`0`:
 
 ```pycon
->>> from promcraft import InstantVector, Duration, sum_
+>>> from promcraft import InstantVector, Duration, rate, sum_
 
->>> vec = InstantVector("metric", [])[Duration(m=1)]
->>> expr = sum_(vec).by(["job", "env"])
+>>> requests = InstantVector("http_requests_total", [])
+>>> expr = sum_(rate(requests[Duration(m=1)])).by(["job", "env"])
 
 >>> print(expr.to_string(indent=4))
 sum(
-    metric{}[1m]
+    rate(
+        http_requests_total{}[1m]
+    )
 ) by (job, env)
 
 ```
