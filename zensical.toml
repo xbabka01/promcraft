@@ -5,6 +5,8 @@ site_url = "https://xbabka01.github.io/promcraft/"
 repo_url = "https://github.com/xbabka01/promcraft"
 repo_name = "xbabka01/promcraft"
 edit_uri = "edit/main/docs/"
+# Copy buttons on `>>>` examples copy the code without prompts and output
+extra_javascript = ["javascripts/pycon-copy.js"]
 nav = [
   { "Home" = "index.md" },
   { "Guide" = [
