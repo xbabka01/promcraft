@@ -170,6 +170,12 @@ class Query(ABC):
 
         See [`Subquery`][promcraft.Subquery]; slice syntax `expr[range:resolution]`
         is a shorthand for this method.
+
+        Args:
+            range: Window length; raw numbers are seconds (`3600` → `[1h:]`).
+            resolution: Step between evaluations; `None` uses the global evaluation interval.
+            offset: Time shift; raw numbers are seconds.
+            at: Evaluation time: a Unix timestamp, `"start()"` or `"end()"`.
         """
         from promcraft._subquery import Subquery
 

@@ -72,7 +72,12 @@ class String(Query):
 
     @classmethod
     def from_value(cls, value: STRING_TYPE) -> "String | Variable":
-        """Wrap a raw `str`, passing `String` and `Variable` through unchanged."""
+        """Wrap a raw `str`, passing `String` and `Variable` through unchanged.
+
+        Args:
+            value: Text to wrap in double quotes; a [`String`][promcraft.String] or
+                [`Variable`][promcraft.Variable] is returned unchanged.
+        """
         if isinstance(value, String | Variable):
             return value
         return cls(value)

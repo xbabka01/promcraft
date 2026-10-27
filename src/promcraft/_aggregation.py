@@ -15,6 +15,11 @@ class Grouping:
     - `by(labels)`      — keep only the listed labels in the output.
     - `without(labels)` — drop the listed labels; preserve all others.
 
+    Args:
+        type: `"by"` or `"without"`.
+        labels: Label names, or [`Variable`][promcraft.Variable]s; `[]` renders an empty list, e.g.
+            `by ()`.
+
     Examples:
         >>> print(Grouping.by(["job", "env"]))
         by (job, env)
@@ -28,12 +33,20 @@ class Grouping:
 
     @classmethod
     def by(cls, labels: list[str | Variable]) -> "Grouping":
-        """Return a `by(labels)` grouping clause."""
+        """Return a `by(labels)` grouping clause.
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to keep.
+        """
         return cls("by", labels)
 
     @classmethod
     def without(cls, labels: list[str | Variable]) -> "Grouping":
-        """Return a `without(labels)` grouping clause."""
+        """Return a `without(labels)` grouping clause.
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to drop.
+        """
         return cls("without", labels)
 
     def to_string(self, style: Style = DEFAULT_STYLE) -> str:
@@ -50,6 +63,13 @@ class Aggregation(Query):
     Usually built with a helper such as [`sum_`][promcraft.sum_] or
     [`topk`][promcraft.topk]; [`by`][promcraft.Aggregation.by] and
     [`without`][promcraft.Aggregation.without] return a copy with a grouping clause.
+
+    Args:
+        operator: Aggregation operator name, e.g. `"sum"`.
+        params: Arguments in order: the parameter (`k`, `phi`, ...) first, if the operator takes
+            one, then the vector. Raw numbers are wrapped in [`Float`][promcraft.Float].
+        grouping: `by`/`without` clause; usually set with [`by`][promcraft.Aggregation.by] or
+            [`without`][promcraft.Aggregation.without].
 
     Examples:
         >>> http_requests_total = InstantVector("http_requests_total", [])
@@ -98,7 +118,11 @@ class Aggregation(Query):
         return f"{pad}{self.operator}{call} {grouping}"
 
     def by(self, labels: list[str | Variable]) -> "Aggregation":
-        """Return a copy of this aggregation with a `by(labels)` grouping clause."""
+        """Return a copy of this aggregation with a `by(labels)` grouping clause.
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to keep.
+        """
         return self.__class__(
             operator=self.operator,
             params=list(self.params),
@@ -106,7 +130,11 @@ class Aggregation(Query):
         )
 
     def without(self, labels: list[str | Variable]) -> "Aggregation":
-        """Return a copy of this aggregation with a `without(labels)` grouping clause."""
+        """Return a copy of this aggregation with a `without(labels)` grouping clause.
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to drop.
+        """
         return self.__class__(
             operator=self.operator,
             params=list(self.params),
@@ -116,6 +144,9 @@ class Aggregation(Query):
 
 def sum_(query: Query) -> Aggregation:
     """Sum of all sample values across the aggregated dimensions (`sum(v)`).
+
+    Args:
+        query: Instant vector to aggregate.
 
     Examples:
         >>> requests = InstantVector("http_requests_total", [])
@@ -130,6 +161,9 @@ def sum_(query: Query) -> Aggregation:
 def avg(query: Query) -> Aggregation:
     """Arithmetic mean of sample values across the aggregated dimensions (`avg(v)`).
 
+    Args:
+        query: Instant vector to aggregate.
+
     Examples:
         >>> print(avg(InstantVector("cpu_usage", [])).without(["cpu"]))
         avg(cpu_usage{}) without (cpu)
@@ -139,6 +173,9 @@ def avg(query: Query) -> Aggregation:
 
 def min_(query: Query) -> Aggregation:
     """Smallest sample value across the aggregated dimensions (`min(v)`).
+
+    Args:
+        query: Instant vector to aggregate.
 
     Examples:
         >>> print(min_(InstantVector("disk_free_bytes", [])).by(["instance"]))
@@ -150,6 +187,9 @@ def min_(query: Query) -> Aggregation:
 def max_(query: Query) -> Aggregation:
     """Largest sample value across the aggregated dimensions (`max(v)`).
 
+    Args:
+        query: Instant vector to aggregate.
+
     Examples:
         >>> print(max_(InstantVector("memory_used_bytes", [])).by(["instance"]))
         max(memory_used_bytes{}) by (instance)
@@ -160,6 +200,9 @@ def max_(query: Query) -> Aggregation:
 def count(query: Query) -> Aggregation:
     """Count the time series in the aggregated dimensions (`count(v)`).
 
+    Args:
+        query: Instant vector to aggregate.
+
     Examples:
         >>> print(count(InstantVector("up", [])).by(["job"]))
         count(up{}) by (job)
@@ -169,6 +212,9 @@ def count(query: Query) -> Aggregation:
 
 def group(query: Query) -> Aggregation:
     """Return 1 for each group that contains at least one element (`group(v)`).
+
+    Args:
+        query: Instant vector to aggregate.
 
     Examples:
         >>> print(group(InstantVector("up", [])).by(["job"]))
@@ -182,6 +228,9 @@ def stddev(query: Query) -> Aggregation:
 
     PromQL: `stddev(v)`
 
+    Args:
+        query: Instant vector to aggregate.
+
     Examples:
         >>> print(stddev(InstantVector("cpu_usage", [])).by(["instance"]))
         stddev(cpu_usage{}) by (instance)
@@ -194,6 +243,9 @@ def stdvar(query: Query) -> Aggregation:
 
     PromQL: `stdvar(v)`
 
+    Args:
+        query: Instant vector to aggregate.
+
     Examples:
         >>> print(stdvar(InstantVector("cpu_usage", [])).by(["instance"]))
         stdvar(cpu_usage{}) by (instance)
@@ -204,6 +256,10 @@ def stdvar(query: Query) -> Aggregation:
 def topk(k: SCALAR_TYPE, query: Query) -> Aggregation:
     """Largest `k` sample values across the aggregated dimensions (`topk(k, v)`).
 
+    Args:
+        k: Number of series to keep per group.
+        query: Instant vector to aggregate.
+
     Examples:
         >>> print(topk(5, InstantVector("http_requests_total", [])).by(["job"]))
         topk(5, http_requests_total{}) by (job)
@@ -213,6 +269,10 @@ def topk(k: SCALAR_TYPE, query: Query) -> Aggregation:
 
 def bottomk(k: SCALAR_TYPE, query: Query) -> Aggregation:
     """Smallest `k` sample values across the aggregated dimensions (`bottomk(k, v)`).
+
+    Args:
+        k: Number of series to keep per group.
+        query: Instant vector to aggregate.
 
     Examples:
         >>> print(bottomk(3, InstantVector("disk_free_bytes", [])))
@@ -227,6 +287,10 @@ def count_values(label: STRING_TYPE, query: Query) -> Aggregation:
     Each output series carries that sample value in a new label named `label`,
     and its value is the number of input series that had it.
 
+    Args:
+        label: Name of the output label that holds each distinct sample value.
+        query: Instant vector to aggregate.
+
     Examples:
         >>> print(count_values("version", InstantVector("build_info", [])))
         count_values("version", build_info{})
@@ -239,6 +303,10 @@ def quantile(phi: SCALAR_TYPE, query: Query) -> Aggregation:
 
     PromQL: `quantile(φ, v)`
 
+    Args:
+        phi: Quantile to compute, from `0` to `1` (`0.95` is the 95th percentile).
+        query: Instant vector to aggregate.
+
     Examples:
         >>> print(quantile(0.95, InstantVector("latency_seconds", [])).by(["job"]))
         quantile(0.95, latency_seconds{}) by (job)
@@ -249,6 +317,10 @@ def quantile(phi: SCALAR_TYPE, query: Query) -> Aggregation:
 def limitk(k: SCALAR_TYPE, query: Query) -> Aggregation:
     """Pseudo-randomly sample at most `k` series from the input (`limitk(k, v)`).
 
+    Args:
+        k: Maximum number of series to keep per group.
+        query: Instant vector to aggregate.
+
     Examples:
         >>> print(limitk(10, InstantVector("up", [])).by(["job"]))
         limitk(10, up{}) by (job)
@@ -258,6 +330,12 @@ def limitk(k: SCALAR_TYPE, query: Query) -> Aggregation:
 
 def limit_ratio(r: SCALAR_TYPE, query: Query) -> Aggregation:
     """Pseudo-randomly sample fraction `r` of series from the input (`limit_ratio(r, v)`).
+
+    Args:
+        r: Ratio of samples to keep, from `-1` to `1`. The selection is deterministic; a
+            negative `r` inverts its order, so `limit_ratio(-0.9, v)` returns exactly the
+            samples that `limit_ratio(0.1, v)` leaves out.
+        query: Instant vector to aggregate.
 
     Examples:
         >>> print(limit_ratio(0.1, InstantVector("up", [])))

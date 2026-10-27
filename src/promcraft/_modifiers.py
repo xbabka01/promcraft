@@ -37,11 +37,19 @@ class TimeModifiers:
         """Return a copy of this expression with the given `offset` and `at`."""
 
     def with_offset(self, offset: SCALAR_TYPE) -> Self:
-        """Return a copy of this expression with the given `offset`."""
+        """Return a copy of this expression with the given `offset`.
+
+        Args:
+            offset: Time shift; raw numbers are seconds.
+        """
         return self._replace_modifiers(offset=offset, at=self.at)
 
     def with_at(self, at: AT_TYPE) -> Self:
-        """Return a copy of this expression with the given `@` time."""
+        """Return a copy of this expression with the given `@` time.
+
+        Args:
+            at: Evaluation time: a Unix timestamp, `"start()"` or `"end()"`.
+        """
         return self._replace_modifiers(offset=self.offset, at=at)
 
     def with_at_start(self) -> Self:

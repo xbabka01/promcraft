@@ -28,6 +28,11 @@ class Match:
     - `on(labels)`      — match *only* on the listed labels, ignore all others.
     - `ignoring(labels)` — exclude the listed labels from matching; use all others.
 
+    Args:
+        type: `"on"` or `"ignoring"`.
+        labels: Label names, or [`Variable`][promcraft.Variable]s; `[]` renders an empty list, e.g.
+            `ignoring ()`.
+
     Examples:
         >>> print(Match.on(["env", "job"]))
         on (env, job)
@@ -41,12 +46,20 @@ class Match:
 
     @classmethod
     def on(cls, labels: list[str | Variable]) -> "Match":
-        """Return an `on(labels)` match clause."""
+        """Return an `on(labels)` match clause.
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to match on.
+        """
         return cls("on", labels)
 
     @classmethod
     def ignoring(cls, labels: list[str | Variable]) -> "Match":
-        """Return an `ignoring(labels)` match clause."""
+        """Return an `ignoring(labels)` match clause.
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to leave out of matching.
+        """
         return cls("ignoring", labels)
 
     def to_string(self, style: Style = DEFAULT_STYLE) -> str:
@@ -69,6 +82,11 @@ class Group:
     The optional `labels` list copies those labels from the "one" side
     into the result.
 
+    Args:
+        type: `"left"` or `"right"`.
+        labels: Label names, or [`Variable`][promcraft.Variable]s to copy from the "one" side; may
+            be empty.
+
     Examples:
         >>> print(Group.left(["region"]))
         group_left (region)
@@ -82,12 +100,22 @@ class Group:
 
     @classmethod
     def left(cls, labels: list[str | Variable]) -> "Group":
-        """Return a `group_left(labels)` modifier."""
+        """Return a `group_left(labels)` modifier.
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to copy from the right side;
+                may be empty.
+        """
         return cls("left", labels)
 
     @classmethod
     def right(cls, labels: list[str | Variable]) -> "Group":
-        """Return a `group_right(labels)` modifier."""
+        """Return a `group_right(labels)` modifier.
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to copy from the left side;
+                may be empty.
+        """
         return cls("right", labels)
 
     def to_string(self, style: Style = DEFAULT_STYLE) -> str:
@@ -115,6 +143,18 @@ class BinaryOprator(Query):
 
     Usually built with a helper such as [`add`][promcraft.add] or with Python's
     own operators (`a + b`, `a > 0`, `a & b`).
+
+    Args:
+        op: Operator to apply.
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        match: `on`/`ignoring` clause; usually set with [`on`][promcraft.BinaryOprator.on] or
+            [`ignoring`][promcraft.BinaryOprator.ignoring].
+        group: `group_left`/`group_right` modifier; usually set with
+            [`group_left`][promcraft.BinaryOprator.group_left] or
+            [`group_right`][promcraft.BinaryOprator.group_right].
+        return_bool: Add the `bool` modifier to a comparison; usually set with
+            [`bool`][promcraft.BinaryOprator.bool].
 
     Note:
         The class name `BinaryOprator` (missing an 'e') is intentional and
@@ -261,11 +301,19 @@ class BinaryOprator(Query):
         return self._replace(return_bool=True)
 
     def on(self, labels: list[str | Variable]) -> "BinaryOprator":
-        """Return a copy of this operation with an `on(labels)` match clause."""
+        """Return a copy of this operation with an `on(labels)` match clause.
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to match on.
+        """
         return self._replace(match=Match.on(labels))
 
     def ignoring(self, labels: list[str | Variable]) -> "BinaryOprator":
-        """Return a copy of this operation with an `ignoring(labels)` match clause."""
+        """Return a copy of this operation with an `ignoring(labels)` match clause.
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to leave out of matching.
+        """
         return self._replace(match=Match.ignoring(labels))
 
     def group_left(self, labels: list[str | Variable]) -> "BinaryOprator":
@@ -273,6 +321,10 @@ class BinaryOprator(Query):
 
         Many left-side series may match one right-side series; `labels` are
         copied from the right ("one") side.
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to copy from the right side;
+                may be empty.
 
         Raises:
             ValueError: If this is an `and`/`or`/`unless` operation.
@@ -283,6 +335,10 @@ class BinaryOprator(Query):
         """Return a copy of this operation with a `group_right(labels)` modifier.
 
         The mirror image of [`group_left`][promcraft.BinaryOprator.group_left].
+
+        Args:
+            labels: Label names, or [`Variable`][promcraft.Variable]s to copy from the left side;
+                may be empty.
 
         Raises:
             ValueError: If this is an `and`/`or`/`unless` operation.
@@ -315,6 +371,9 @@ class Negation(Query):
 
     Binary-operation operands are parenthesised so the sign applies to the
     whole expression.
+
+    Args:
+        operand: Expression to negate; a raw number is wrapped in [`Float`][promcraft.Float].
 
     Examples:
         >>> errors_total = InstantVector("errors_total", [])
@@ -354,6 +413,10 @@ def add(
 ) -> BinaryOprator:
     """Return `left + right` (arithmetic addition).
 
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+
     Examples:
         >>> hits = InstantVector("cache_hits_total", [])
         >>> misses = InstantVector("cache_misses_total", [])
@@ -370,6 +433,10 @@ def sub(
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return `left - right` (arithmetic subtraction).
+
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
 
     Examples:
         >>> total = InstantVector("memory_total_bytes", [])
@@ -388,6 +455,10 @@ def mul(
 ) -> BinaryOprator:
     """Return `left * right` (arithmetic multiplication).
 
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+
     Examples:
         >>> ratio = InstantVector("error_ratio", [])
         >>> print(mul(ratio, 100))
@@ -403,6 +474,10 @@ def div(
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return `left / right` (arithmetic division).
+
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
 
     Examples:
         >>> errors = InstantVector("http_errors_total", [])
@@ -421,6 +496,10 @@ def mod(
 ) -> BinaryOprator:
     """Return `left % right` (arithmetic modulo).
 
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+
     Examples:
         >>> uptime = InstantVector("uptime_seconds", [])
         >>> print(mod(uptime, 60))
@@ -437,6 +516,10 @@ def pow_(
 ) -> BinaryOprator:
     """Return `left ^ right` (exponentiation).
 
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+
     Examples:
         >>> growth = InstantVector("growth_factor", [])
         >>> print(pow_(growth, 2))
@@ -452,6 +535,10 @@ def eq(
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return `left == right` (equality comparison; filters non-matching elements).
+
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
 
     Examples:
         >>> up = InstantVector("up", [])
@@ -471,6 +558,10 @@ def neq(
 ) -> BinaryOprator:
     """Return `left != right` (not-equal comparison).
 
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+
     Examples:
         >>> up = InstantVector("up", [])
         >>> print(neq(up, 1))
@@ -486,6 +577,10 @@ def lt(
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return `left < right` (less-than comparison).
+
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
 
     Examples:
         >>> free = InstantVector("disk_free_ratio", [])
@@ -503,6 +598,10 @@ def lte(
 ) -> BinaryOprator:
     """Return `left <= right` (less-than-or-equal comparison).
 
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+
     Examples:
         >>> free = InstantVector("disk_free_ratio", [])
         >>> print(lte(free, 0.1))
@@ -519,6 +618,10 @@ def gt(
 ) -> BinaryOprator:
     """Return `left > right` (greater-than comparison).
 
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+
     Examples:
         >>> latency = InstantVector("latency_seconds", [])
         >>> print(gt(latency, 0.5))
@@ -534,6 +637,10 @@ def gte(
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
     """Return `left >= right` (greater-than-or-equal comparison).
+
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
 
     Examples:
         >>> latency = InstantVector("latency_seconds", [])
@@ -552,6 +659,10 @@ def and_(
     """Return `left and right`.
 
     Set intersection: keeps left-side elements whose label set has a match in right.
+
+    Args:
+        left: Instant vector whose elements are filtered.
+        right: Instant vector whose label sets select the `left` elements to keep.
 
     Examples:
         >>> errors = InstantVector("errors_total", [])
@@ -572,6 +683,10 @@ def or_(
 
     Set union: combines all elements from both sides; left takes precedence for duplicates.
 
+    Args:
+        left: Instant vector whose elements are all kept.
+        right: Instant vector whose elements are added where `left` has no matching label set.
+
     Examples:
         >>> up = InstantVector("up", [])
         >>> print(or_(up, vector(0)))
@@ -590,6 +705,10 @@ def unless(
 
     Set complement: keeps left-side elements with no matching label set in right.
 
+    Args:
+        left: Instant vector whose elements are filtered.
+        right: Instant vector whose label sets select the `left` elements to drop.
+
     Examples:
         >>> up = InstantVector("up", [])
         >>> maintenance = InstantVector("maintenance_mode", [])
@@ -606,6 +725,10 @@ def atan2(
     """Return `left atan2 right`.
 
     Trigonometric two-argument arctangent, applied element-wise via vector matching.
+
+    Args:
+        left: Left operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
+        right: Right operand: a query, or a raw number wrapped in [`Float`][promcraft.Float].
 
     Examples:
         >>> y = InstantVector("position_y", [])
