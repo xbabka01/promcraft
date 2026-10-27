@@ -6,6 +6,10 @@ from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._variable import Variable
 
 STRING_TYPE = Union["String", "Variable", str]
+"""A string: a [`String`][promcraft.String], a [`Variable`][promcraft.Variable] or a `str`.
+
+A raw `str` is wrapped in a double-quoted [`String`][promcraft.String].
+"""
 
 _CONTROL_ESCAPES = {
     "\a": "\\a",

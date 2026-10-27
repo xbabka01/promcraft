@@ -9,6 +9,7 @@ from promcraft._scalar import Float, Scalar
 from promcraft._variable import Variable
 
 OPERAND_TYPE = Query | float
+"""An operand: a [`Query`][promcraft.Query], or a number wrapped in [`Float`][promcraft.Float]."""
 
 
 def _as_operand(value: OPERAND_TYPE) -> Query:

@@ -71,6 +71,7 @@ class Style:
 
 
 DEFAULT_STYLE = Style()
+"""`Style()`, the default for every `style` parameter: renders the same as `str(query)`."""
 
 
 class Query(ABC):

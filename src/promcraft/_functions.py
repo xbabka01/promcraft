@@ -9,10 +9,9 @@ from promcraft._string import STRING_TYPE, String
 class Function(Query):
     """A PromQL function call, serialised as `name(arg1, arg2, ...)`.
 
-    This class is the return type for all function helper functions in this
-    module.  Construct it directly only when a helper does not exist for the
-    function you need; raw numbers in `args` are wrapped in
-    [`Float`][promcraft.Float].
+    Every function helper ([`rate`][promcraft.rate], [`abs_`][promcraft.abs_], ...)
+    returns one. Construct it directly only for a function that has no helper;
+    raw numbers in `args` are wrapped in [`Float`][promcraft.Float].
 
     Args:
         name: PromQL function name, e.g. `"rate"`.

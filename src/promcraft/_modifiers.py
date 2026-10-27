@@ -7,6 +7,7 @@ from promcraft._scalar import SCALAR_TYPE, Duration, Float, Scalar
 from promcraft._variable import Variable
 
 AT_TYPE = SCALAR_TYPE | Literal["start()", "end()"]
+"""An `@` modifier time: a Unix timestamp as a scalar argument, `"start()"` or `"end()"`."""
 _AT_KEYWORDS = frozenset({"start()", "end()"})
 
 

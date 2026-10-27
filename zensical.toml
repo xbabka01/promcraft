@@ -24,6 +24,7 @@ nav = [
     { "Binary operators" = "api/operators.md" },
     { "Aggregations" = "api/aggregations.md" },
     { "Functions" = "api/functions.md" },
+    { "Type aliases" = "api/types.md" },
   ] },
 ]
 
@@ -62,8 +63,8 @@ paths = ["src"]
 
 [project.plugins.mkdocstrings.handlers.python.options]
 docstring_style = "google"
-# get_indent is a rendering helper inherited by every Query subclass
-filters = ["!^_", "!^get_indent$"]
+# get_indent and Style.labels_clause are public only as rendering helpers
+filters = ["!^_", "!^get_indent$", "!^labels_clause$"]
 inherited_members = true
 merge_init_into_class = true
 members_order = "source"

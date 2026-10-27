@@ -7,6 +7,12 @@ from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._variable import Variable
 
 SCALAR_TYPE = Union["Scalar", "Variable", float, int]
+"""A scalar: a [`Scalar`][promcraft.Scalar], a [`Variable`][promcraft.Variable] or a number.
+
+A raw `float`/`int` is wrapped by the parameter's `from_value`: in
+[`Float`][promcraft.Float] for values, and in [`Duration`][promcraft.Duration]
+(as seconds) for ranges, resolutions and offsets.
+"""
 
 
 class Scalar(Query, metaclass=ABCMeta):
@@ -29,7 +35,7 @@ class Scalar(Query, metaclass=ABCMeta):
 
 
 class Float(Scalar):
-    """A numeric scalar literal (e.g. `3.14`, `-2.5e9`, `5`).
+    """A numeric scalar literal (e.g. `3.14`, `-2.5`, `5`).
 
     The value is rendered as given: an `int` stays an integer (`Float(5)` →
     `5`) and a `float` keeps its decimal point (`Float(5.0)` → `5.0`).
