@@ -352,7 +352,16 @@ def add(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left + right` (arithmetic addition)."""
+    """Return `left + right` (arithmetic addition).
+
+    Examples:
+        >>> hits = InstantVector("cache_hits_total", [])
+        >>> misses = InstantVector("cache_misses_total", [])
+        >>> print(add(hits, misses))
+        cache_hits_total{} + cache_misses_total{}
+        >>> print(hits + misses)
+        cache_hits_total{} + cache_misses_total{}
+    """
     return BinaryOprator(BinaryOprator.Operator.ADD, left, right)
 
 
@@ -360,7 +369,16 @@ def sub(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left - right` (arithmetic subtraction)."""
+    """Return `left - right` (arithmetic subtraction).
+
+    Examples:
+        >>> total = InstantVector("memory_total_bytes", [])
+        >>> free = InstantVector("memory_free_bytes", [])
+        >>> print(sub(total, free))
+        memory_total_bytes{} - memory_free_bytes{}
+        >>> print(total - free)
+        memory_total_bytes{} - memory_free_bytes{}
+    """
     return BinaryOprator(BinaryOprator.Operator.SUB, left, right)
 
 
@@ -368,7 +386,15 @@ def mul(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left * right` (arithmetic multiplication)."""
+    """Return `left * right` (arithmetic multiplication).
+
+    Examples:
+        >>> ratio = InstantVector("error_ratio", [])
+        >>> print(mul(ratio, 100))
+        error_ratio{} * 100
+        >>> print(ratio * 100)
+        error_ratio{} * 100
+    """
     return BinaryOprator(BinaryOprator.Operator.MUL, left, right)
 
 
@@ -376,7 +402,16 @@ def div(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left / right` (arithmetic division)."""
+    """Return `left / right` (arithmetic division).
+
+    Examples:
+        >>> errors = InstantVector("http_errors_total", [])
+        >>> requests = InstantVector("http_requests_total", [])
+        >>> print(div(errors, requests))
+        http_errors_total{} / http_requests_total{}
+        >>> print(errors / requests)
+        http_errors_total{} / http_requests_total{}
+    """
     return BinaryOprator(BinaryOprator.Operator.DIV, left, right)
 
 
@@ -384,7 +419,15 @@ def mod(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left % right` (arithmetic modulo)."""
+    """Return `left % right` (arithmetic modulo).
+
+    Examples:
+        >>> uptime = InstantVector("uptime_seconds", [])
+        >>> print(mod(uptime, 60))
+        uptime_seconds{} % 60
+        >>> print(uptime % 60)
+        uptime_seconds{} % 60
+    """
     return BinaryOprator(BinaryOprator.Operator.MOD, left, right)
 
 
@@ -392,7 +435,15 @@ def pow_(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left ^ right` (exponentiation)."""
+    """Return `left ^ right` (exponentiation).
+
+    Examples:
+        >>> growth = InstantVector("growth_factor", [])
+        >>> print(pow_(growth, 2))
+        growth_factor{} ^ 2
+        >>> print(growth**2)
+        growth_factor{} ^ 2
+    """
     return BinaryOprator(BinaryOprator.Operator.POW, left, right)
 
 
@@ -400,7 +451,17 @@ def eq(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left == right` (equality comparison; filters non-matching elements)."""
+    """Return `left == right` (equality comparison; filters non-matching elements).
+
+    Examples:
+        >>> up = InstantVector("up", [])
+        >>> print(eq(up, 0))
+        up{} == 0
+        >>> print(up == 0)
+        up{} == 0
+        >>> print(eq(up, 0).bool())
+        up{} == bool 0
+    """
     return BinaryOprator(BinaryOprator.Operator.EQ, left, right)
 
 
@@ -408,7 +469,15 @@ def neq(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left != right` (not-equal comparison)."""
+    """Return `left != right` (not-equal comparison).
+
+    Examples:
+        >>> up = InstantVector("up", [])
+        >>> print(neq(up, 1))
+        up{} != 1
+        >>> print(up != 1)
+        up{} != 1
+    """
     return BinaryOprator(BinaryOprator.Operator.NEQ, left, right)
 
 
@@ -416,7 +485,15 @@ def lt(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left < right` (less-than comparison)."""
+    """Return `left < right` (less-than comparison).
+
+    Examples:
+        >>> free = InstantVector("disk_free_ratio", [])
+        >>> print(lt(free, 0.1))
+        disk_free_ratio{} < 0.1
+        >>> print(free < 0.1)
+        disk_free_ratio{} < 0.1
+    """
     return BinaryOprator(BinaryOprator.Operator.LT, left, right)
 
 
@@ -424,7 +501,15 @@ def lte(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left <= right` (less-than-or-equal comparison)."""
+    """Return `left <= right` (less-than-or-equal comparison).
+
+    Examples:
+        >>> free = InstantVector("disk_free_ratio", [])
+        >>> print(lte(free, 0.1))
+        disk_free_ratio{} <= 0.1
+        >>> print(free <= 0.1)
+        disk_free_ratio{} <= 0.1
+    """
     return BinaryOprator(BinaryOprator.Operator.LTE, left, right)
 
 
@@ -432,7 +517,15 @@ def gt(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left > right` (greater-than comparison)."""
+    """Return `left > right` (greater-than comparison).
+
+    Examples:
+        >>> latency = InstantVector("latency_seconds", [])
+        >>> print(gt(latency, 0.5))
+        latency_seconds{} > 0.5
+        >>> print(latency > 0.5)
+        latency_seconds{} > 0.5
+    """
     return BinaryOprator(BinaryOprator.Operator.GT, left, right)
 
 
@@ -440,7 +533,15 @@ def gte(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
-    """Return `left >= right` (greater-than-or-equal comparison)."""
+    """Return `left >= right` (greater-than-or-equal comparison).
+
+    Examples:
+        >>> latency = InstantVector("latency_seconds", [])
+        >>> print(gte(latency, 0.5))
+        latency_seconds{} >= 0.5
+        >>> print(latency >= 0.5)
+        latency_seconds{} >= 0.5
+    """
     return BinaryOprator(BinaryOprator.Operator.GTE, left, right)
 
 
@@ -451,6 +552,14 @@ def and_(
     """Return `left and right`.
 
     Set intersection: keeps left-side elements whose label set has a match in right.
+
+    Examples:
+        >>> errors = InstantVector("errors_total", [])
+        >>> up = InstantVector("up", [])
+        >>> print(and_(errors, up == 1).on(["instance"]))
+        errors_total{} and on (instance) (up{} == 1)
+        >>> print((errors & (up == 1)).on(["instance"]))
+        errors_total{} and on (instance) (up{} == 1)
     """
     return BinaryOprator(BinaryOprator.Operator.AND, left, right)
 
@@ -462,6 +571,13 @@ def or_(
     """Return `left or right`.
 
     Set union: combines all elements from both sides; left takes precedence for duplicates.
+
+    Examples:
+        >>> up = InstantVector("up", [])
+        >>> print(or_(up, vector(0)))
+        up{} or vector(0)
+        >>> print(up | vector(0))
+        up{} or vector(0)
     """
     return BinaryOprator(BinaryOprator.Operator.OR, left, right)
 
@@ -473,6 +589,12 @@ def unless(
     """Return `left unless right`.
 
     Set complement: keeps left-side elements with no matching label set in right.
+
+    Examples:
+        >>> up = InstantVector("up", [])
+        >>> maintenance = InstantVector("maintenance_mode", [])
+        >>> print(unless(up, maintenance).on(["instance"]))
+        up{} unless on (instance) maintenance_mode{}
     """
     return BinaryOprator(BinaryOprator.Operator.UNLESS, left, right)
 
@@ -484,5 +606,11 @@ def atan2(
     """Return `left atan2 right`.
 
     Trigonometric two-argument arctangent, applied element-wise via vector matching.
+
+    Examples:
+        >>> y = InstantVector("position_y", [])
+        >>> x = InstantVector("position_x", [])
+        >>> print(atan2(y, x))
+        position_y{} atan2 position_x{}
     """
     return BinaryOprator(BinaryOprator.Operator.ATAN2, left, right)

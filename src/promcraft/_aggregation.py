@@ -115,32 +115,65 @@ class Aggregation(Query):
 
 
 def sum_(query: Query) -> Aggregation:
-    """Sum of all sample values across the aggregated dimensions (`sum(v)`)."""
+    """Sum of all sample values across the aggregated dimensions (`sum(v)`).
+
+    Examples:
+        >>> requests = InstantVector("http_requests_total", [])
+        >>> print(sum_(requests))
+        sum(http_requests_total{})
+        >>> print(sum_(requests).by(["job"]))
+        sum(http_requests_total{}) by (job)
+    """
     return Aggregation(operator="sum", params=[query])
 
 
 def avg(query: Query) -> Aggregation:
-    """Arithmetic mean of sample values across the aggregated dimensions (`avg(v)`)."""
+    """Arithmetic mean of sample values across the aggregated dimensions (`avg(v)`).
+
+    Examples:
+        >>> print(avg(InstantVector("cpu_usage", [])).without(["cpu"]))
+        avg(cpu_usage{}) without (cpu)
+    """
     return Aggregation(operator="avg", params=[query])
 
 
 def min_(query: Query) -> Aggregation:
-    """Smallest sample value across the aggregated dimensions (`min(v)`)."""
+    """Smallest sample value across the aggregated dimensions (`min(v)`).
+
+    Examples:
+        >>> print(min_(InstantVector("disk_free_bytes", [])).by(["instance"]))
+        min(disk_free_bytes{}) by (instance)
+    """
     return Aggregation(operator="min", params=[query])
 
 
 def max_(query: Query) -> Aggregation:
-    """Largest sample value across the aggregated dimensions (`max(v)`)."""
+    """Largest sample value across the aggregated dimensions (`max(v)`).
+
+    Examples:
+        >>> print(max_(InstantVector("memory_used_bytes", [])).by(["instance"]))
+        max(memory_used_bytes{}) by (instance)
+    """
     return Aggregation(operator="max", params=[query])
 
 
 def count(query: Query) -> Aggregation:
-    """Count the time series in the aggregated dimensions (`count(v)`)."""
+    """Count the time series in the aggregated dimensions (`count(v)`).
+
+    Examples:
+        >>> print(count(InstantVector("up", [])).by(["job"]))
+        count(up{}) by (job)
+    """
     return Aggregation(operator="count", params=[query])
 
 
 def group(query: Query) -> Aggregation:
-    """Return 1 for each group that contains at least one element (`group(v)`)."""
+    """Return 1 for each group that contains at least one element (`group(v)`).
+
+    Examples:
+        >>> print(group(InstantVector("up", [])).by(["job"]))
+        group(up{}) by (job)
+    """
     return Aggregation(operator="group", params=[query])
 
 
@@ -148,6 +181,10 @@ def stddev(query: Query) -> Aggregation:
     """Compute the population standard deviation of sample values across the aggregated dimensions.
 
     PromQL: `stddev(v)`
+
+    Examples:
+        >>> print(stddev(InstantVector("cpu_usage", [])).by(["instance"]))
+        stddev(cpu_usage{}) by (instance)
     """
     return Aggregation(operator="stddev", params=[query])
 
@@ -156,17 +193,31 @@ def stdvar(query: Query) -> Aggregation:
     """Compute the population variance of sample values across the aggregated dimensions.
 
     PromQL: `stdvar(v)`
+
+    Examples:
+        >>> print(stdvar(InstantVector("cpu_usage", [])).by(["instance"]))
+        stdvar(cpu_usage{}) by (instance)
     """
     return Aggregation(operator="stdvar", params=[query])
 
 
 def topk(k: SCALAR_TYPE, query: Query) -> Aggregation:
-    """Largest `k` sample values across the aggregated dimensions (`topk(k, v)`)."""
+    """Largest `k` sample values across the aggregated dimensions (`topk(k, v)`).
+
+    Examples:
+        >>> print(topk(5, InstantVector("http_requests_total", [])).by(["job"]))
+        topk(5, http_requests_total{}) by (job)
+    """
     return Aggregation(operator="topk", params=[Float.from_value(k), query])
 
 
 def bottomk(k: SCALAR_TYPE, query: Query) -> Aggregation:
-    """Smallest `k` sample values across the aggregated dimensions (`bottomk(k, v)`)."""
+    """Smallest `k` sample values across the aggregated dimensions (`bottomk(k, v)`).
+
+    Examples:
+        >>> print(bottomk(3, InstantVector("disk_free_bytes", [])))
+        bottomk(3, disk_free_bytes{})
+    """
     return Aggregation(operator="bottomk", params=[Float.from_value(k), query])
 
 
@@ -175,6 +226,10 @@ def count_values(label: STRING_TYPE, query: Query) -> Aggregation:
 
     Each output series carries that sample value in a new label named `label`,
     and its value is the number of input series that had it.
+
+    Examples:
+        >>> print(count_values("version", InstantVector("build_info", [])))
+        count_values("version", build_info{})
     """
     return Aggregation(operator="count_values", params=[String.from_value(label), query])
 
@@ -183,15 +238,29 @@ def quantile(phi: SCALAR_TYPE, query: Query) -> Aggregation:
     """φ-quantile (0 ≤ φ ≤ 1) of sample values across the aggregated dimensions.
 
     PromQL: `quantile(φ, v)`
+
+    Examples:
+        >>> print(quantile(0.95, InstantVector("latency_seconds", [])).by(["job"]))
+        quantile(0.95, latency_seconds{}) by (job)
     """
     return Aggregation(operator="quantile", params=[Float.from_value(phi), query])
 
 
 def limitk(k: SCALAR_TYPE, query: Query) -> Aggregation:
-    """Pseudo-randomly sample at most `k` series from the input (`limitk(k, v)`)."""
+    """Pseudo-randomly sample at most `k` series from the input (`limitk(k, v)`).
+
+    Examples:
+        >>> print(limitk(10, InstantVector("up", [])).by(["job"]))
+        limitk(10, up{}) by (job)
+    """
     return Aggregation(operator="limitk", params=[Float.from_value(k), query])
 
 
 def limit_ratio(r: SCALAR_TYPE, query: Query) -> Aggregation:
-    """Pseudo-randomly sample fraction `r` of series from the input (`limit_ratio(r, v)`)."""
+    """Pseudo-randomly sample fraction `r` of series from the input (`limit_ratio(r, v)`).
+
+    Examples:
+        >>> print(limit_ratio(0.1, InstantVector("up", [])))
+        limit_ratio(0.1, up{})
+    """
     return Aggregation(operator="limit_ratio", params=[Float.from_value(r), query])

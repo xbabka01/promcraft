@@ -362,7 +362,15 @@ def vector(s: SCALAR_TYPE) -> Function:
 
 
 def round_(v: Query, to_nearest: SCALAR_TYPE | None = None) -> Function:
-    """Round float samples to the nearest integer, or to a multiple of `to_nearest`."""
+    """Round float samples to the nearest integer, or to a multiple of `to_nearest`.
+
+    Examples:
+        >>> temperature = InstantVector("temperature_celsius", [])
+        >>> print(round_(temperature))
+        round(temperature_celsius{})
+        >>> print(round_(temperature, 0.5))
+        round(temperature_celsius{}, 0.5)
+    """
     if to_nearest is None:
         return Function("round", [v])
     return Function("round", [v, Float.from_value(to_nearest)])
@@ -374,12 +382,22 @@ def round_(v: Query, to_nearest: SCALAR_TYPE | None = None) -> Function:
 
 
 def clamp_max(v: Query, max: SCALAR_TYPE) -> Function:
-    """Clamp float samples so that no value exceeds `max`."""
+    """Clamp float samples so that no value exceeds `max`.
+
+    Examples:
+        >>> print(clamp_max(InstantVector("error_ratio", []), 1))
+        clamp_max(error_ratio{}, 1)
+    """
     return Function("clamp_max", [v, Float.from_value(max)])
 
 
 def clamp_min(v: Query, min: SCALAR_TYPE) -> Function:
-    """Clamp float samples so that no value falls below `min`."""
+    """Clamp float samples so that no value falls below `min`.
+
+    Examples:
+        >>> print(clamp_min(InstantVector("free_bytes", []), 0))
+        clamp_min(free_bytes{}, 0)
+    """
     return Function("clamp_min", [v, Float.from_value(min)])
 
 
@@ -389,7 +407,12 @@ def clamp_min(v: Query, min: SCALAR_TYPE) -> Function:
 
 
 def clamp(v: Query, min: SCALAR_TYPE, max: SCALAR_TYPE) -> Function:
-    """Clamp float samples so all values fall within [`min`, `max`]."""
+    """Clamp float samples so all values fall within [`min`, `max`].
+
+    Examples:
+        >>> print(clamp(InstantVector("error_ratio", []), 0, 1))
+        clamp(error_ratio{}, 0, 1)
+    """
     return Function("clamp", [v, Float.from_value(min), Float.from_value(max)])
 
 
@@ -399,12 +422,24 @@ def clamp(v: Query, min: SCALAR_TYPE, max: SCALAR_TYPE) -> Function:
 
 
 def quantile_over_time(phi: SCALAR_TYPE, v: Query) -> Function:
-    """φ-quantile (0 ≤ φ ≤ 1) of float samples over the specified range window."""
+    """φ-quantile (0 ≤ φ ≤ 1) of float samples over the specified range window.
+
+    Examples:
+        >>> latency = InstantVector("latency_seconds", [])
+        >>> print(quantile_over_time(0.95, latency[Duration(h=1)]))
+        quantile_over_time(0.95, latency_seconds{}[1h])
+    """
     return Function("quantile_over_time", [Float.from_value(phi), v])
 
 
 def histogram_quantile(phi: SCALAR_TYPE, b: Query) -> Function:
-    """φ-quantile estimated from a classic or native histogram `b`."""
+    """φ-quantile estimated from a classic or native histogram `b`.
+
+    Examples:
+        >>> buckets = InstantVector("http_request_duration_seconds_bucket", [])
+        >>> print(histogram_quantile(0.95, sum_(rate(buckets[Duration(m=5)])).by(["le"])))
+        histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{}[5m])) by (le))
+    """
     return Function("histogram_quantile", [Float.from_value(phi), b])
 
 
@@ -414,7 +449,13 @@ def histogram_quantile(phi: SCALAR_TYPE, b: Query) -> Function:
 
 
 def histogram_fraction(lower: SCALAR_TYPE, upper: SCALAR_TYPE, b: Query) -> Function:
-    """Estimated fraction of observations in histogram `b` within (`lower`, `upper`]."""
+    """Estimated fraction of observations in histogram `b` within (`lower`, `upper`].
+
+    Examples:
+        >>> duration = InstantVector("http_request_duration_seconds", [])
+        >>> print(histogram_fraction(0, 0.2, duration))
+        histogram_fraction(0, 0.2, http_request_duration_seconds{})
+    """
     return Function("histogram_fraction", [Float.from_value(lower), Float.from_value(upper), b])
 
 
@@ -427,6 +468,11 @@ def predict_linear(v: Query, t: SCALAR_TYPE) -> Function:
     """Predict the value of a gauge `t` seconds from now using linear regression.
 
     The regression is computed over the specified range window.
+
+    Examples:
+        >>> free = InstantVector("disk_free_bytes", [])
+        >>> print(predict_linear(free[Duration(h=6)], 4 * 3600))
+        predict_linear(disk_free_bytes{}[6h], 14400)
     """
     return Function("predict_linear", [v, Float.from_value(t)])
 
@@ -445,6 +491,10 @@ def double_exponential_smoothing(v: Query, sf: SCALAR_TYPE, tf: SCALAR_TYPE) -> 
     Note:
         Experimental — may change in future Prometheus releases.
 
+    Examples:
+        >>> temperature = InstantVector("temperature_celsius", [])
+        >>> print(double_exponential_smoothing(temperature[Duration(h=1)], 0.3, 0.1))
+        double_exponential_smoothing(temperature_celsius{}[1h], 0.3, 0.1)
     """
     return Function(
         "double_exponential_smoothing", [v, Float.from_value(sf), Float.from_value(tf)]
@@ -477,7 +527,14 @@ def days_in_month(v: Query | None = None) -> Function:
 
 
 def hour(v: Query | None = None) -> Function:
-    """Hour of the day (0-23) in UTC for each timestamp in `v`."""
+    """Hour of the day (0-23) in UTC for each timestamp in `v`.
+
+    Examples:
+        >>> print(hour())
+        hour()
+        >>> print(hour(timestamp(InstantVector("up", []))))
+        hour(timestamp(up{}))
+    """
     return Function("hour", [v] if v is not None else [])
 
 
@@ -507,6 +564,10 @@ def label_join(
     """Join `src_labels` values with `separator` and write the result to `dst_label`.
 
     PromQL: `label_join(v, dst_label, separator, src_label1, ...)`
+
+    Examples:
+        >>> print(label_join(InstantVector("up", []), "address", ":", "host", "port"))
+        label_join(up{}, "address", ":", "host", "port")
     """
     return Function(
         "label_join",
@@ -531,6 +592,11 @@ def label_replace(
     Capture groups from `regex` may be referenced in `replacement` as `$1`, `$2`, etc.
 
     PromQL: `label_replace(v, dst_label, replacement, src_label, regex)`
+
+    Examples:
+        >>> up = InstantVector("up", [])
+        >>> print(label_replace(up, "host", "$1", "instance", "(.*):.*"))
+        label_replace(up{}, "host", "$1", "instance", "(.*):.*")
     """
     return Function(
         "label_replace",
@@ -545,12 +611,22 @@ def label_replace(
 
 
 def sort_by_label(v: Query, *labels: STRING_TYPE) -> Function:
-    """Sort instant vector elements by the values of the specified labels, ascending."""
+    """Sort instant vector elements by the values of the specified labels, ascending.
+
+    Examples:
+        >>> print(sort_by_label(InstantVector("up", []), "job", "instance"))
+        sort_by_label(up{}, "job", "instance")
+    """
     return Function("sort_by_label", [v, *(String.from_value(label) for label in labels)])
 
 
 def sort_by_label_desc(v: Query, *labels: STRING_TYPE) -> Function:
-    """Sort instant vector elements by the values of the specified labels, descending."""
+    """Sort instant vector elements by the values of the specified labels, descending.
+
+    Examples:
+        >>> print(sort_by_label_desc(InstantVector("up", []), "job", "instance"))
+        sort_by_label_desc(up{}, "job", "instance")
+    """
     return Function("sort_by_label_desc", [v, *(String.from_value(label) for label in labels)])
 
 
@@ -567,5 +643,12 @@ def info(v: Query, data_label_selector: Query | None = None) -> Function:
     Note:
         Experimental — may change in future Prometheus releases.
 
+    Examples:
+        >>> requests = InstantVector("http_requests_total", [])
+        >>> cluster = InstantVector("", [Label.re("k8s_cluster_name", ".+")])
+        >>> print(info(requests))
+        info(http_requests_total{})
+        >>> print(info(requests, cluster))
+        info(http_requests_total{}, { k8s_cluster_name =~ ".+" })
     """
     return Function("info", [v] if data_label_selector is None else [v, data_label_selector])
