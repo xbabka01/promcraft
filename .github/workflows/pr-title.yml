@@ -1,0 +1,29 @@
+name: PR title
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+permissions: {}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  conventional-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check PR title follows Conventional Commits
+        env:
+          # Passed via env, never interpolated into the script, to avoid shell injection.
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          types='build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test'
+          pattern="^($types)(\([a-z0-9._/-]+\))?!?: [^[:space:]].*$"
+          if [[ "$TITLE" =~ $pattern ]]; then
+            echo "PR title OK: $TITLE"
+          else
+            echo "::error title=Invalid PR title::'$TITLE' does not follow Conventional Commits."
+            echo "Expected: <type>[(scope)][!]: <description>"
+            echo "Allowed types: ${types//|/, }"
+            echo "Examples: 'feat: add rate helper', 'fix(vector): quote label values', 'refactor!: rename abs helper'"
+            exit 1
+          fi
