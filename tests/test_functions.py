@@ -8,7 +8,7 @@ from promcraft import (
     Query,
     RangeVector,
     String,
-    abs,
+    abs_,
     absent,
     absent_over_time,
     acos,
@@ -66,7 +66,7 @@ from promcraft import (
     rad,
     rate,
     resets,
-    round,
+    round_,
     scalar,
     sgn,
     sin,
@@ -94,7 +94,7 @@ _rvec = RangeVector("http_requests_total", [], Duration(m=5))
 @pytest.mark.parametrize(
     ("expr", "expected"),
     [
-        (abs(_vec), "abs(http_requests_total{})"),
+        (abs_(_vec), "abs(http_requests_total{})"),
         (ceil(_vec), "ceil(http_requests_total{})"),
         (floor(_vec), "floor(http_requests_total{})"),
         (sqrt(_vec), "sqrt(http_requests_total{})"),
@@ -174,8 +174,8 @@ def test_vector() -> None:
 @pytest.mark.parametrize(
     ("expr", "expected"),
     [
-        (round(_vec), "round(http_requests_total{})"),
-        (round(_vec, Float(0.5)), "round(http_requests_total{}, 0.5)"),
+        (round_(_vec), "round(http_requests_total{})"),
+        (round_(_vec, Float(0.5)), "round(http_requests_total{}, 0.5)"),
     ],
 )
 def test_round(expr: Query, expected: str) -> None:

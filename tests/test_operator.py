@@ -26,7 +26,7 @@ from promcraft import (
     mul,
     neq,
     or_,
-    pow,
+    pow_,
     rate,
     sub,
     unless,
@@ -339,14 +339,14 @@ def test_negation(expr: Query, expected: str) -> None:
     [
         # ``-2 ^ 2`` parses as ``-(2 ^ 2)``, so a negative base is parenthesised
         (Float(-2) ** 2, "(-2) ^ 2"),
-        (pow(-2, 2), "(-2) ^ 2"),
-        (pow(Float(-1.5), _right), "(-1.5) ^ right{}"),
-        (pow(Hex(-2), 2), "(-0x2) ^ 2"),
-        (pow(Duration(m=5, neg=True), 2), "(-5m) ^ 2"),
+        (pow_(-2, 2), "(-2) ^ 2"),
+        (pow_(Float(-1.5), _right), "(-1.5) ^ right{}"),
+        (pow_(Hex(-2), 2), "(-0x2) ^ 2"),
+        (pow_(Duration(m=5, neg=True), 2), "(-5m) ^ 2"),
         # Only the base of ``^`` is affected
-        (pow(2, -2), "2 ^ -2"),
+        (pow_(2, -2), "2 ^ -2"),
         (Float(-2) * 2, "-2 * 2"),
-        (pow(Float(2), 2), "2 ^ 2"),
+        (pow_(Float(2), 2), "2 ^ 2"),
     ],
 )
 def test_negative_pow_base(expr: Query, expected: str) -> None:
@@ -354,7 +354,7 @@ def test_negative_pow_base(expr: Query, expected: str) -> None:
 
 
 def test_negative_pow_base_pretty() -> None:
-    assert pow(-2, 2).to_string(indent=4) == "(\n    -2\n)\n^\n2"
+    assert pow_(-2, 2).to_string(indent=4) == "(\n    -2\n)\n^\n2"
 
 
 @pytest.mark.parametrize(

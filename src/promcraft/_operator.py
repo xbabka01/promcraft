@@ -351,7 +351,7 @@ def mod(
     return BinaryOprator(BinaryOprator.Operator.MOD, left, right)
 
 
-def pow(
+def pow_(
     left: OPERAND_TYPE,
     right: OPERAND_TYPE,
 ) -> BinaryOprator:
