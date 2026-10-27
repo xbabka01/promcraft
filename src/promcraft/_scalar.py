@@ -29,6 +29,22 @@ class Float(Scalar):
 
     The value is rendered as given: an `int` stays an integer (`Float(5)` →
     `5`) and a `float` keeps its decimal point (`Float(5.0)` → `5.0`).
+
+    Examples:
+        >>> print(Float(5))
+        5
+        >>> print(Float(5.0))
+        5.0
+        >>> print(Float(-2.5))
+        -2.5
+
+        Raw numbers are wrapped automatically where a scalar is expected:
+
+        >>> up = InstantVector("up", [])
+        >>> print(up < Float(1))
+        up{} < 1
+        >>> print(up < 1)
+        up{} < 1
     """
 
     def __init__(self, value: float) -> None:
