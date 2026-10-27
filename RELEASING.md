@@ -16,10 +16,11 @@ built files attached.
 3. Tag the `main` commit and push the tag:
 
    ```bash
+   VERSION="v0.7.0"
    git switch main
    git pull
-   git tag v0.7.0
-   git push origin v0.7.0
+   git tag "${VERSION}"
+   git push origin "${VERSION}"
    ```
 
 4. Watch the run under **Actions → Publish to PyPI**. When it finishes, the new
@@ -61,10 +62,13 @@ publisher on PyPI is updated to match.
   move the tag to the fixed commit and push it again:
 
   ```bash
-  git tag -d v0.7.0
-  git push origin :refs/tags/v0.7.0
-  git tag v0.7.0
-  git push origin v0.7.0
+  VERSION="v0.7.0"
+  git switch main
+  git pull
+  git tag -d "${VERSION}"
+  git push origin ":refs/tags/${VERSION}"
+  git tag "${VERSION}"
+  git push origin "${VERSION}"
   ```
 
 - **`publish` failed.** Check the job log. If the files never reached PyPI, re-run the
@@ -75,4 +79,9 @@ publisher on PyPI is updated to match.
 - **`github-release` failed.** The package is already on PyPI. A common cause is a
   GitHub Release that already exists for the tag. Re-run the job after deleting that
   release, or attach the files to it by hand: download the `dist` artifact from the
-  workflow run and run `gh release upload v0.7.0 dist/*`.
+  workflow run and upload them:
+
+  ```bash
+  VERSION="v0.7.0"
+  gh release upload "${VERSION}" dist/*
+  ```
