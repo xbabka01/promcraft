@@ -40,11 +40,11 @@ class Style:
         paren_space: Render `by (job)` (`True`) or `by(job)` (`False`);
             also applies to `on`, `ignoring`, `group_left` and `group_right`.
 
-    Example:
-        ```python
-        expr.to_string(style=Style.prometheus())
-        # → 'sum by (job) (rate(up{job="api"}[5m]))'
-        ```
+    Examples:
+        >>> up = InstantVector("up", [Label.eq("job", "api")])
+        >>> expr = sum_(rate(up[Duration(m=5)])).by(["job"])
+        >>> print(expr.to_string(style=Style.prometheus()))
+        sum by (job) (rate(up{job="api"}[5m]))
     """
 
     class GroupingPosition(enum.Enum):
@@ -71,6 +71,7 @@ class Style:
 
 
 DEFAULT_STYLE = Style()
+"""`Style()`, the default for every `style` parameter: renders the same as `str(query)`."""
 
 
 class Query(ABC):
@@ -170,6 +171,12 @@ class Query(ABC):
 
         See [`Subquery`][promcraft.Subquery]; slice syntax `expr[range:resolution]`
         is a shorthand for this method.
+
+        Args:
+            range: Window length; raw numbers are seconds (`3600` → `[1h:]`).
+            resolution: Step between evaluations; `None` uses the global evaluation interval.
+            offset: Time shift; raw numbers are seconds.
+            at: Evaluation time: a Unix timestamp, `"start()"` or `"end()"`.
         """
         from promcraft._subquery import Subquery
 

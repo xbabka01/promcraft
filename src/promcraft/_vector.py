@@ -30,12 +30,20 @@ class Label:
     or a [`Variable`][promcraft.Variable]; the latter two are wrapped in a
     double-quoted [`String`][promcraft.String].
 
-    Example:
-        ```python
-        Label.eq("env", "prod")  # → 'env = "prod"'
-        Label.re("job", String("api.*", "'"))  # → "job =~ 'api.*'"
-        Label.eq("env", Variable("env"))  # → 'env = "$env"'
-        ```
+    Args:
+        name: Label name, or a [`Variable`][promcraft.Variable].
+        op: Matching operator; the factory methods ([`eq`][promcraft.Label.eq], ...) set it.
+        value: Value or RE2 regex to match: a [`String`][promcraft.String], or a `str` or
+            [`Variable`][promcraft.Variable] wrapped in a double-quoted
+            [`String`][promcraft.String].
+
+    Examples:
+        >>> print(Label.eq("env", "prod"))
+        env = "prod"
+        >>> print(Label.re("job", String("api.*", "'")))
+        job =~ 'api.*'
+        >>> print(Label.eq("env", Variable("env")))
+        env = "$env"
     """
 
     class Operator(enum.Enum):
@@ -73,22 +81,46 @@ class Label:
 
     @classmethod
     def eq(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
-        """Return a label matcher that requires `name = value` (exact equality)."""
+        """Return a label matcher that requires `name = value` (exact equality).
+
+        Args:
+            name: Label name, or a [`Variable`][promcraft.Variable].
+            value: Value to compare with: a `str`, [`String`][promcraft.String] or
+                [`Variable`][promcraft.Variable].
+        """
         return cls(name, Label.Operator.EQ, value)
 
     @classmethod
     def neq(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
-        """Return a label matcher that requires `name != value` (inequality)."""
+        """Return a label matcher that requires `name != value` (inequality).
+
+        Args:
+            name: Label name, or a [`Variable`][promcraft.Variable].
+            value: Value to compare with: a `str`, [`String`][promcraft.String] or
+                [`Variable`][promcraft.Variable].
+        """
         return cls(name, Label.Operator.NEQ, value)
 
     @classmethod
     def re(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
-        """Return a label matcher that requires `name =~ value` (RE2 regex match)."""
+        """Return a label matcher that requires `name =~ value` (RE2 regex match).
+
+        Args:
+            name: Label name, or a [`Variable`][promcraft.Variable].
+            value: RE2 regex, fully anchored: a `str`, [`String`][promcraft.String] or
+                [`Variable`][promcraft.Variable].
+        """
         return cls(name, cls.Operator.RE, value)
 
     @classmethod
     def nre(cls, name: str | Variable, value: STRING_TYPE) -> "Label":
-        """Return a label matcher that requires `name !~ value` (negated RE2 regex match)."""
+        """Return a label matcher that requires `name !~ value` (negated RE2 regex match).
+
+        Args:
+            name: Label name, or a [`Variable`][promcraft.Variable].
+            value: RE2 regex, fully anchored: a `str`, [`String`][promcraft.String] or
+                [`Variable`][promcraft.Variable].
+        """
         return cls(name, Label.Operator.NRE, value)
 
 
@@ -177,14 +209,12 @@ class InstantVector(TimeModifiers, Query):
         offset: Time shift; raw numbers are seconds (`300` → `offset 5m`).
         at: Evaluation time: a Unix timestamp, `"start()"` or `"end()"`.
 
-    Example:
-        ```python
-        InstantVector("http_requests_total", [Label.eq("job", String("api"))])
-        # → 'http_requests_total{ job = "api" }'
+    Examples:
+        >>> print(InstantVector("http_requests_total", [Label.eq("job", String("api"))]))
+        http_requests_total{ job = "api" }
 
-        InstantVector("up", [], offset=Duration(m=5))
-        # → 'up{} offset 5m'
-        ```
+        >>> print(InstantVector("up", [], offset=Duration(m=5)))
+        up{} offset 5m
     """
 
     def __init__(
@@ -261,14 +291,12 @@ class RangeVector(TimeModifiers, Query):
         offset: Time shift; raw numbers are seconds.
         at: Evaluation time: a Unix timestamp, `"start()"` or `"end()"`.
 
-    Example:
-        ```python
-        RangeVector("http_requests_total", [], range=Duration(m=5))
-        # → 'http_requests_total{}[5m]'
+    Examples:
+        >>> print(RangeVector("http_requests_total", [], range=Duration(m=5)))
+        http_requests_total{}[5m]
 
-        RangeVector("rate_query", [], range=Duration(h=1), resolution=Duration(m=1))
-        # → 'rate_query{}[1h:1m]'
-        ```
+        >>> print(RangeVector("rate_query", [], range=Duration(h=1), resolution=Duration(m=1)))
+        rate_query{}[1h:1m]
     """
 
     def __init__(

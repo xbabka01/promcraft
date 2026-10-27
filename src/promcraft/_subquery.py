@@ -32,14 +32,16 @@ class Subquery(TimeModifiers, Query):
     Raises:
         TypeError: If `query` is already a range vector or subquery.
 
-    Example:
-        ```python
-        rate(http_requests_total[Duration(m=5)]).subquery(Duration(h=1), Duration(m=1))
-        # → 'rate(http_requests_total{}[5m])[1h:1m]'
+    Examples:
+        >>> http_requests_total = InstantVector("http_requests_total", [])
+        >>> up = InstantVector("up", [])
+        >>> down = InstantVector("down", [])
 
-        Subquery(up + down, Duration(h=1), offset=Duration(d=1))
-        # → '(up{} + down{})[1h:] offset 1d'
-        ```
+        >>> print(rate(http_requests_total[Duration(m=5)]).subquery(Duration(h=1), Duration(m=1)))
+        rate(http_requests_total{}[5m])[1h:1m]
+
+        >>> print(Subquery(up + down, Duration(h=1), offset=Duration(d=1)))
+        (up{} + down{})[1h:] offset 1d
     """
 
     def __init__(

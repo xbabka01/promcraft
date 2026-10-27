@@ -6,6 +6,10 @@ from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._variable import Variable
 
 STRING_TYPE = Union["String", "Variable", str]
+"""A string: a [`String`][promcraft.String], a [`Variable`][promcraft.Variable] or a `str`.
+
+A raw `str` is wrapped in a double-quoted [`String`][promcraft.String].
+"""
 
 _CONTROL_ESCAPES = {
     "\a": "\\a",
@@ -53,12 +57,14 @@ class String(Query):
     Raises:
         ValueError: If `quote` is a backtick and `value` contains one.
 
-    Example:
-        ```python
-        String("prod")  # → '"prod"'
-        String("us-east", "'")  # → "'us-east'"
-        String("line\nnew", "`")  # → '`line\nnew`'
-        ```
+    Examples:
+        >>> print(String("prod"))
+        "prod"
+        >>> print(String("us-east", "'"))
+        'us-east'
+        >>> print(String("line\nnew", "`"))
+        `line
+        new`
     """
 
     def __init__(self, value: str, quote: Literal["`", '"', "'"] = '"') -> None:
@@ -70,7 +76,12 @@ class String(Query):
 
     @classmethod
     def from_value(cls, value: STRING_TYPE) -> "String | Variable":
-        """Wrap a raw `str`, passing `String` and `Variable` through unchanged."""
+        """Wrap a raw `str`, passing `String` and `Variable` through unchanged.
+
+        Args:
+            value: Text to wrap in double quotes; a [`String`][promcraft.String] or
+                [`Variable`][promcraft.Variable] is returned unchanged.
+        """
         if isinstance(value, String | Variable):
             return value
         return cls(value)

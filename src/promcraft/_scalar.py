@@ -7,6 +7,12 @@ from promcraft._base import DEFAULT_STYLE, Query, Style
 from promcraft._variable import Variable
 
 SCALAR_TYPE = Union["Scalar", "Variable", float, int]
+"""A scalar: a [`Scalar`][promcraft.Scalar], a [`Variable`][promcraft.Variable] or a number.
+
+A raw `float`/`int` is wrapped by the parameter's `from_value`: in
+[`Float`][promcraft.Float] for values, and in [`Duration`][promcraft.Duration]
+(as seconds) for ranges, resolutions and offsets.
+"""
 
 
 class Scalar(Query, metaclass=ABCMeta):
@@ -19,16 +25,39 @@ class Scalar(Query, metaclass=ABCMeta):
 
         A [`Variable`][promcraft.Variable] is passed through unchanged,
         since its value is only known once Grafana interpolates it.
+
+        Args:
+            value: Number to wrap; a [`Variable`][promcraft.Variable] or existing scalar is
+                returned unchanged.
         """
         msg = "Subclasses must implement from_value method"
         raise NotImplementedError(msg)
 
 
 class Float(Scalar):
-    """A numeric scalar literal (e.g. `3.14`, `-2.5e9`, `5`).
+    """A numeric scalar literal (e.g. `3.14`, `-2.5`, `5`).
 
     The value is rendered as given: an `int` stays an integer (`Float(5)` →
     `5`) and a `float` keeps its decimal point (`Float(5.0)` → `5.0`).
+
+    Args:
+        value: Number to render; an `int` renders without a decimal point, and a `bool` as `1`/`0`.
+
+    Examples:
+        >>> print(Float(5))
+        5
+        >>> print(Float(5.0))
+        5.0
+        >>> print(Float(-2.5))
+        -2.5
+
+        Raw numbers are wrapped automatically where a scalar is expected:
+
+        >>> up = InstantVector("up", [])
+        >>> print(up < Float(1))
+        up{} < 1
+        >>> print(up < 1)
+        up{} < 1
     """
 
     def __init__(self, value: float) -> None:
@@ -37,7 +66,12 @@ class Float(Scalar):
 
     @classmethod
     def from_value(cls, value: SCALAR_TYPE) -> "Scalar | Variable":
-        """Wrap a raw number, passing `Scalar` and `Variable` through unchanged."""
+        """Wrap a raw number, passing `Scalar` and `Variable` through unchanged.
+
+        Args:
+            value: Number to wrap; a [`Variable`][promcraft.Variable] or existing scalar is
+                returned unchanged.
+        """
         if isinstance(value, Scalar | Variable):
             return value
         return cls(value)
@@ -57,11 +91,14 @@ class Float(Scalar):
 class Hex(Scalar):
     """A hexadecimal integer scalar literal (e.g. `0xff`, `0x8f`).
 
-    Example:
-        ```python
-        Hex(255)  # → "0xff"
-        Hex(16)  # → "0x10"
-        ```
+    Args:
+        value: Integer to render in hexadecimal.
+
+    Examples:
+        >>> print(Hex(255))
+        0xff
+        >>> print(Hex(16))
+        0x10
     """
 
     def __init__(self, value: int) -> None:
@@ -72,6 +109,10 @@ class Hex(Scalar):
         """Wrap a raw number, passing `Scalar` and `Variable` through unchanged.
 
         Whole floats are accepted (`3.0` → `0x3`).
+
+        Args:
+            value: Whole number to wrap; a [`Variable`][promcraft.Variable] or existing scalar is
+                returned unchanged.
 
         Raises:
             ValueError: If `value` is a fractional float such as `3.7`.
@@ -132,13 +173,15 @@ class Duration(Scalar):
     prepends a `-` sign for negative offsets.  Fields are keyword-only, see
     [`DurationParams`][promcraft.DurationParams].
 
-    Example:
-        ```python
-        Duration(h=1, m=30)  # → "1h30m"
-        Duration(ms=500)  # → "500ms"
-        Duration(d=1, neg=True)  # → "-1d"
-        Duration()  # → "0s"
-        ```
+    Examples:
+        >>> print(Duration(h=1, m=30))
+        1h30m
+        >>> print(Duration(ms=500))
+        500ms
+        >>> print(Duration(d=1, neg=True))
+        -1d
+        >>> print(Duration())
+        0s
 
     Raises:
         TypeError: If an unknown keyword (e.g. `min=5`) is passed.
@@ -174,6 +217,10 @@ class Duration(Scalar):
 
         The number is split into units and rounded to whole milliseconds, so
         `from_value(300)` renders as `5m` and `from_value(-90)` as `-1m30s`.
+
+        Args:
+            value: Number of seconds; a [`Variable`][promcraft.Variable] or existing scalar is
+                returned unchanged.
         """
         if isinstance(value, Scalar | Variable):
             return value

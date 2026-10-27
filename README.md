@@ -5,10 +5,13 @@
 [![Tests](https://github.com/xbabka01/promcraft/actions/workflows/python.yml/badge.svg)](https://github.com/xbabka01/promcraft/actions/workflows/python.yml)
 [![docs](https://img.shields.io/badge/docs-xbabka01.github.io%2Fpromcraft-blue)](https://xbabka01.github.io/promcraft/)
 
+<!-- --8<-- [start:intro] -->
 A Python library for building [Prometheus QL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries programmatically. Instead of constructing raw query strings, use composable Python objects that serialize to valid PromQL syntax.
+<!-- --8<-- [end:intro] -->
 
 **Documentation:** <https://xbabka01.github.io/promcraft/>
 
+<!-- --8<-- [start:usage] -->
 ## Installation
 
 ```bash
@@ -21,42 +24,47 @@ Requires Python 3.11+.
 
 ## Quick Start
 
-```python
-from promcraft import InstantVector, RangeVector, Label, Duration
+```pycon
+>>> from promcraft import InstantVector, RangeVector, Label, Duration
 
-# Simple metric selector
-query = InstantVector("up", [])
-str(query)  # "up{}"
+>>> # Simple metric selector
+>>> query = InstantVector("up", [])
+>>> print(query)
+up{}
 
-# With label filters
-query = InstantVector(
-    "http_requests_total",
-    [
-        Label.eq("job", "api-server"),
-        Label.eq("env", "production"),
-    ],
-)
-str(query)  # 'http_requests_total{ job = "api-server", env = "production" }'
+>>> # With label filters
+>>> query = InstantVector(
+...     "http_requests_total",
+...     [
+...         Label.eq("job", "api-server"),
+...         Label.eq("env", "production"),
+...     ],
+... )
+>>> print(query)
+http_requests_total{ job = "api-server", env = "production" }
 
-# Range vector with rate()
-from promcraft import rate
+>>> # Range vector with rate()
+>>> from promcraft import rate
 
-query = rate(
-    RangeVector(
-        "http_requests_total",
-        [
-            Label.eq("job", "api-server"),
-        ],
-        Duration(m=5),
-    )
-)
-str(query)  # 'rate(http_requests_total{ job = "api-server" }[5m])'
+>>> query = rate(
+...     RangeVector(
+...         "http_requests_total",
+...         [
+...             Label.eq("job", "api-server"),
+...         ],
+...         Duration(m=5),
+...     )
+... )
+>>> print(query)
+rate(http_requests_total{ job = "api-server" }[5m])
 
-# Binary operation
-left = InstantVector("http_requests_total", [Label.eq("status", "500")])
-right = InstantVector("http_requests_total", [])
-ratio = left / right
-str(ratio)  # 'http_requests_total{ status = "500" } / http_requests_total{}'
+>>> # Binary operation
+>>> left = InstantVector("http_requests_total", [Label.eq("status", "500")])
+>>> right = InstantVector("http_requests_total", [])
+>>> ratio = left / right
+>>> print(ratio)
+http_requests_total{ status = "500" } / http_requests_total{}
+
 ```
 
 ### Raw values instead of wrapper types
@@ -69,9 +77,16 @@ converted with `Float.from_value()`. Range, resolution and `offset` values are c
 `Duration.from_value()` instead, so `offset=300` renders as `offset 5m`. Passing an existing
 `String`/`Scalar` instance through is a no-op, so both styles compose freely:
 
-```python
-Label.eq("job", "api-server")  # same as Label.eq("job", String("api-server"))
-topk(5, v)  # same as topk(Float(5), v)
+```pycon
+>>> from promcraft import InstantVector, Label, topk
+
+>>> v = InstantVector("http_requests_total", [])
+
+>>> print(Label.eq("job", "api-server"))  # same as Label.eq("job", String("api-server"))
+job = "api-server"
+>>> print(topk(5, v))  # same as topk(Float(5), v)
+topk(5, http_requests_total{})
+
 ```
 
 ### Composing and formatting
@@ -79,26 +94,29 @@ topk(5, v)  # same as topk(Float(5), v)
 Every `Query` composes with every other, and `to_string()` can pretty-print or match
 Prometheus' own formatting:
 
-```python
-from promcraft import InstantVector, Duration, Label, Style, rate, sum_
+```pycon
+>>> from promcraft import InstantVector, Duration, Label, Style, rate, sum_
 
-expr = sum_(rate(InstantVector("up", [Label.eq("job", "api")])[Duration(m=5)])).by(["job"])
+>>> expr = sum_(rate(InstantVector("up", [Label.eq("job", "api")])[Duration(m=5)])).by(["job"])
 
-str(expr)
-# 'sum(rate(up{ job = "api" }[5m])) by (job)'
+>>> print(expr)
+sum(rate(up{ job = "api" }[5m])) by (job)
 
-expr.to_string(style=Style.prometheus())
-# 'sum by (job) (rate(up{job="api"}[5m]))'
+>>> print(expr.to_string(style=Style.prometheus()))
+sum by (job) (rate(up{job="api"}[5m]))
 
-print(expr.to_string(indent=4))
-# sum(
-#     rate(
-#         up{
-#             job = "api"
-#         }[5m]
-#     )
-# ) by (job)
+>>> print(expr.to_string(indent=4))
+sum(
+    rate(
+        up{
+            job = "api"
+        }[5m]
+    )
+) by (job)
+
 ```
+
+<!-- --8<-- [end:usage] -->
 
 ## Documentation
 
@@ -110,6 +128,8 @@ The [user guide](https://xbabka01.github.io/promcraft/) covers every building bl
 - [Aggregations](https://xbabka01.github.io/promcraft/guide/aggregations/): `sum_`, `topk`, `count_values`, `by`/`without`, ...
 - [Functions](https://xbabka01.github.io/promcraft/guide/functions/): every PromQL function
 - [Composing and formatting](https://xbabka01.github.io/promcraft/guide/formatting/): pretty printing and `Style`
+- [Recipes](https://xbabka01.github.io/promcraft/guide/recipes/): error ratios, SLO burn rates, latency percentiles, Grafana dashboards, ...
+- [Errors and validation](https://xbabka01.github.io/promcraft/guide/errors/): the mistakes promcraft catches while building a query
 
 The [API reference](https://xbabka01.github.io/promcraft/api/base/) is generated from the docstrings.
 

@@ -36,9 +36,14 @@ docs = [
 
 [tool.pytest.ini_options]
 minversion = "6.0"
+# Doctests cover the examples in the docstrings, the guides and the README
+testpaths = ["tests", "src", "docs", "README.md"]
 addopts = """
 --strict-markers
 --tb=short
+
+--doctest-modules
+--doctest-glob=*.md
 
 --cov=promcraft
 --cov-report=term-missing

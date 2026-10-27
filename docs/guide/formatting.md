@@ -4,36 +4,36 @@
 
 Every `Query` implements `to_string()` (which `__str__` delegates to), so you can compose arbitrarily deep expressions and print them with `str()`:
 
-```python
-from promcraft import (
-    InstantVector,
-    RangeVector,
-    Label,
-    Duration,
-    rate,
-    div,
-)
+```pycon
+>>> from promcraft import (
+...     InstantVector,
+...     RangeVector,
+...     Label,
+...     Duration,
+...     rate,
+...     div,
+... )
 
-job_label = Label.eq("job", "api")
+>>> job_label = Label.eq("job", "api")
 
-# rate of 5xx errors divided by rate of total requests
-error_rate = rate(
-    RangeVector(
-        "http_requests_total",
-        [
-            job_label,
-            Label.re("status", "5.."),
-        ],
-        Duration(m=5),
-    )
-)
+>>> # rate of 5xx errors divided by rate of total requests
+>>> error_rate = rate(
+...     RangeVector(
+...         "http_requests_total",
+...         [
+...             job_label,
+...             Label.re("status", "5.."),
+...         ],
+...         Duration(m=5),
+...     )
+... )
 
-total_rate = rate(RangeVector("http_requests_total", [job_label], Duration(m=5)))
+>>> total_rate = rate(RangeVector("http_requests_total", [job_label], Duration(m=5)))
 
-ratio = div(error_rate, total_rate).on(["job"])
-str(ratio)
-# 'rate(http_requests_total{ job = "api", status =~ "5.." }[5m])
-#   / on (job) rate(http_requests_total{ job = "api" }[5m])'
+>>> ratio = div(error_rate, total_rate).on(["job"])
+>>> print(ratio)
+rate(http_requests_total{ job = "api", status =~ "5.." }[5m]) / on (job) rate(http_requests_total{ job = "api" }[5m])
+
 ```
 
 ## Pretty printing
@@ -42,16 +42,19 @@ Every `to_string()` accepts an optional `indent` argument to render multi-line, 
 output instead of the single-line compact form. Pass an `int` (spaces per level) or a
 whitespace string (e.g. `"\t"`). A `bool` is rejected rather than treated as `1`/`0`:
 
-```python
-from promcraft import InstantVector, Duration, sum_
+```pycon
+>>> from promcraft import InstantVector, Duration, rate, sum_
 
-vec = InstantVector("metric", [])[Duration(m=1)]
-expr = sum_(vec).by(["job", "env"])
+>>> requests = InstantVector("http_requests_total", [])
+>>> expr = sum_(rate(requests[Duration(m=1)])).by(["job", "env"])
 
-print(expr.to_string(indent=4))
-# sum(
-#     metric{}[1m]
-# ) by (job, env)
+>>> print(expr.to_string(indent=4))
+sum(
+    rate(
+        http_requests_total{}[1m]
+    )
+) by (job, env)
+
 ```
 
 Omitting `indent` (or passing `None`) keeps the existing single-line output — `str(query)`
@@ -71,20 +74,21 @@ between equivalent ways of writing the same query. The defaults reproduce `str(q
 
 `Style.prometheus()` combines these to match the output of Prometheus' own query printer:
 
-```python
-from promcraft import InstantVector, Duration, Label, Style, rate, sum_
+```pycon
+>>> from promcraft import InstantVector, Duration, Label, Style, rate, sum_
 
-expr = sum_(rate(InstantVector("up", [Label.eq("job", "api")])[Duration(m=5)])).by(["job"])
+>>> expr = sum_(rate(InstantVector("up", [Label.eq("job", "api")])[Duration(m=5)])).by(["job"])
 
-expr.to_string(style=Style.prometheus())
-# 'sum by (job) (rate(up{job="api"}[5m]))'
+>>> print(expr.to_string(style=Style.prometheus()))
+sum by (job) (rate(up{job="api"}[5m]))
 
-print(expr.to_string(indent=4, style=Style(grouping=Style.GroupingPosition.PREFIX)))
-# sum by (job) (
-#     rate(
-#         up{
-#             job = "api"
-#         }[5m]
-#     )
-# )
+>>> print(expr.to_string(indent=4, style=Style(grouping=Style.GroupingPosition.PREFIX)))
+sum by (job) (
+    rate(
+        up{
+            job = "api"
+        }[5m]
+    )
+)
+
 ```

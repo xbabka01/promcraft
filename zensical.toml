@@ -5,6 +5,8 @@ site_url = "https://xbabka01.github.io/promcraft/"
 repo_url = "https://github.com/xbabka01/promcraft"
 repo_name = "xbabka01/promcraft"
 edit_uri = "edit/main/docs/"
+# Copy buttons on `>>>` examples copy the code without prompts and output
+extra_javascript = ["javascripts/pycon-copy.js"]
 nav = [
   { "Home" = "index.md" },
   { "Guide" = [
@@ -14,6 +16,8 @@ nav = [
     { "Aggregations" = "guide/aggregations.md" },
     { "Functions" = "guide/functions.md" },
     { "Composing and formatting" = "guide/formatting.md" },
+    { "Recipes" = "guide/recipes.md" },
+    { "Errors and validation" = "guide/errors.md" },
   ] },
   { "API reference" = [
     { "Query and Style" = "api/base.md" },
@@ -22,6 +26,7 @@ nav = [
     { "Binary operators" = "api/operators.md" },
     { "Aggregations" = "api/aggregations.md" },
     { "Functions" = "api/functions.md" },
+    { "Type aliases" = "api/types.md" },
   ] },
 ]
 
@@ -54,14 +59,16 @@ toc.permalink = true
 pymdownx.details = {}
 pymdownx.highlight = {}
 pymdownx.superfences = {}
+# docs/index.md includes sections of README.md; a missing file or section fails the build
+pymdownx.snippets = { check_paths = true }
 
 [project.plugins.mkdocstrings.handlers.python]
 paths = ["src"]
 
 [project.plugins.mkdocstrings.handlers.python.options]
 docstring_style = "google"
-# get_indent is a rendering helper inherited by every Query subclass
-filters = ["!^_", "!^get_indent$"]
+# get_indent and Style.labels_clause are public only as rendering helpers
+filters = ["!^_", "!^get_indent$", "!^labels_clause$"]
 inherited_members = true
 merge_init_into_class = true
 members_order = "source"
