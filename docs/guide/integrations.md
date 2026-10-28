@@ -58,7 +58,9 @@ def build_dashboard() -> Dashboard:
             .unit("bps")
             .with_target(
                 PrometheusQuery()
-                .expr(str(received_bits))
+                .expr(
+                    str(received_bits),
+                )
                 .legend_format("{{device}}")
             )
         )

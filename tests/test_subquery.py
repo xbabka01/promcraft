@@ -107,26 +107,25 @@ def test_subquery_pretty_binary_operand() -> None:
     )
 
 
-# Slice shorthand. mypy rejects non-int slice bounds at the call site, hence the
-# ignores; warn_unused_ignores flags them if mypy ever relaxes this check.
+# Slice shorthand. Non-int bounds type-check without ignores since mypy 2.1.
 @pytest.mark.parametrize(
     ("query", "expected"),
     [
-        (_rate[_h:_m], "rate(http_requests_total{}[5m])[1h:1m]"),  # type: ignore[misc]
-        (_rate[_h:], "rate(http_requests_total{}[5m])[1h:]"),  # type: ignore[misc]
+        (_rate[_h:_m], "rate(http_requests_total{}[5m])[1h:1m]"),
+        (_rate[_h:], "rate(http_requests_total{}[5m])[1h:]"),
         (_rate[3600:60], "rate(http_requests_total{}[5m])[1h:1m]"),
         (
-            sum_(_vec).by(["job"])[_h:_m],  # type: ignore[misc]
+            sum_(_vec).by(["job"])[_h:_m],
             "sum(http_requests_total{}) by (job)[1h:1m]",
         ),
         (
-            (_vec + _vec)[_h:],  # type: ignore[misc]
+            (_vec + _vec)[_h:],
             "(http_requests_total{} + http_requests_total{})[1h:]",
         ),
-        (Variable("q")[Variable("__range") :], "$q[$__range:]"),  # type: ignore[misc]
+        (Variable("q")[Variable("__range") :], "$q[$__range:]"),
         ((-_vec)[3600:], "(-http_requests_total{})[1h:]"),
-        (_vec[_h:_m], "http_requests_total{}[1h:1m]"),  # type: ignore[misc]
-        (_vec[_h:], "http_requests_total{}[1h:]"),  # type: ignore[misc]
+        (_vec[_h:_m], "http_requests_total{}[1h:1m]"),
+        (_vec[_h:], "http_requests_total{}[1h:]"),
         (max_over_time(_rate[3600:]), "max_over_time(rate(http_requests_total{}[5m])[1h:])"),
     ],
 )

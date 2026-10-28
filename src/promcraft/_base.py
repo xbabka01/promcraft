@@ -147,7 +147,7 @@ class Query(ABC):
         return id(self)
 
     def __getitem__(self, item: "SUBQUERY_SLICE") -> "Subquery":
-        # Slice shorthand for `subquery()`. mypy rejects non-int slice bounds
+        # Slice shorthand for `subquery()`. mypy < 2.1 rejects non-int slice bounds
         # (e.g. `Duration`) at the call site; see docs/guide/selectors.md.
         if not isinstance(item, slice):
             # Unreachable for type-checked callers; guards plain `expr[5m]` at runtime
