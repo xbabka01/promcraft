@@ -39,13 +39,15 @@ Signature: `InstantVector(metric, labels, *, offset=None, at=None)`
 up{}
 
 >>> # With labels
->>> print(InstantVector(
-...     "http_requests_total",
-...     [
-...         Label.eq("job", "api"),
-...         Label.re("status", "5.."),
-...     ],
-... ))
+>>> print(
+...     InstantVector(
+...         "http_requests_total",
+...         [
+...             Label.eq("job", "api"),
+...             Label.re("status", "5.."),
+...         ],
+...     )
+... )
 http_requests_total{ job = "api", status =~ "5.." }
 
 >>> # With offset
@@ -90,14 +92,16 @@ up{}[5m:30s]
 up{}[5m] offset 1m
 
 >>> # Combined
->>> print(RangeVector(
-...     "http_requests_total",
-...     [Label.eq("job", "api")],
-...     Duration(m=5),
-...     resolution=Duration(s=30),
-...     offset=Duration(m=1),
-...     at="end()",
-... ))
+>>> print(
+...     RangeVector(
+...         "http_requests_total",
+...         [Label.eq("job", "api")],
+...         Duration(m=5),
+...         resolution=Duration(s=30),
+...         offset=Duration(m=1),
+...         at="end()",
+...     )
+... )
 http_requests_total{ job = "api" }[5m:30s] offset 1m @ end()
 
 ```
@@ -157,10 +161,10 @@ On an `InstantVector`, a slice builds a `Subquery`, while plain and tuple indexi
 build a `RangeVector`. Slices take no `offset`/`@`; use `.subquery()` for those.
 
 !!! note "mypy users"
-    mypy rejects non-integer slice bounds (`Slice index must be an integer,
-    SupportsIndex or None`), so slices with `Duration` or `Variable` bounds need
-    `# type: ignore[misc]`. Integer bounds (`[3600:60]`) and pyright work as-is. Prefer
-    `.subquery()` in mypy-checked code.
+    mypy before 2.1 rejects non-integer slice bounds (`Slice index must be an integer,
+    SupportsIndex or None`), so on those versions slices with `Duration` or `Variable`
+    bounds need `# type: ignore[misc]`, or use `.subquery()` instead. mypy 2.1+ and
+    pyright accept them as-is, and integer bounds (`[3600:60]`) work everywhere.
 
 PromQL only allows `offset` and `@` on selectors and subqueries. To shift a function or
 aggregation, wrap it in a subquery or put the modifier on the selector inside it.
