@@ -8,11 +8,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Install dependencies
 poetry install
 
-# Run all checks (tests + mypy type checking + ruff linting)
+# Run tests
 poetry run pytest
 
-# Run only unit tests (skip mypy and ruff)
-poetry run pytest -o addopts=""
+# Run tests with ruff and mypy
+poetry run pytest --ruff --ruff-format --mypy
+
+# Run mypy (run separately from pytest)
+poetry run mypy
+
+# Formatting and linting (run separately from pytest)
+poetry run ruff format --check
+poetry run ruff check
 
 # Run a single test file
 poetry run pytest tests/test_operator.py -o addopts=""
@@ -30,7 +37,9 @@ User documentation lives in `docs/` (built with [Zensical](https://zensical.org/
 
 The `version` in `pyproject.toml` (`0.0.0`) is a placeholder and is never bumped by hand. The release workflow ([.github/workflows/release.yaml](.github/workflows/release.yaml)) sets the real version from the pushed git tag (`poetry version "${GITHUB_REF_NAME#v}"`, so tag `v0.5.0` publishes `0.5.0`). Do not flag the mismatch between `pyproject.toml` and the tags, and do not suggest bumping it.
 
-`pytest` is configured (in `pyproject.toml`) to always run `--mypy`, `--ruff`, `--ruff-format`, and `--cov` alongside unit tests. Mypy and ruff violations are reported as test failures. `-p no:mypy -p no:ruff` does NOT work to skip them here — the plugins would be disabled while `addopts` still passes their `--mypy`/`--ruff`/`--ruff-format` flags, which pytest then rejects as unrecognized. Use `-o addopts=""` to clear the ini `addopts` instead.
+`pytest` is configured (in `pyproject.toml`) to always run `--cov` alongside unit tests. Use `-o addopts=""` to clear the ini `addopts`.
+
+Ruff and mypy are not run by pytest (pytest-ruff and pytest-mypy only saw the files pytest collects). CI runs `poetry run ruff format --check --diff`, `poetry run ruff check` (whole repo) and `poetry run mypy` (the `files` list in `[tool.mypy]`: `src` and `tests`) once, on the Python 3.11 entry of the `test` job matrix in [.github/workflows/python.yml](.github/workflows/python.yml), with the locked versions; mypy's `python_version` and ruff's `target-version` are fixed in the config, so other entries would repeat the same checks.
 
 ## Architecture
 

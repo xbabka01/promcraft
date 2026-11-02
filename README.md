@@ -139,15 +139,15 @@ The [API reference](https://xbabka01.github.io/promcraft/api/base/) is generated
 # Install dependencies
 poetry install
 
-# Run tests (includes type checking and linting)
+# Run tests
 poetry run pytest
 
-# Run only unit tests
-poetry run pytest -o addopts=""
+# Type checking, formatting and linting (not run by pytest)
+poetry run mypy
+poetry run ruff format --check
+poetry run ruff check
 
 # Build and preview the docs
 poetry install --with docs
 poetry run zensical serve
 ```
-
-The test suite uses `pytest` with `pytest-mypy` for static type checking and `pytest-ruff` for linting. All checks run together by default.
