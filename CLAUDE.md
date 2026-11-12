@@ -11,9 +11,6 @@ poetry install
 # Run tests
 poetry run pytest
 
-# Run tests with ruff and mypy
-poetry run pytest --ruff --ruff-format --mypy
-
 # Run mypy (run separately from pytest)
 poetry run mypy
 
@@ -37,9 +34,13 @@ User documentation lives in `docs/` (built with [Zensical](https://zensical.org/
 
 The `version` in `pyproject.toml` (`0.0.0`) is a placeholder and is never bumped by hand. The release workflow ([.github/workflows/release.yaml](.github/workflows/release.yaml)) sets the real version from the pushed git tag (`poetry version "${GITHUB_REF_NAME#v}"`, so tag `v0.5.0` publishes `0.5.0`). Do not flag the mismatch between `pyproject.toml` and the tags, and do not suggest bumping it.
 
+Never edit `poetry.lock` directly. To change dependencies, edit `pyproject.toml` and then run `poetry lock` to regenerate the lock file.
+
 `pytest` is configured (in `pyproject.toml`) to always run `--cov` alongside unit tests. Use `-o addopts=""` to clear the ini `addopts`.
 
-Ruff and mypy are not run by pytest (pytest-ruff and pytest-mypy only saw the files pytest collects). CI runs `poetry run ruff format --check --diff`, `poetry run ruff check` (whole repo) and `poetry run mypy` (the `files` list in `[tool.mypy]`: `src` and `tests`) once, on the Python 3.11 entry of the `test` job matrix in [.github/workflows/python.yml](.github/workflows/python.yml), with the locked versions; mypy's `python_version` and ruff's `target-version` are fixed in the config, so other entries would repeat the same checks.
+Ruff and mypy are not run by pytest (the pytest-ruff/pytest-mypy plugins were dropped: they only saw the files pytest collects). CI runs `poetry run ruff format --check --diff`, `poetry run ruff check` (whole repo) and `poetry run mypy` (the `files` list in `[tool.mypy]`: `src` and `tests`) once, on the Python 3.11 entry of the `test` job matrix in [.github/workflows/python.yml](.github/workflows/python.yml), with the locked versions; mypy's `python_version` and ruff's `target-version` are fixed in the config, so other entries would repeat the same checks.
+
+PR titles must follow Conventional Commits (`<type>[(scope)][!]: <description>`, types `build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test`), enforced by [.github/workflows/pr-title.yml](.github/workflows/pr-title.yml). Use the same format for commit messages.
 
 ## Architecture
 
@@ -60,6 +61,8 @@ This is a Python library for building PromQL query strings programmatically. All
 - [src/promcraft/__init__.py](src/promcraft/__init__.py) — public API; all user-facing classes are re-exported here.
 
 All implementation modules are `_`-prefixed: users import only from `promcraft`, so every user-facing name must be re-exported in `__init__.py` and listed in `__all__` (enforced by `tests/test_package.py`). Do not add compatibility shims at the old unprefixed paths: `promcraft.scalar`/`promcraft.vector` are also PromQL function names, and a shim submodule would rebind them on first import.
+
+`__init__.py` lists every module it imports from in `__lazy_modules__` (PEP 810 lazy imports on Python 3.15+, ignored on older versions); `tests/test_package.py` checks that the list matches the imports, so a new module needs adding there too.
 
 ### Key Patterns
 
